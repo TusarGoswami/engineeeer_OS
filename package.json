@@ -1,0 +1,34 @@
+{
+  "name": "engineeros",
+  "version": "1.0.0",
+  "description": "EngineerOS — The Complete Operating System for an Engineering Student",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:api --workspace=server\" \"npm run dev:worker --workspace=server\" \"npm run dev --workspace=client\"",
+    "dev:api": "npm run dev:api --workspace=server",
+    "dev:worker": "npm run dev:worker --workspace=server",
+    "dev:client": "npm run dev --workspace=client",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "test:server": "npm run test --workspace=server",
+    "test:client": "npm run test --workspace=client",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:fix": "npm run lint:fix --workspaces --if-present",
+    "format": "prettier --write \"**/*.{js,jsx,mjs,json,md,css}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,mjs,json,md,css}\"",
+    "seed": "npm run seed --workspace=server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "prettier": "^3.5.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}
