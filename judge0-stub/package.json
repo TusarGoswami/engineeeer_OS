@@ -1,0 +1,13 @@
+{
+  "name": "judge0-stub",
+  "version": "1.0.0",
+  "description": "Mock Judge0 server for offline development and local docker-compose",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
