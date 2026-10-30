@@ -142,7 +142,9 @@ export class AnthropicLLMAdapter extends ILLMAdapter {
       }
 
       const result = { fullText, usage: { promptTokens: 0, completionTokens: 0 } };
-      if (onComplete) onComplete(result);
+      if (onComplete) {
+        await onComplete(result);
+      }
       return result;
     } catch (err) {
       logger.warn({ err: err.message }, '[AnthropicAdapter] Stream failed, using fallback stream');

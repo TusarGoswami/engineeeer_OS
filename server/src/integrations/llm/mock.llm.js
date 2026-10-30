@@ -93,7 +93,9 @@ export class MockLLMAdapter extends ILLMAdapter {
         },
       };
 
-      if (onComplete) onComplete(result);
+      if (onComplete) {
+        await onComplete(result);
+      }
       return result;
     } catch (err) {
       if (onError) onError(err);

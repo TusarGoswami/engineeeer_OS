@@ -124,10 +124,7 @@ export class AssistantService {
         res.write(`event: token\ndata: ${JSON.stringify({ token })}\n\n`);
       },
       onComplete: async () => {
-        res.write(`event: done\ndata: ${JSON.stringify({ status: 'completed' })}\n\n`);
-        res.end();
-
-        // 6. Persist conversation history
+        // 6. Persist conversation history before ending response
         conversation.messages.push({
           role: 'user',
           content: query,
@@ -141,6 +138,9 @@ export class AssistantService {
         });
         conversation.lastActiveAt = new Date();
         await conversation.save();
+
+        res.write(`event: done\ndata: ${JSON.stringify({ status: 'completed' })}\n\n`);
+        res.end();
 
         // 7. Emit progress event
         try {
