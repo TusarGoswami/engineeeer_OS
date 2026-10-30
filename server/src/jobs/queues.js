@@ -12,7 +12,7 @@ export const QUEUE_NAMES = {
 const queues = new Map();
 
 // Parse Redis connection details for BullMQ
-const getRedisConnectionOptions = () => {
+export const getRedisConnectionOptions = () => {
   try {
     const url = new URL(env.REDIS_URL);
     return {
@@ -35,12 +35,12 @@ export const getQueue = queueName => {
     return queues.get(queueName);
   }
 
-  // In test mode without external Redis, provide an in-memory queue mock
-  if (env.NODE_ENV === 'test' && !process.env.USE_REAL_REDIS) {
+  // In test mode or when REDIS_URL is mock, provide an in-memory queue mock
+  if (env.REDIS_URL === 'mock' || (env.NODE_ENV === 'test' && !process.env.USE_REAL_REDIS)) {
     const mockQueue = {
       name: queueName,
       async add(jobName, data, _opts) {
-        logger.debug({ queueName, jobName }, '[MockQueue] Enqueued job in test mode');
+        logger.debug({ queueName, jobName }, '[MockQueue] Enqueued job in mock mode');
         return { id: `mock-job-${Date.now()}`, name: jobName, data };
       },
       async close() {},

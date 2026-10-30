@@ -1,6 +1,6 @@
 import rateLimit from 'express-rate-limit';
 import { RedisStore } from 'rate-limit-redis';
-import { getRedisClient } from '../config/redis.js';
+import { getRedisClient, isRedisMock } from '../config/redis.js';
 import { env } from '../config/env.js';
 
 const createRateLimiter = (options = {}) => {
@@ -13,14 +13,22 @@ const createRateLimiter = (options = {}) => {
 
   let store = undefined;
 
-  // Use Redis store in production/development if real Redis is active
-  if (env.NODE_ENV !== 'test') {
+  // Use Redis store in production if real Redis is active; otherwise use in-memory MemoryStore
+  if (env.NODE_ENV === 'production' && !isRedisMock()) {
     try {
       const client = getRedisClient();
-      store = new RedisStore({
-        sendCommand: (...args) => client.call(...args),
-        prefix,
-      });
+      if (!isRedisMock()) {
+        store = new RedisStore({
+          sendCommand: async (...args) => {
+            try {
+              return await client.call(...args);
+            } catch {
+              return null;
+            }
+          },
+          prefix,
+        });
+      }
     } catch {
       // Memory store fallback
     }

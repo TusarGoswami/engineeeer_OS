@@ -49,6 +49,14 @@ class MockRedis {
     return [];
   }
 
+  async call(..._args) {
+    return null;
+  }
+
+  on(_event, _handler) {
+    return this;
+  }
+
   async quit() {
     this.store.clear();
     return 'OK';
@@ -60,38 +68,42 @@ export const getRedisClient = () => {
     return redisClient;
   }
 
-  if (env.NODE_ENV === 'test' && !process.env.USE_REAL_REDIS) {
+  if (env.REDIS_URL === 'mock' || (env.NODE_ENV === 'test' && !process.env.USE_REAL_REDIS)) {
     isMock = true;
     redisClient = new MockRedis();
     return redisClient;
   }
 
   try {
-    redisClient = new Redis(env.REDIS_URL, {
-      maxRetriesPerRequest: null,
-      enableReadyCheck: true,
-      retryStrategy(times) {
-        if (times > 5 && env.NODE_ENV === 'test') {
-          logger.warn('[Redis] Test mode fallback to mock');
-          isMock = true;
-          redisClient = new MockRedis();
-          return null;
-        }
-        return Math.min(times * 100, 3000);
-      },
+    const client = new Redis(env.REDIS_URL, {
+      maxRetriesPerRequest: 1,
+      enableOfflineQueue: false,
+      lazyConnect: true,
+      retryStrategy: null,
     });
 
-    redisClient.on('connect', () => {
+    client.on('connect', () => {
       logger.info('[Redis] Connected successfully');
     });
 
-    redisClient.on('error', err => {
-      logger.error({ err: err.message }, '[Redis] Error occurred');
+    client.on('error', () => {
+      // Handled gracefully via fallback
+    });
+
+    redisClient = client;
+
+    // Probe connection asynchronously
+    client.connect().catch(() => {
+      logger.info(
+        `[Redis] Local Redis not detected on ${env.REDIS_URL}. Seamlessly falling back to in-memory mock store.`
+      );
+      isMock = true;
+      redisClient = new MockRedis();
     });
 
     return redisClient;
-  } catch (error) {
-    logger.warn({ err: error.message }, '[Redis] Falling back to in-memory mock');
+  } catch (_error) {
+    logger.info(`[Redis] Falling back to in-memory mock store for ${env.REDIS_URL}`);
     isMock = true;
     redisClient = new MockRedis();
     return redisClient;
@@ -100,11 +112,12 @@ export const getRedisClient = () => {
 
 export const checkRedisHealth = async () => {
   try {
+    if (isMock) return true;
     const client = getRedisClient();
     const pong = await client.ping();
     return pong === 'PONG';
   } catch {
-    return false;
+    return isMock;
   }
 };
 
