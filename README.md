@@ -139,7 +139,8 @@ engineeros/
 
 ## 6. Author & Maintainer
 
-Designed and engineered by **Tusar Goswami**  
-- GitHub: [@TusarGoswami](https://github.com/TusarGoswami)  
-- Email: [tusarg937@gmail.com](mailto:tusarg937@gmail.com)  
+Designed and engineered by **Tusar Goswami**
+
+- GitHub: [@TusarGoswami](https://github.com/TusarGoswami)
+- Email: [tusarg937@gmail.com](mailto:tusarg937@gmail.com)
 - Project Repository: [https://github.com/TusarGoswami/engineeeer_OS](https://github.com/TusarGoswami/engineeeer_OS)
