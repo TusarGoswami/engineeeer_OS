@@ -10,7 +10,16 @@ const activityEventSchema = new mongoose.Schema(
     },
     module: {
       type: String,
-      enum: ['academics', 'coding', 'gate', 'assessments', 'interviews', 'community'],
+      enum: [
+        'academics',
+        'coding',
+        'gate',
+        'assessments',
+        'interviews',
+        'community',
+        'ai',
+        'ai-assistant',
+      ],
       required: true,
       index: true,
     },
