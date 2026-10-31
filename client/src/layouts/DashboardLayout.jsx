@@ -17,9 +17,11 @@ import {
   ChevronRight,
   Bell,
   Check,
+  Search,
 } from 'lucide-react';
 import { useAuth } from '../features/auth/AuthContext.jsx';
 import { Badge } from '../components/Badge.jsx';
+import { CommandPalette } from '../components/CommandPalette.jsx';
 import { notificationService } from '../services/notification.service.js';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -30,9 +32,22 @@ export const DashboardLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+
+  // Global Ctrl+K / Cmd+K Command Palette listener
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -248,6 +263,19 @@ export const DashboardLayout = () => {
             </span>
           </div>
 
+          {/* Center Search / Command Palette Trigger */}
+          <button
+            type="button"
+            onClick={() => setIsCommandPaletteOpen(true)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-900 border border-surface-800 text-surface-400 hover:text-surface-200 text-xs transition-colors"
+          >
+            <Search className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">Search platform or press</span>
+            <kbd className="font-mono text-[10px] bg-surface-800 text-surface-300 px-1.5 py-0.5 rounded border border-surface-700">
+              Ctrl K
+            </kbd>
+          </button>
+
           <div className="flex items-center gap-3">
             {/* Notification Center */}
             <div className="relative">
@@ -342,9 +370,45 @@ export const DashboardLayout = () => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-6 sm:p-8 max-w-7xl mx-auto w-full">
+        <main className="flex-1 p-6 sm:p-8 pb-24 lg:pb-8 max-w-7xl mx-auto w-full">
           <Outlet />
         </main>
+
+        {/* Mobile Bottom Navigation Bar */}
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-surface-950/95 backdrop-blur-xl border-t border-surface-800/80 px-2 py-1.5 flex items-center justify-around">
+          {[
+            { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+            { name: 'Coding', path: '/coding', icon: Code2 },
+            { name: 'GATE', path: '/gate', icon: BookOpen },
+            { name: 'Academics', path: '/academics', icon: GraduationCap },
+            { name: 'Profile', path: '/profile', icon: User },
+          ].map(tab => {
+            const TabIcon = tab.icon;
+            return (
+              <NavLink
+                key={tab.path}
+                to={tab.path}
+                className={({ isActive }) =>
+                  cn(
+                    'flex flex-col items-center justify-center p-1.5 rounded-xl text-[10px] font-medium transition-colors',
+                    isActive
+                      ? 'text-brand-400 font-semibold'
+                      : 'text-surface-400 hover:text-surface-200'
+                  )
+                }
+              >
+                <TabIcon className="w-4 h-4 mb-0.5" />
+                <span>{tab.name}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
+
+        {/* Global Command Palette */}
+        <CommandPalette
+          isOpen={isCommandPaletteOpen}
+          onClose={() => setIsCommandPaletteOpen(false)}
+        />
       </div>
     </div>
   );
