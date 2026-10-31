@@ -145,3 +145,31 @@ This document details the compound indexes, unique constraints, and TTL policies
 | ------------------------------------ | -------- | -------------------------------------- |
 | `{ targetDomain: 1, createdAt: -1 }` | Compound | Administrative audit trail filtering.  |
 | `{ actorId: 1, createdAt: -1 }`      | Compound | Actions performed by a specific admin. |
+
+### 2.19 `dailyActivities`
+
+| Index Fields             | Type            | Purpose / Query Served                                                    |
+| ------------------------ | --------------- | ------------------------------------------------------------------------- |
+| `{ userId: 1, date: -1 }` | Unique Compound | 365-day range scan for activity heatmaps and consecutive streak counting. |
+
+### 2.20 `profileSnapshots`
+
+| Index Fields                                                 | Type     | Purpose / Query Served                                             |
+| ------------------------------------------------------------ | -------- | ------------------------------------------------------------------ |
+| `{ userId: 1 }`                                              | Unique   | O(1) instant read of complete pre-aggregated student profile card. |
+| `{ username: 1 }`                                            | Compound | Public profile lookup via slug `/u/:username`.                     |
+| `{ "identity.university": 1, "stats.coding.solvedCount": -1 }` | Compound | Campus coding leaderboards and verified student discovery.         |
+
+### 2.21 `userBadges`
+
+| Index Fields                      | Type            | Purpose / Query Served                                                     |
+| --------------------------------- | --------------- | -------------------------------------------------------------------------- |
+| `{ userId: 1, badgeId: 1 }`       | Unique Compound | Idempotent badge awarding engine; prevents duplicate badge unlocks.        |
+| `{ userId: 1, earnedAt: -1 }`     | Compound        | Display of student's earned achievements sorted by recent award timestamp. |
+
+### 2.22 `dashboardTasks`
+
+| Index Fields                           | Type            | Purpose / Query Served                                            |
+| -------------------------------------- | --------------- | ----------------------------------------------------------------- |
+| `{ userId: 1, taskId: 1, date: 1 }`    | Unique Compound | Idempotent task tracking for "What should I do today?" daily list. |
+| `{ userId: 1, date: 1, status: 1 }`    | Compound        | Fetching pending and completed tasks for the current calendar day. |
