@@ -1,6 +1,8 @@
 import { ProgressSummary } from '../../modules/progress/progressSummary.model.js';
 import { AcademicProgress } from '../../modules/academics/academicProgress.model.js';
 import { Subject } from '../../modules/academics/subject.model.js';
+import { User } from '../../modules/users/user.model.js';
+import { ProfileSnapshotService } from '../../modules/profile/profileSnapshot.service.js';
 import { getRedisClient } from '../../config/redis.js';
 import { logger } from '../../config/logger.js';
 
@@ -12,13 +14,17 @@ export class ProgressWorkerService {
     const { userId, module, action, payload } = job.data;
 
     try {
-      // 1. Ensure a ProgressSummary document exists
+      // 1. Fetch user to retrieve timezone
+      const user = await User.findById(userId).lean();
+      const timezone = user?.timezone || 'UTC';
+
+      // 2. Ensure a ProgressSummary document exists
       let summary = await ProgressSummary.findOne({ userId });
       if (!summary) {
         summary = new ProgressSummary({ userId });
       }
 
-      // 2. Module-specific aggregations
+      // 3. Module-specific aggregations
       if (module === 'academics') {
         await this.aggregateAcademics(summary, userId);
       } else if (module === 'coding') {
@@ -31,7 +37,7 @@ export class ProgressWorkerService {
         this.aggregateInterviews(summary, action, payload);
       }
 
-      // 3. Update recent activity feed (keep last 5)
+      // 4. Update recent activity feed (keep last 5)
       const activityTitle =
         payload?.title || `${module.toUpperCase()}: ${action.replace(/_/g, ' ')}`;
       summary.recentActivities.unshift({
@@ -44,16 +50,20 @@ export class ProgressWorkerService {
         summary.recentActivities = summary.recentActivities.slice(0, 5);
       }
 
-      // 4. Update overall streak tracking
-      const today = new Date().toISOString().slice(0, 10);
-      if (summary.lastActiveDate !== today) {
-        summary.overallStreak = (summary.overallStreak || 0) + 1;
-        summary.lastActiveDate = today;
-      }
+      // 5. Update daily activity rollups (timezone-aware)
+      await ProfileSnapshotService.recordDailyActivity(userId, module, timezone);
+
+      // 6. Calculate timezone-aware streaks
+      const streakInfo = await ProfileSnapshotService.calculateStreaks(userId, timezone);
+      summary.overallStreak = streakInfo.currentStreak;
+      summary.lastActiveDate = streakInfo.lastActiveDate;
 
       await summary.save();
 
-      // 5. Invalidate Redis dashboard summary cache for this user
+      // 7. Update pre-aggregated ProfileSnapshot document
+      await ProfileSnapshotService.rebuildSnapshot(userId);
+
+      // 8. Invalidate Redis dashboard summary cache for this user
       try {
         const redis = getRedisClient();
         await redis.del(`cache:dashboard:summary:${userId}`);
@@ -73,7 +83,7 @@ export class ProgressWorkerService {
    */
   static async aggregateAcademics(summary, userId) {
     const progressRecords = await AcademicProgress.find({ userId }).lean();
-    const subjectIds = progressRecords.map(p => p.subjectId);
+    const subjectIds = progressRecords.map((p) => p.subjectId);
     const subjects = await Subject.find({ _id: { $in: subjectIds } }).lean();
 
     let totalTopics = 0;
