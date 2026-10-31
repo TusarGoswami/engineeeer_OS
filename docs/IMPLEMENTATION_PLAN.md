@@ -212,7 +212,55 @@ gantt
 
 ---
 
-## Phase 6: Admin Governance, Quality Assurance & Deployment
+## Phase 7: Polish Every Module + Profile Card + Dashboard Redesign
+
+### Scope & Deliverables
+
+- **Step 1 — Codebase Audit & Gap Analysis**:
+  - `docs/AUDIT_PHASE7.md`: Per-module audit of what exists, UX gaps, backend bottlenecks, missing indexes, and prioritized fix list.
+- **Step 2 — Design System & Shared Component Library**:
+  - `docs/DESIGN_SYSTEM.md`: 5-color semantic palette (Cobalt, Compiler Green, Signal Amber, Fault Rose, Alumni Violet, Logic Cyan), typography scale (Inter + JetBrains Mono), elevation & motion tokens.
+  - Built 17 developer-grade shared components: `Avatar`, `Badge`, `Button`, `IconButton`, `Card`, `StatCard`, `ProgressRing`, `Heatmap`, `Tabs`, `Table`, `Modal`, `Drawer`, `Toast` (with provider), `Skeleton`, `Tooltip`, `CommandPalette`.
+- **Step 3 — Backend Profile Foundations & Telemetry**:
+  - User model extensions: unique `username`, `headline`, `avatarKey`, `avatarVersion`, `timezone`, and `profileSettings`.
+  - Sharp image processing pipeline (EXIF strip, 512x512 + 128x128 WebP) with magic bytes validation.
+  - Multi-tier storage adapter (`IStorageAdapter`, `LocalStorageAdapter`).
+  - `DailyActivity` model and timezone-aware daily activity logging.
+  - Deterministic Badge Engine (`userBadges`, `badge.catalogue.js`) with 12 platform milestones.
+  - O(1) Pre-Aggregated `ProfileSnapshot` service with Redis cache invalidation.
+- **Step 4 — Profile Module APIs & Privacy Engine**:
+  - `GET /api/v1/profile/me` & `PATCH /api/v1/profile/me`.
+  - `POST /api/v1/profile/me/regenerate-share-token`.
+  - `GET /api/v1/profile/me/badges` & `GET /api/v1/profile/me/heatmap`.
+  - `GET /api/v1/profile/:username`: Public profile endpoint with server-side field deletion and unlisted secret token gating.
+- **Step 5 — Profile Card UI & Export Engine**:
+  - Multi-theme `ProfileCard.jsx`: 5 distinct aesthetic archetypes (`terminal`, `minimalist`, `silicon`, `varsity`, `blueprint`).
+  - `AvatarCropperModal.jsx`: Canvas-based circular crop and zoom before upload.
+  - `CardCustomizerDrawer.jsx`: Live theme selector, visibility toggles, section checkboxes, token rotator.
+  - `CardExportModal.jsx`: 2x high-DPI PNG export, clipboard image copying, native share sheet, social URL intents (LinkedIn, Twitter/X, WhatsApp).
+  - `PublicProfilePage.jsx`: Public view at `/u/:username` with `noindex` for unlisted cards.
+- **Step 6 — Dashboard Redesign**:
+  - Hero Profile Card showcase with live action triggers.
+  - "What Should I Do Today?" 3–5 daily actionable tasks engine (`GET /api/v1/dashboard/today` & `PATCH /api/v1/dashboard/tasks/:id`).
+  - 52-week activity heatmap with real-time consistency streak stream.
+  - 6 dedicated workspace telemetry tiles (Coding, GATE, Academics, AI, Interviews, Community).
+- **Step 7 — Comprehensive Module Polish**:
+  - Monaco code editor integration in `ProblemSolvePage.jsx` with real-time `localStorage` autosave.
+  - Coding catalogue filters (Difficulty tabs, topic tags, search).
+  - GATE Virtual Scientific Calculator modal and official question palette matrix.
+  - AI Assistant categorized prompt chips and streaming message bubbles.
+  - Global `Ctrl+K` Command Palette and mobile bottom navigation bar in `DashboardLayout.jsx`.
+
+### Verification Gate (Status: VERIFIED & COMPLETE)
+
+- **Client Tests**: 4 test suites, **24/24 tests passing**.
+- **Server Tests**: 13 test suites, **66/66 tests passing**.
+- **Lint**: 0 errors, 0 warnings across both workspaces.
+- **Build**: Vite production build succeeded cleanly.
+
+---
+
+## Phase 6: Admin Governance, Quality Assurance & Deployment (Deferred)
 
 ### Scope & Deliverables
 

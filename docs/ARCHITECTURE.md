@@ -401,3 +401,11 @@ graph TD
 | **ADR-005** | Pre-aggregated Progress Summaries                                | Accepted | Eliminates expensive on-the-fly table scans of millions of `activityEvents` when rendering user dashboards.      |
 | **ADR-006** | Server-Sent Events (SSE) over WebSockets for AI & Code Execution | Accepted | Unidirectional streaming over HTTP/2 eliminates WebSocket connection state overhead on horizontal API nodes.     |
 | **ADR-007** | Strict Provider Adapters with Local Mocks                        | Accepted | Enables 100% test coverage and out-of-the-box local development with zero third-party API keys required.         |
+| **ADR-012** | Sharp-Powered Avatar Pipeline with Magic-Byte Validation         | Accepted | Strips EXIF metadata, generates high-efficiency WebP variants (512x512 & 128x128), and verifies image magic bytes. |
+| **ADR-013** | Multi-Tier Storage Abstraction (`IStorageAdapter`)                | Accepted | Safe local disk storage in development with path-traversal prevention, seamlessly swappable with S3/GCS.          |
+| **ADR-014** | Pre-Aggregated Profile Snapshots, Daily Telemetry & Badges       | Accepted | Sub-5ms O(1) profile reads via `profileSnapshots`, timezone-aware `dailyActivities`, and idempotent badge engine. |
+| **ADR-015** | Server-Side Privacy Filtering for Shareable Profiles             | Accepted | Deletes disabled sections server-side before serialization, protecting unshared metrics from DevTools leakage.   |
+| **ADR-016** | Unlisted Secret Share Tokens & Instant Invalidation              | Accepted | Enables private recruiter sharing via secret `?token=` query param with one-click token rotation.                |
+| **ADR-017** | Multi-Theme Profile Card & High-DPI Canvas Rasterization         | Accepted | 5 distinctive themes rendered via Tailwind; 2x PNG and clipboard image generation via `html-to-image`.            |
+| **ADR-018** | Actionable Daily Task Engine & Dashboard Redesign                | Accepted | Transforms dashboard into daily practice launcher with completable/snoozable tasks feeding real-time streaks.    |
+| **ADR-019** | Global Module Polish: Monaco Sandbox, Calculator & Command Pal   | Accepted | Upgrades coding editor to Monaco with autosave, adds official GATE calculator, and global `Ctrl+K` palette.       |
