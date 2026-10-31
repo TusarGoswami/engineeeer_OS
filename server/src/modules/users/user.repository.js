@@ -17,6 +17,14 @@ export class UserRepository {
     return User.findOne({ email: email.toLowerCase() }).select('+passwordHash');
   }
 
+  static async findByUsername(username) {
+    return User.findOne({ username: username.toLowerCase() }).lean();
+  }
+
+  static async findByShareToken(shareToken) {
+    return User.findOne({ 'profileSettings.shareToken': shareToken }).lean();
+  }
+
   static async create(userData) {
     return User.create(userData);
   }
@@ -48,7 +56,8 @@ export class UserRepository {
 
   static async resetFailedAttempts(id) {
     return User.findByIdAndUpdate(id, {
-      $set: { failedLoginAttempts: 0, lockoutUntil: null },
+      failedLoginAttempts: 0,
+      lockoutUntil: null,
     });
   }
 }
