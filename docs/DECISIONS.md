@@ -232,3 +232,208 @@ Segregate community replies into an independent `communityReplies` collection:
 
 - **Positive**: Post documents remain constant size; zero risk of hitting 16MB limit. Fast pagination and threaded indexing.
 - **Negative**: Requires two index-backed queries or `$lookup` to fetch a thread with its replies.
+
+
+---
+
+## ADR-012: Phase 7 Design Tokens, "Spend Boldness in One Place", and Anti-Generic UI
+
+### Context
+
+Generic SaaS templates suffer from "card soup": walls of identical rounded grey cards, gratuitous pastel/neon gradient washes, uppercase tracked labels above every heading, and superficial arrows on every button. EngineerOS needs to feel like a high-velocity, disciplined, developer-grade engineering operating system (akin to Linear, GitHub, and VS Code) that commands respect from engineering students.
+
+### Decision
+
+1. **Spend Boldness in One Place**: The **EngineerOS Profile Card** is the memorable, expressive centerpiece that students customize (5 distinct themes: Terminal, Minimalist, Silicon Neon, Varsity, Technical Blueprint), share, and export. The surrounding OS interface stays calm, dark-mode first, and disciplined.
+2. **Compact 5-Color Token Set**:
+   - Primary: Blueprint Cobalt (`#2563EB`)
+   - Compiler Green (`#10B981`) for solved DSA, passing tests, active streaks.
+   - Signal Amber (`#F59E0B`) for medium problems, pending reviews, revision cues.
+   - Fault Rose (`#EF4444`) for runtime errors, hard difficulties, proctoring warnings.
+   - Alumni Violet (`#8B5CF6`) for senior mentorship, verified alumni, and AI tutors.
+3. **Typography Dual Role**:
+   - `font-sans` (Inter) for human language and interface instructions.
+   - `font-mono` (JetBrains Mono) for code, metrics, execution times, memory limits, and streaks.
+
+### Consequences
+
+- **Positive**: Cohesive visual identity without visual fatigue. Maximum legibility for code and data.
+- **Positive**: Strict CSS variables and Tailwind token layer prevent one-off styling bugs.
+
+---
+
+## ADR-013: Shared Component Library Hierarchy and Motion Contract
+
+### Context
+
+Prior to Phase 7, certain components had scattered one-off inline styles and inconsistent loading skeletons. Furthermore, motion without a reduction contract violates accessibility standards for students with vestibular sensitivities.
+
+### Decision
+
+1. Establish a standardized 17-component library in `client/src/components/` (`Button`, `IconButton`, `Card`, `StatCard`, `ProgressRing`, `Heatmap`, `Badge`, `Avatar`, `Tabs`, `Table`, `Modal`, `Drawer`, `Toast`, `Skeleton`, `EmptyState`, `ErrorState`, `Tooltip`, `CommandPalette`).
+2. Enforce strict `prefers-reduced-motion` compliance across all CSS keyframes and animations, instantly collapsing transitions to 0.01ms for users who requested reduced motion.
+3. Replace generic pulse boxes with layout-matching specialized skeletons (`CardSkeleton`, `StatSkeleton`, `TableSkeleton`, `AvatarSkeleton`) to eliminate cumulative layout shift (CLS).
+
+### Consequences
+
+- **Positive**: Zero CLS during TanStack Query caching transitions. WCAG AA compliance.
+- **Positive**: Consistent developer ergonomics through barrel export `client/src/components/index.js`.
+
+
+---
+
+## ADR-014: Secure Avatar Ingestion Pipeline (Magic Bytes, Sharp Metadata Stripping & Storage Adapter)
+
+### Context
+
+User-uploaded images introduce severe security vulnerabilities if handled carelessly: MIME-type spoofing (disguising malicious executable or script payloads as image files), privacy leaks through embedded EXIF/GPS geotags, and storage exhaustion via oversized files.
+
+### Decision
+
+1. **Magic-Byte Sniffing**: Inspect buffer headers directly using `validateImageMagicBytes()` to verify authentic JPEG (`0xFF, 0xD8, 0xFF`), PNG (`0x89, 0x50, 0x4E, 0x47`), or WebP (`RIFF....WEBP`) byte signatures. Do not trust user-provided `Content-Type` headers or file extensions.
+2. **Metadata Stripping & WebP Standardization**: Process all uploads with `sharp`:
+   - Auto-orient and strip all EXIF/GPS metadata (`sharp.rotate()`).
+   - Generate high-density 512x512 WebP primary avatar (quality 85).
+   - Generate compact 128x128 WebP thumbnail (quality 80).
+3. **Pluggable Storage Adapter**: Decouple avatar storage behind `IStorageAdapter`, shipping with `LocalStorageAdapter` for zero-API-key local dev and test environments, and S3-compatible cloud storage for production.
+4. **Cache Invalidation & Privacy**:
+   - Serve avatar assets with `Cache-Control: public, max-age=31536000, immutable` keyed by version query parameters.
+   - Deleting or updating an avatar immediately unlinks and purges previous storage keys.
+
+### Consequences
+
+- **Positive**: 100% immune to MIME-spoofing and EXIF privacy leaks; consistent WebP compression minimizes network transfer sizes.
+- **Positive**: Completely operational offline without S3 API credentials.
+
+---
+
+## ADR-015: Pre-Aggregated Profile Snapshots, Daily Activity Rollups, and Deterministic Badge Engine
+
+### Context
+
+The shareable Profile Card and redesigned Dashboard require fast, comprehensive student summaries: 365-day activity heatmaps, easy/medium/hard solved splits, GATE mock metrics, interview readiness scores, earned badges, and active day streaks. Calculating these metrics on-the-fly via real-time MongoDB aggregations across millions of raw events introduces unacceptable p95 latency spikes and database CPU exhaustion.
+
+### Decision
+
+1. **Daily Activity Rollup Model (`dailyActivity`)**:
+   - Compact document per user per day: `{ userId, date: 'YYYY-MM-DD', counts: { coding, gate, academic, interview, community, total } }`.
+   - Indexed uniquely on `{ userId: 1, date: -1 }`.
+   - Incremented atomically on activity events in the student's local timezone.
+2. **O(1) Profile Snapshots (`profileSnapshots`)**:
+   - Single pre-aggregated document per user storing identity, domain stats, top skills, earned badges, and recent 365 days of activity.
+   - Profile card read endpoints query exactly one document, returning in $< 5$ms.
+   - Rebuilt idempotently by the `progress` worker and cached in Redis.
+3. **Deterministic Badge Engine**:
+   - Centralized rule catalogue in `badge.catalogue.js` with pure functional predicates (`check(stats)`).
+   - Evaluated by `ProfileSnapshotService.evaluateBadges()` on progress updates.
+   - Badges stored in `userBadges` with `{ userId: 1, badgeId: 1 }` unique compound index to guarantee idempotency.
+
+### Consequences
+
+- **Positive**: Sub-5ms response time for profile card and dashboard reads; zero heavy runtime aggregations.
+- **Positive**: Accurate, timezone-aware streaks that reflect the student's real local calendar day.
+
+
+---
+
+## ADR-016: Server-Side Privacy Filtering for Shareable Profiles & Unlisted Tokens
+
+### Context
+
+Allowing students to customize and share an EngineerOS Profile Card publicly or with recruiters requires strict privacy guarantees. Merely hiding sensitive fields (like GATE scores, unverified photo, or academic institution) with frontend CSS rules allows attackers or scraped tools to inspect the full JSON response in DevTools network tab, leaking private academic data.
+
+### Decision
+
+1. **Server-Side Payload Truncation**: When serving `GET /api/v1/profile/:username`, the backend deep-clones the snapshot and actively deletes disabled attributes (`delete publicProfile.identity.university`, `delete publicProfile.stats.gate`, etc.) before JSON serialization.
+2. **Absolute Exclusion of Credentials & Internal Metadata**: The public profile payload unconditionally removes `_id`, `userId`, `email`, `passwordHash`, `failedLoginAttempts`, `lockoutUntil`, and `shareToken`.
+3. **Three-Tier Visibility Controls**:
+   - `private`: Public profile endpoint returns `403 Forbidden` (`This profile is private`).
+   - `unlisted`: Accessible strictly if a valid `?token=<shareToken>` query parameter is supplied. Missing or invalid tokens return `404 Not Found` to prevent account enumeration.
+   - `public`: Freely accessible by handle `/u/:username`.
+4. **Token Rotation**:
+   - Students can rotate their share link anytime via `POST /api/v1/profile/me/regenerate-share-token`, immediately invalidating old distributed URLs.
+
+### Consequences
+
+- **Positive**: Zero risk of data leakage via client-side inspector; compliant with GDPR and India DPDP Act.
+- **Positive**: Recruiters and peers receive only the specific achievements the student opted to showcase.
+
+---
+
+## ADR-017: Multi-Theme Profile Card Rendering, Rasterization, and Circular Crop
+
+### Context
+
+The Profile Card serves as the student's personal brand passport on EngineerOS and recruiters' quick summary. It requires:
+1. Five visually distinct themes (`terminal`, `minimalist`, `silicon`, `varsity`, `blueprint`) catering to different engineering personas.
+2. High-DPI rasterization export for social media (LinkedIn, Twitter/X, WhatsApp) and resume attachments.
+3. Client-side circular image cropping before uploads to ensure clean, consistent avatars without sending raw megabyte-sized files.
+4. Independent public sharing URL (`/u/:username`) without requiring an authentication session.
+
+### Decision
+
+1. **5 Thematic Archetypes**: Encapsulate thematic CSS variable hierarchies inside `ProfileCard.jsx`. Each theme defines its own container styles, typography (monospace vs sans-serif vs serif), border aesthetics (scanlines, blueprint schematic crosshairs, neon gradients), and color mappings while reading the identical pre-aggregated profile model.
+2. **Client-Side High-Res Rasterization**: Utilize `html-to-image` at `pixelRatio: 2` with `cacheBust: true` and `#0A0F1D` background fill to capture the card node as high-resolution PNG (and Blob for native clipboard write).
+3. **Interactive Circular Cropping**: Utilize `react-easy-crop` inside `AvatarCropperModal` with canvas-based 1:1 circular export to `image/webp` (0.92 quality) capped at 3MB before transmission to the Sharp avatar pipeline.
+4. **Standalone Public Route**: Provide `/u/:username` with dedicated navigation, noindex enforcement for unlisted profiles, and quick action bar for downloading or sharing.
+
+### Consequences
+
+- **Positive**: Complete client-side visual versatility; zero server load for rendering images.
+- **Positive**: Clean avatars saved in lightweight WebP format.
+- **Positive**: Seamless public sharing for portfolio and social media.
+
+---
+
+## ADR-018: Redesigned Dashboard: Hero Profile Card, Daily Action Tasks & Telemetry Strip
+
+### Context
+
+The Dashboard in EngineerOS serves as the single daily landing page answering "What should I do today?". The previous dashboard suffered from:
+1. Disconnected stats and lack of direct tie-in to the student's personal identity.
+2. Passive recommendation lists that could not be checked off or snoozed.
+3. Lack of comprehensive 52-week activity visualization.
+4. Unclear navigation to the 6 dedicated module workspaces.
+
+### Decision
+
+1. **Hero Profile Card Presentation**: Anchor the top of the dashboard with the student's live EngineerOS Profile Card, featuring direct "Customize Card", "Share Card", and `/u/:username` action triggers.
+2. **Interactive Daily Action Tasks Engine (`DashboardTask`)**:
+   - `GET /api/v1/dashboard/today` dynamically serves 3–5 personalized tasks based on semester curriculum, coding streak, and GATE diagnostic weak spots.
+   - Tasks support `completed` (checked off) and `snoozed` (deferred by 4 hours) via `PATCH /api/v1/dashboard/tasks/:id`.
+   - Checking off a task triggers `ProfileSnapshotService.recordDailyActivity()` to immediately reward user consistency and feed streaks.
+3. **Annual Consistency Stream**: Integrate full 52-week activity heatmap directly on the dashboard to reinforce daily engineering habits.
+4. **Dedicated Module Telemetry Strip**: 6 workspace cards (Coding & DSA, GATE Prep, Curriculum Hub, AI Copilot, Mock Interviews, Senior Network) with live metrics and direct workspace entry buttons.
+
+### Consequences
+
+- **Positive**: Action-oriented dashboard that guides daily engineering practice in under 2 minutes.
+- **Positive**: Direct closure loop: completing a task immediately updates the daily tracker, streaks, and heatmap.
+
+---
+
+## ADR-019: Global Module Polish: Monaco Integration, Offline Drafts, Virtual Calculator & Command Palette
+
+### Context
+
+Prior to Phase 7 polish, several modules had inconsistent styling (mix of raw inline `style={{ }}` vs Tailwind), missing ergonomics (e.g. basic `<textarea>` code inputs without language syntax highlighting, no draft persistence against page refreshes), and missing keyboard workflows for fast navigation across engineering workspaces.
+
+### Decision
+
+1. **Global Keyboard Command Palette (`Ctrl+K`)**:
+   - Integrated into `DashboardLayout.jsx` with real-time route filtering, quick navigation across all 8 modules, and mobile bottom navigation bar.
+2. **Monaco Sandbox Integration & Autosave**:
+   - Replaced plain `<textarea>` in `ProblemSolvePage.jsx` with full `@monaco-editor/react` editor.
+   - Implemented real-time `localStorage` autosaving under `code_draft_${slug}_${language}`, preventing accidental code loss.
+3. **Official GATE Virtual Calculator & Question Matrix**:
+   - Added interactive scientific calculator modal replicating GATE numeric evaluation rules.
+   - Question palette with visited, answered, and review marked states, plus localStorage persistence.
+4. **Contextual AI Chat & Prompt Chips**:
+   - Categorized prompt chips (Algorithms, OS, DBMS, Networks) with streaming responses and grounded citations.
+5. **Standardized Tailwind Styling**:
+   - Eliminated all legacy inline styles across `CodingCataloguePage`, `ProblemSolvePage`, `GateTestPage`, `AiAssistantPage`, and `InterviewHubPage`.
+
+### Consequences
+
+- **Positive**: Developer-grade coding ergonomics matching LeetCode and HackerRank standards.
+- **Positive**: Fully responsive mobile-friendly layouts with quick bottom navigation.
