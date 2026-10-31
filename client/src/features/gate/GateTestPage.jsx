@@ -1,26 +1,67 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import {
+  Clock,
+  Calculator,
+  Bookmark,
+  BookmarkCheck,
+  RotateCcw,
+  Send,
+  ArrowLeft,
+  ArrowRight,
+} from 'lucide-react';
 import { gateService } from '../../services/gate.service.js';
-import Card from '../../components/Card';
-import Badge from '../../components/Badge';
-import Button from '../../components/Button';
-import Modal from '../../components/Modal';
+import Badge from '../../components/Badge.jsx';
+import Button from '../../components/Button.jsx';
+import Modal from '../../components/Modal.jsx';
+import { useToast } from '../../components/Toast.jsx';
 
 export function GateTestPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [test, setTest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentIdx, setCurrentIdx] = useState(0);
 
   // Student state:
-  // answers map: questionId -> { selectedOptions: string[], natAnswer: number | null }
   const [answers, setAnswers] = useState({});
   const [reviewMarked, setReviewMarked] = useState(new Set());
+  const [visitedQuestions, setVisitedQuestions] = useState(new Set([0]));
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showCalcModal, setShowCalcModal] = useState(false);
+
+  // Simple Scientific Calculator state
+  const [calcInput, setCalcInput] = useState('');
+
+  const fetchTest = async () => {
+    try {
+      setLoading(true);
+      const data = await gateService.getTestForAttempt(id);
+      setTest(data);
+
+      // Restore saved progress from localStorage if present
+      const savedAnswers = localStorage.getItem(`gate_attempt_${id}`);
+      if (savedAnswers) {
+        try {
+          setAnswers(JSON.parse(savedAnswers));
+          showToast('Restored previous saved responses', 'info');
+        } catch {
+          // Ignore
+        }
+      }
+
+      setTimeRemaining((data.durationMinutes || 180) * 60);
+    } catch {
+      showToast('Failed to load GATE examination', 'error');
+      navigate('/gate');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchTest();
@@ -43,20 +84,12 @@ export function GateTestPage() {
     return () => clearInterval(interval);
   }, [timeRemaining]);
 
-  const fetchTest = async () => {
-    try {
-      setLoading(true);
-      const data = await gateService.getTestForAttempt(id);
-      setTest(data);
-      setTimeRemaining((data.durationMinutes || 180) * 60);
-    } catch {
-      // Error
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const currentQ = test?.questions?.[currentIdx];
+
+  const updateAnswers = newAnswers => {
+    setAnswers(newAnswers);
+    localStorage.setItem(`gate_attempt_${id}`, JSON.stringify(newAnswers));
+  };
 
   const handleSelectOption = optId => {
     if (!currentQ) return;
@@ -64,7 +97,7 @@ export function GateTestPage() {
     const existing = answers[qId] || { selectedOptions: [], natAnswer: null };
 
     if (currentQ.type === 'mcq') {
-      setAnswers({
+      updateAnswers({
         ...answers,
         [qId]: { ...existing, selectedOptions: [optId] },
       });
@@ -73,7 +106,7 @@ export function GateTestPage() {
       const updated = currentOpts.includes(optId)
         ? currentOpts.filter(o => o !== optId)
         : [...currentOpts, optId];
-      setAnswers({
+      updateAnswers({
         ...answers,
         [qId]: { ...existing, selectedOptions: updated },
       });
@@ -84,7 +117,7 @@ export function GateTestPage() {
     if (!currentQ) return;
     const qId = currentQ.questionId;
     const existing = answers[qId] || { selectedOptions: [], natAnswer: null };
-    setAnswers({
+    updateAnswers({
       ...answers,
       [qId]: { ...existing, natAnswer: val === '' ? null : Number(val) },
     });
@@ -95,7 +128,7 @@ export function GateTestPage() {
     const qId = currentQ.questionId;
     const copy = { ...answers };
     delete copy[qId];
-    setAnswers(copy);
+    updateAnswers(copy);
   };
 
   const toggleReviewMark = () => {
@@ -108,6 +141,11 @@ export function GateTestPage() {
       copy.add(qId);
     }
     setReviewMarked(copy);
+  };
+
+  const handleQuestionNavigate = index => {
+    setCurrentIdx(index);
+    setVisitedQuestions(prev => new Set(prev).add(index));
   };
 
   const handleSubmitTest = async () => {
@@ -124,14 +162,16 @@ export function GateTestPage() {
       const timeTaken = Math.max(1, totalTimeSeconds - timeRemaining);
 
       const attempt = await gateService.submitAttempt(test._id, formattedAnswers, timeTaken);
+      localStorage.removeItem(`gate_attempt_${id}`);
+      showToast('Examination submitted successfully!', 'success');
       navigate(`/gate/results/${attempt._id}`);
     } catch {
       setIsSubmitting(false);
       setShowConfirmModal(false);
+      showToast('Failed to submit exam. Please try again.', 'error');
     }
   };
 
-  // Helper formatting seconds -> HH:MM:SS
   const formatTime = secs => {
     const h = Math.floor(secs / 3600);
     const m = Math.floor((secs % 3600) / 60);
@@ -142,444 +182,399 @@ export function GateTestPage() {
   const isQuestionAnswered = qId => {
     const a = answers[qId];
     if (!a) return false;
-    return (a.selectedOptions && a.selectedOptions.length > 0) || a.natAnswer !== null;
+    return (a.selectedOptions && a.selectedOptions.length > 0) || (a.natAnswer !== null && a.natAnswer !== undefined);
+  };
+
+  // Calculator button handler
+  const handleCalcPress = key => {
+    if (key === 'C') {
+      setCalcInput('');
+    } else if (key === '=') {
+      try {
+        // Safe math eval with standard operators
+        const sanitized = calcInput.replace(/[^0-9+\-*/.()]/g, '');
+        // eslint-disable-next-line no-eval
+        const result = Function(`'use strict'; return (${sanitized})`)();
+        setCalcInput(String(result));
+      } catch {
+        setCalcInput('Error');
+      }
+    } else if (key === 'sqrt') {
+      try {
+        const val = parseFloat(calcInput);
+        setCalcInput(String(Math.sqrt(val)));
+      } catch {
+        setCalcInput('Error');
+      }
+    } else {
+      setCalcInput(prev => (prev === 'Error' ? key : prev + key));
+    }
   };
 
   if (loading) {
     return (
-      <div style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-        Loading examination interface...
+      <div className="h-[calc(100vh-8rem)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-surface-400">
+          <div className="w-8 h-8 rounded-full border-2 border-brand-500 border-t-transparent animate-spin" />
+          <span className="text-sm">Loading GATE examination environment...</span>
+        </div>
       </div>
     );
   }
 
-  if (!test) {
-    return (
-      <div style={{ padding: '4rem', textAlign: 'center' }}>
-        <h2>Test not found</h2>
-        <Button onClick={() => navigate('/gate')}>Back to Tests</Button>
-      </div>
-    );
-  }
+  if (!test) return null;
 
-  const answeredCount = Object.keys(answers).length;
   const totalQuestions = test.questions.length;
+  const answeredCount = Object.keys(answers).filter(qId => isQuestionAnswered(qId)).length;
+  const reviewCount = reviewMarked.size;
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: 'calc(100vh - 120px)',
-        gap: '1rem',
-      }}
-    >
+    <div className="flex flex-col h-[calc(100vh-6.5rem)] space-y-3 pb-2 max-w-7xl mx-auto w-full">
       {/* Top Test Header Bar */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          background: 'var(--bg-glass, rgba(0, 0, 0, 0.3))',
-          padding: '0.75rem 1.25rem',
-          borderRadius: '8px',
-          border: '1px solid var(--border)',
-        }}
-      >
+      <div className="flex items-center justify-between p-3.5 rounded-2xl border border-surface-800 bg-surface-900/60 backdrop-blur-md">
         <div>
-          <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>
-            {test.title}
-          </h2>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            Subject: {test.subject}
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm sm:text-base font-bold text-white tracking-tight">
+              {test.title}
+            </h2>
+            <Badge variant="cyan" size="sm" className="font-mono text-[10px]">
+              {test.subject}
+            </Badge>
+          </div>
+          <span className="text-xs text-surface-400">
+            {answeredCount}/{totalQuestions} Answered • {reviewCount} Marked for Review
           </span>
         </div>
 
-        {/* Timer & Submit */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-          <div
-            style={{
-              fontFamily: 'monospace',
-              fontSize: '1.15rem',
-              fontWeight: 700,
-              color: timeRemaining < 300 ? 'var(--rose-400, #f87171)' : 'var(--primary, #6366f1)',
-              background: 'rgba(0, 0, 0, 0.4)',
-              padding: '4px 12px',
-              borderRadius: '6px',
-              border: '1px solid var(--border)',
-            }}
+        {/* Timer, Calculator, Submit */}
+        <div className="flex items-center gap-3">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => setShowCalcModal(true)}
+            leftIcon={Calculator}
+            className="text-xs"
           >
-            ⏱ {formatTime(timeRemaining)}
+            Virtual Calculator
+          </Button>
+
+          <div
+            className={`font-mono text-sm sm:text-base font-bold px-3 py-1.5 rounded-xl border flex items-center gap-1.5 ${
+              timeRemaining < 300
+                ? 'bg-rose-500/10 text-rose-400 border-rose-500/30 animate-pulse'
+                : 'bg-surface-950 text-cyan-300 border-surface-700'
+            }`}
+          >
+            <Clock className="w-4 h-4 text-cyan-400" />
+            <span>{formatTime(timeRemaining)}</span>
           </div>
-          <Button variant="danger" size="sm" onClick={() => setShowConfirmModal(true)}>
+
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={() => setShowConfirmModal(true)}
+            leftIcon={Send}
+          >
             Submit Exam
           </Button>
         </div>
       </div>
 
       {/* Main Examination Split Screen */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 300px',
-          gap: '1rem',
-          flex: 1,
-          minHeight: 0,
-        }}
-      >
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0">
         {/* Left Column: Active Question */}
-        <Card
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: '1.5rem',
-            overflowY: 'auto',
-          }}
-        >
+        <div className="lg:col-span-8 flex flex-col justify-between p-6 rounded-2xl border border-surface-800 bg-surface-900/70 overflow-y-auto space-y-6 shadow-xl">
           {currentQ && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              {/* Question Metadata Header */}
-              <div
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-              >
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 800, fontSize: '1.1rem' }}>
-                    Q{currentIdx + 1} of {totalQuestions}
+            <div className="space-y-6">
+              {/* Question Header */}
+              <div className="flex items-center justify-between border-b border-surface-800/80 pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-base text-white">
+                    Question {currentIdx + 1}
                   </span>
-                  <Badge variant="primary">{currentQ.type.toUpperCase()}</Badge>
-                  <span
-                    style={{
-                      fontSize: '0.75rem',
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      padding: '2px 8px',
-                      borderRadius: '4px',
-                      color: 'var(--text-muted)',
-                    }}
-                  >
-                    {currentQ.topic}
+                  <Badge variant="brand" size="sm" className="font-mono text-[10px]">
+                    {currentQ.type.toUpperCase()}
+                  </Badge>
+                  <span className="text-xs text-surface-400 font-mono">
+                    [{currentQ.marks || 1} Mark{currentQ.marks > 1 ? 's' : ''}
+                    {currentQ.negativeMarks > 0 ? `, -${currentQ.negativeMarks} Neg` : ''}]
                   </span>
                 </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                  Marks:{' '}
-                  <strong style={{ color: 'var(--emerald-400, #34d399)' }}>
-                    +{currentQ.marks}
-                  </strong>
-                  {currentQ.negativeMarks > 0 && (
-                    <span style={{ color: 'var(--rose-400, #f87171)', marginLeft: '6px' }}>
-                      (-{currentQ.negativeMarks})
-                    </span>
-                  )}
-                </div>
+
+                <Button
+                  size="sm"
+                  variant={reviewMarked.has(currentQ.questionId) ? 'warning' : 'ghost'}
+                  onClick={toggleReviewMark}
+                  leftIcon={reviewMarked.has(currentQ.questionId) ? BookmarkCheck : Bookmark}
+                  className="text-xs"
+                >
+                  {reviewMarked.has(currentQ.questionId) ? 'Marked' : 'Mark for Review'}
+                </Button>
               </div>
 
               {/* Question Text */}
-              <div
-                style={{
-                  fontSize: '1.05rem',
-                  lineHeight: 1.6,
-                  color: 'var(--text-main)',
-                  whiteSpace: 'pre-line',
-                }}
-              >
-                {currentQ.questionText}
+              <div className="text-sm sm:text-base text-surface-100 leading-relaxed font-sans">
+                {currentQ.text}
               </div>
 
-              {/* Options (MCQ / MSQ) or NAT Input */}
-              {currentQ.type !== 'nat' ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {(currentQ.options || []).map(opt => {
+              {/* MCQ / MSQ Options */}
+              {(currentQ.type === 'mcq' || currentQ.type === 'msq') && (
+                <div className="space-y-3 pt-2">
+                  {currentQ.options?.map(opt => {
                     const isSelected = (
                       answers[currentQ.questionId]?.selectedOptions || []
-                    ).includes(opt.id);
+                    ).includes(opt.optionId);
+
                     return (
                       <div
-                        key={opt.id}
-                        onClick={() => handleSelectOption(opt.id)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '1rem',
-                          padding: '12px 16px',
-                          borderRadius: '8px',
-                          border: `1px solid ${isSelected ? 'var(--primary, #6366f1)' : 'var(--border)'}`,
-                          background: isSelected
-                            ? 'var(--primary-subtle, rgba(99, 102, 241, 0.15))'
-                            : 'rgba(255, 255, 255, 0.02)',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease',
-                        }}
+                        key={opt.optionId}
+                        onClick={() => handleSelectOption(opt.optionId)}
+                        className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
+                          isSelected
+                            ? 'border-brand-500 bg-brand-500/10 text-white shadow-md'
+                            : 'border-surface-800 bg-surface-950/60 hover:bg-surface-800/60 text-surface-200'
+                        }`}
                       >
                         <div
-                          style={{
-                            width: '28px',
-                            height: '28px',
-                            borderRadius: currentQ.type === 'mcq' ? '50%' : '6px',
-                            border: `2px solid ${isSelected ? 'var(--primary, #6366f1)' : 'var(--text-muted)'}`,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontWeight: 700,
-                            fontSize: '0.85rem',
-                            color: isSelected ? 'var(--primary, #6366f1)' : 'var(--text-muted)',
-                            background: isSelected ? 'rgba(99, 102, 241, 0.2)' : 'transparent',
-                          }}
+                          className={`w-6 h-6 rounded-${
+                            currentQ.type === 'mcq' ? 'full' : 'md'
+                          } border flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 ${
+                            isSelected
+                              ? 'border-brand-500 bg-brand-600 text-white'
+                              : 'border-surface-700 bg-surface-900 text-surface-400'
+                          }`}
                         >
-                          {opt.id}
+                          {opt.optionId.toUpperCase()}
                         </div>
-                        <div style={{ fontSize: '0.95rem', color: 'var(--text-main)' }}>
-                          {opt.text}
-                        </div>
+                        <div className="text-sm leading-relaxed">{opt.text}</div>
                       </div>
                     );
                   })}
                 </div>
-              ) : (
-                /* NAT Input */
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.5rem',
-                    maxWidth: '300px',
-                  }}
-                >
-                  <label
-                    style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}
-                  >
-                    Enter Numerical Answer:
+              )}
+
+              {/* NAT Numerical Input */}
+              {currentQ.type === 'nat' && (
+                <div className="p-5 rounded-xl border border-surface-800 bg-surface-950/70 space-y-3 max-w-sm">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-surface-400">
+                    Numerical Answer:
                   </label>
                   <input
                     type="number"
                     step="any"
-                    placeholder="e.g. 10 or 3.14"
-                    value={answers[currentQ.questionId]?.natAnswer ?? ''}
+                    value={
+                      answers[currentQ.questionId]?.natAnswer !== null &&
+                      answers[currentQ.questionId]?.natAnswer !== undefined
+                        ? answers[currentQ.questionId].natAnswer
+                        : ''
+                    }
                     onChange={e => handleNatChange(e.target.value)}
-                    style={{
-                      padding: '10px 14px',
-                      background: 'rgba(0, 0, 0, 0.3)',
-                      border: '1px solid var(--border)',
-                      borderRadius: '6px',
-                      color: 'var(--text-main)',
-                      fontSize: '1rem',
-                      outline: 'none',
-                    }}
+                    placeholder="Enter numerical value..."
+                    className="w-full px-4 py-2.5 rounded-xl bg-surface-900 border border-surface-700 text-white font-mono text-sm focus:outline-none focus:border-brand-500"
                   />
+                  <p className="text-[11px] text-surface-500">
+                    Calculated values should conform to standard rounding rules.
+                  </p>
                 </div>
               )}
             </div>
           )}
 
-          {/* Question Action Bottom Bar */}
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              borderTop: '1px solid var(--border)',
-              paddingTop: '1rem',
-              marginTop: '1rem',
-            }}
-          >
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleReviewMark}
-                style={{
-                  color: reviewMarked.has(currentQ?.questionId)
-                    ? 'var(--violet-400, #a78bfa)'
-                    : 'var(--text-muted)',
-                }}
-              >
-                {reviewMarked.has(currentQ?.questionId)
-                  ? '★ Marked for Review'
-                  : '☆ Mark for Review'}
-              </Button>
-              <Button variant="ghost" size="sm" onClick={handleClearResponse}>
-                Clear Response
-              </Button>
-            </div>
+          {/* Question Footer Action Bar */}
+          <div className="flex items-center justify-between pt-4 border-t border-surface-800/80">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={handleClearResponse}
+              leftIcon={RotateCcw}
+              disabled={!isQuestionAnswered(currentQ?.questionId)}
+              className="text-xs text-surface-400 hover:text-surface-200"
+            >
+              Clear Response
+            </Button>
 
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div className="flex items-center gap-2">
               <Button
-                variant="secondary"
                 size="sm"
-                onClick={() => setCurrentIdx(prev => Math.max(0, prev - 1))}
+                variant="secondary"
+                onClick={() => handleQuestionNavigate(Math.max(0, currentIdx - 1))}
                 disabled={currentIdx === 0}
+                leftIcon={ArrowLeft}
               >
                 Previous
               </Button>
               <Button
-                variant="primary"
                 size="sm"
-                onClick={() => setCurrentIdx(prev => Math.min(totalQuestions - 1, prev + 1))}
+                variant="primary"
+                onClick={() =>
+                  handleQuestionNavigate(Math.min(totalQuestions - 1, currentIdx + 1))
+                }
                 disabled={currentIdx === totalQuestions - 1}
+                rightIcon={ArrowRight}
               >
                 Save & Next
               </Button>
             </div>
           </div>
-        </Card>
+        </div>
 
-        {/* Right Column: Question Palette */}
-        <Card
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1rem',
-            height: '100%',
-            overflowY: 'auto',
-          }}
-        >
-          <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700 }}>Question Palette</h4>
+        {/* Right Column: GATE Official Question Palette */}
+        <div className="lg:col-span-4 flex flex-col justify-between p-5 rounded-2xl border border-surface-800 bg-surface-900/60 overflow-hidden shadow-xl space-y-4">
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-surface-300 mb-3">
+              Question Palette
+            </h3>
 
-          {/* Legend */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '0.4rem',
-              fontSize: '0.75rem',
-              color: 'var(--text-muted)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span
-                style={{
-                  width: '10px',
-                  height: '10px',
-                  borderRadius: '50%',
-                  background: 'var(--emerald-500, #10b981)',
-                }}
-              />
-              Answered ({answeredCount})
+            {/* Legend */}
+            <div className="grid grid-cols-2 gap-2 text-[10px] text-surface-400 font-mono mb-4 p-2.5 rounded-xl bg-surface-950/70 border border-surface-800">
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-emerald-500" />
+                <span>Answered</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-amber-500" />
+                <span>Marked</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-surface-700" />
+                <span>Visited</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-surface-900 border border-surface-800" />
+                <span>Not Visited</span>
+              </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span
-                style={{
-                  width: '10px',
-                  height: '10px',
-                  borderRadius: '50%',
-                  background: 'var(--violet-500, #8b5cf6)',
-                }}
-              />
-              Review ({reviewMarked.size})
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span
-                style={{
-                  width: '10px',
-                  height: '10px',
-                  borderRadius: '50%',
-                  background: 'rgba(255, 255, 255, 0.2)',
-                }}
-              />
-              Not Answered ({totalQuestions - answeredCount})
+
+            {/* Question Matrix */}
+            <div className="grid grid-cols-5 gap-2 max-h-72 overflow-y-auto p-1">
+              {test.questions.map((q, idx) => {
+                const isAnswered = isQuestionAnswered(q.questionId);
+                const isMarked = reviewMarked.has(q.questionId);
+                const isCurrent = idx === currentIdx;
+                const isVisited = visitedQuestions.has(idx);
+
+                let btnClass = 'bg-surface-950 text-surface-400 border border-surface-800';
+                if (isCurrent) {
+                  btnClass = 'ring-2 ring-brand-400 text-white font-bold bg-brand-600/30';
+                } else if (isMarked) {
+                  btnClass = 'bg-amber-500 text-white font-bold';
+                } else if (isAnswered) {
+                  btnClass = 'bg-emerald-500 text-white font-bold';
+                } else if (isVisited) {
+                  btnClass = 'bg-surface-800 text-surface-200';
+                }
+
+                return (
+                  <button
+                    key={q.questionId}
+                    type="button"
+                    onClick={() => handleQuestionNavigate(idx)}
+                    className={`h-9 rounded-lg font-mono text-xs flex items-center justify-center transition-all ${btnClass}`}
+                  >
+                    {idx + 1}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Palette Grid */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(5, 1fr)',
-              gap: '0.5rem',
-              marginTop: '0.5rem',
-            }}
-          >
-            {test.questions.map((q, idx) => {
-              const isAnswered = isQuestionAnswered(q.questionId);
-              const isReview = reviewMarked.has(q.questionId);
-              const isActive = idx === currentIdx;
-
-              let bg = 'rgba(255, 255, 255, 0.05)';
-              let color = 'var(--text-muted)';
-
-              if (isReview) {
-                bg = 'rgba(139, 92, 246, 0.3)';
-                color = '#c4b5fd';
-              } else if (isAnswered) {
-                bg = 'rgba(16, 185, 129, 0.25)';
-                color = '#6ee7b7';
-              }
-
-              return (
-                <button
-                  key={q.questionId}
-                  onClick={() => setCurrentIdx(idx)}
-                  style={{
-                    height: '36px',
-                    borderRadius: '6px',
-                    border: isActive
-                      ? '2px solid var(--primary, #6366f1)'
-                      : '1px solid var(--border)',
-                    background: bg,
-                    color: isActive ? '#fff' : color,
-                    fontWeight: 700,
-                    fontSize: '0.85rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                  }}
-                >
-                  {idx + 1}
-                </button>
-              );
-            })}
+          <div className="pt-3 border-t border-surface-800">
+            <Button
+              variant="danger"
+              size="sm"
+              className="w-full justify-center"
+              onClick={() => setShowConfirmModal(true)}
+            >
+              Submit Full Exam
+            </Button>
           </div>
-        </Card>
+        </div>
       </div>
 
       {/* Confirmation Modal */}
-      {showConfirmModal && (
-        <Modal
-          title="Submit GATE Examination?"
-          isOpen={showConfirmModal}
-          onClose={() => setShowConfirmModal(false)}
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <p style={{ margin: 0, color: 'var(--text-muted)' }}>
-              Are you sure you want to finish and submit your exam? You will immediately receive
-              your official score, accuracy metrics, and complete step-by-step solution
-              explanations.
-            </p>
-            <div
-              style={{
-                background: 'rgba(255, 255, 255, 0.02)',
-                padding: '12px',
-                borderRadius: '6px',
-                fontSize: '0.85rem',
-              }}
-            >
-              <div>
-                Total Questions: <strong>{totalQuestions}</strong>
-              </div>
-              <div>
-                Answered:{' '}
-                <strong style={{ color: 'var(--emerald-400, #34d399)' }}>{answeredCount}</strong>
-              </div>
-              <div>
-                Unattempted: <strong>{totalQuestions - answeredCount}</strong>
-              </div>
+      <Modal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        title="Submit GATE Examination?"
+        description="Are you sure you want to finish and submit your attempt for official evaluation?"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <div className="p-3.5 rounded-xl bg-surface-950 border border-surface-800 space-y-2 text-xs font-mono">
+            <div className="flex justify-between">
+              <span className="text-surface-400">Total Questions:</span>
+              <span className="text-white font-bold">{totalQuestions}</span>
             </div>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: '0.75rem',
-                marginTop: '0.5rem',
-              }}
-            >
-              <Button variant="ghost" onClick={() => setShowConfirmModal(false)}>
-                Return to Exam
-              </Button>
-              <Button variant="danger" onClick={handleSubmitTest} disabled={isSubmitting}>
-                {isSubmitting ? 'Evaluating...' : 'Confirm & Submit'}
-              </Button>
+            <div className="flex justify-between">
+              <span className="text-surface-400">Answered:</span>
+              <span className="text-emerald-400 font-bold">{answeredCount}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-surface-400">Marked for Review:</span>
+              <span className="text-amber-400 font-bold">{reviewCount}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-surface-400">Time Remaining:</span>
+              <span className="text-cyan-400 font-bold">{formatTime(timeRemaining)}</span>
             </div>
           </div>
-        </Modal>
-      )}
+
+          <div className="flex items-center justify-end gap-2 pt-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowConfirmModal(false)}
+              disabled={isSubmitting}
+            >
+              Resume Test
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={handleSubmitTest}
+              isLoading={isSubmitting}
+            >
+              Confirm & Submit
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Virtual Scientific Calculator Modal */}
+      <Modal
+        isOpen={showCalcModal}
+        onClose={() => setShowCalcModal(false)}
+        title="GATE Virtual Scientific Calculator"
+        description="Official-style numeric evaluation keypad"
+        size="sm"
+      >
+        <div className="space-y-3 font-mono">
+          <div className="p-3 rounded-xl bg-surface-950 border border-surface-800 text-right text-lg text-emerald-400 font-bold overflow-x-auto min-h-12 flex items-center justify-end px-4">
+            {calcInput || '0'}
+          </div>
+
+          <div className="grid grid-cols-4 gap-2">
+            {['C', '(', ')', '/', '7', '8', '9', '*', '4', '5', '6', '-', '1', '2', '3', '+', '0', '.', 'sqrt', '='].map(
+              key => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => handleCalcPress(key)}
+                  className={`h-10 rounded-lg text-sm font-bold flex items-center justify-center transition-colors ${
+                    key === '='
+                      ? 'bg-brand-600 hover:bg-brand-500 text-white'
+                      : key === 'C'
+                      ? 'bg-rose-500/20 text-rose-300 hover:bg-rose-500/30'
+                      : 'bg-surface-800 hover:bg-surface-700 text-surface-200'
+                  }`}
+                >
+                  {key}
+                </button>
+              )
+            )}
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
