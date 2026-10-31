@@ -8,6 +8,7 @@ import { LoginPage } from '../features/auth/LoginPage.jsx';
 import { RegisterPage } from '../features/auth/RegisterPage.jsx';
 import { DashboardPage } from '../features/dashboard/DashboardPage.jsx';
 import { ProfilePage } from '../features/profile/ProfilePage.jsx';
+import { PublicProfilePage } from '../features/profile/PublicProfilePage.jsx';
 import { AcademicsPage } from '../features/academics/AcademicsPage.jsx';
 import { CodingCataloguePage } from '../features/coding/CodingCataloguePage.jsx';
 import { ProblemSolvePage } from '../features/coding/ProblemSolvePage.jsx';
@@ -47,6 +48,10 @@ export const router = createBrowserRouter([
       { path: '/login', element: <LoginPage /> },
       { path: '/register', element: <RegisterPage /> },
     ],
+  },
+  {
+    path: '/u/:username',
+    element: <PublicProfilePage />,
   },
 
   // Protected Dashboard Routes
