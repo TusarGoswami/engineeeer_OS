@@ -72,4 +72,66 @@ describe('Dashboard Module Integration Tests', () => {
     expect(academicRec).toBeDefined();
     expect(academicRec.title).toContain('Propositional & Predicate Logic');
   });
+
+  it('GET /api/v1/dashboard/today returns prioritized daily tasks and supports PATCH /tasks/:id', async () => {
+    const token = await registerUser('dash_today@test.com');
+
+    // 1. Fetch today's tasks
+    const todayRes = await request(app)
+      .get('/api/v1/dashboard/today')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(todayRes.body.data).toBeDefined();
+    expect(todayRes.body.data.date).toBeDefined();
+    expect(Array.isArray(todayRes.body.data.tasks)).toBe(true);
+    expect(todayRes.body.data.tasks.length).toBeGreaterThanOrEqual(3);
+    expect(todayRes.body.data.total).toBe(todayRes.body.data.tasks.length);
+    expect(todayRes.body.data.completed).toBe(0);
+
+    const firstTask = todayRes.body.data.tasks[0];
+    expect(firstTask.status).toBe('pending');
+
+    // 2. Complete the first task
+    const patchRes = await request(app)
+      .patch(`/api/v1/dashboard/tasks/${firstTask._id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ status: 'completed' })
+      .expect(200);
+
+    expect(patchRes.body.data.status).toBe('completed');
+    expect(patchRes.body.data.completedAt).toBeDefined();
+
+    // 3. Snooze the second task
+    const secondTask = todayRes.body.data.tasks[1];
+    const snoozeRes = await request(app)
+      .patch(`/api/v1/dashboard/tasks/${secondTask._id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ status: 'snoozed' })
+      .expect(200);
+
+    expect(snoozeRes.body.data.status).toBe('snoozed');
+    expect(snoozeRes.body.data.snoozedUntil).toBeDefined();
+
+    // 4. Verify updated stats on GET /today
+    const verifyRes = await request(app)
+      .get('/api/v1/dashboard/today')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(verifyRes.body.data.completed).toBe(1);
+    expect(verifyRes.body.data.percent).toBeGreaterThan(0);
+  });
+
+  it('GET /api/v1/dashboard/heatmap returns consistency telemetry list', async () => {
+    const token = await registerUser('dash_heat@test.com');
+
+    const res = await request(app)
+      .get('/api/v1/dashboard/heatmap?months=6')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(res.body.data).toBeDefined();
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
 });
