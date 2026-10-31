@@ -4,6 +4,8 @@ import { Subject } from '../modules/academics/subject.model.js';
 import { AcademicResource } from '../modules/academics/academicResource.model.js';
 import { PasswordService } from '../modules/auth/password.service.js';
 import { ProgressSummary } from '../modules/progress/progressSummary.model.js';
+import { DailyActivity } from '../modules/progress/dailyActivity.model.js';
+import { ProfileSnapshotService } from '../modules/profile/profileSnapshot.service.js';
 import { seedProblems } from './seedProblems.js';
 import { seedGate } from './seedGate.js';
 import { logger } from '../config/logger.js';
@@ -402,21 +404,29 @@ export const runSeed = async () => {
     const demoUsers = [
       {
         email: 'student@engineeros.dev',
+        username: 'alexjohnson',
         passwordHash: hashedPass,
         name: 'Alex Johnson',
         role: 'student',
+        headline: 'Systems & DSA Enthusiast | Aspiring SDE @ Google',
         university: 'MIT',
         branch: 'Computer Science and Engineering',
         semester: 4,
         bio: '3rd year undergrad aiming for Google SDE and cracking GATE CS with top rank.',
         goals: ['Master Graph Algorithms & DP', 'Clear GATE CS 2026', 'Crack SDE-1 Internship'],
+        profileSettings: {
+          visibility: 'public',
+          theme: 'terminal',
+        },
       },
       {
         email: 'senior@engineeros.dev',
+        username: 'sarahchen',
         passwordHash: hashedPass,
         name: 'Sarah Chen',
         role: 'senior',
         isAlumni: true,
+        headline: 'Software Engineer II @ Google | Distributed Systems & Mentorship',
         university: 'MIT',
         branch: 'Computer Science and Engineering',
         semester: 8,
@@ -426,16 +436,26 @@ export const runSeed = async () => {
           githubHandle: 'sarahchen-dev',
         },
         bio: 'Alumni mentor. Happy to review resumes, discuss distributed systems, and share DSA prep roadmap.',
+        profileSettings: {
+          visibility: 'public',
+          theme: 'silicon',
+        },
       },
       {
         email: 'admin@engineeros.dev',
+        username: 'drarthur',
         passwordHash: hashedPass,
         name: 'Dr. Arthur Pendelton',
         role: 'platformAdmin',
+        headline: 'Faculty Coordinator & Platform Administrator',
         university: 'MIT',
         branch: 'Computer Science and Engineering',
         semester: 8,
         bio: 'Faculty Coordinator & Platform Administrator.',
+        profileSettings: {
+          visibility: 'public',
+          theme: 'varsity',
+        },
       },
     ];
 
@@ -575,6 +595,41 @@ export const runSeed = async () => {
         },
         { upsert: true }
       );
+
+      // Seed 45 days of realistic daily activity for Alex Johnson
+      logger.info('[Seed] Seeding realistic 45-day activity telemetry...');
+      const today = new Date();
+      for (let i = 44; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        const dateStr = d.toISOString().slice(0, 10);
+        // Skip occasional days to create a realistic pattern (e.g. 7-day current streak)
+        if (i > 7 && i % 6 === 0) continue;
+
+        const codingCount = (i % 3) + 1;
+        const gateCount = i % 5 === 0 ? 1 : 0;
+        const academicCount = i % 2 === 0 ? 2 : 1;
+
+        await DailyActivity.findOneAndUpdate(
+          { userId: studentUser._id, date: dateStr },
+          {
+            $set: {
+              counts: {
+                coding: codingCount,
+                gate: gateCount,
+                academic: academicCount,
+                interview: i === 2 ? 1 : 0,
+                community: i % 4 === 0 ? 1 : 0,
+                total: codingCount + gateCount + academicCount + (i === 2 ? 1 : 0) + (i % 4 === 0 ? 1 : 0),
+              },
+            },
+          },
+          { upsert: true }
+        );
+      }
+
+      // Pre-aggregate snapshot for instant profile card rendering
+      await ProfileSnapshotService.rebuildSnapshot(studentUser._id);
     }
 
     // 4. Seed Coding Problems & Hidden Test Cases
