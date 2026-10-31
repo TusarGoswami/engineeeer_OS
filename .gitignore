@@ -48,3 +48,7 @@ redis_data/
 # Automation scripts
 make_commits.ps1
 rebuild_with_dates.ps1
+
+# Uploads storage (local avatars / artifacts)
+uploads/
+server/uploads/
