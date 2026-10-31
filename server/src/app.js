@@ -20,6 +20,7 @@ import aiRoutes from './modules/ai/ai.routes.js';
 import assessmentsRoutes from './modules/assessments/assessments.routes.js';
 import communityRoutes from './modules/community/community.routes.js';
 import notificationsRoutes from './modules/notifications/notifications.routes.js';
+import profileRoutes from './modules/profile/profile.routes.js';
 
 export const createApp = () => {
   const app = express();
@@ -110,6 +111,7 @@ export const createApp = () => {
   app.use('/api/v1/assessments', assessmentsRoutes);
   app.use('/api/v1/community', communityRoutes);
   app.use('/api/v1/notifications', notificationsRoutes);
+  app.use('/api/v1/profile', profileRoutes);
 
   // Route aliases matching legacy/convenience specs
   app.use('/api/auth', authRoutes);
@@ -122,6 +124,7 @@ export const createApp = () => {
   app.use('/api/assessments', assessmentsRoutes);
   app.use('/api/community', communityRoutes);
   app.use('/api/notifications', notificationsRoutes);
+  app.use('/api/profile', profileRoutes);
 
   // 404 Catch-All Handler
   app.use((req, res, next) => {
