@@ -1,10 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Search,
+  Filter,
+  ArrowRight,
+  TrendingUp,
+} from 'lucide-react';
 import { codingService } from '../../services/coding.service.js';
-import Card from '../../components/Card';
-import Badge from '../../components/Badge';
-import Button from '../../components/Button';
-import Input from '../../components/Input';
+import Card from '../../components/Card.jsx';
+import Badge from '../../components/Badge.jsx';
+import Button from '../../components/Button.jsx';
+import Input from '../../components/Input.jsx';
 
 export function CodingCataloguePage() {
   const navigate = useNavigate();
@@ -26,10 +32,6 @@ export function CodingCataloguePage() {
     'String',
   ];
 
-  useEffect(() => {
-    fetchProblems();
-  }, [difficulty, selectedTag]);
-
   const fetchProblems = async () => {
     try {
       setLoading(true);
@@ -46,6 +48,10 @@ export function CodingCataloguePage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchProblems();
+  }, [difficulty, selectedTag]);
 
   const handleSearchSubmit = e => {
     e.preventDefault();
@@ -66,248 +72,170 @@ export function CodingCataloguePage() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      {/* Header section */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          flexWrap: 'wrap',
-          gap: '1rem',
-        }}
-      >
+    <div className="space-y-6 max-w-6xl mx-auto pb-12">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1
-            style={{
-              fontSize: '2rem',
-              fontWeight: 800,
-              color: 'var(--text-main)',
-              margin: '0 0 0.5rem 0',
-            }}
-          >
-            DSA & Algorithm Arena
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono uppercase tracking-wider text-emerald-400">
+              Algorithm & Data Structure Arena
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-0.5">
+            Coding Challenges
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', margin: 0 }}>
-            Master core technical interview problems with low-latency sandboxed execution.
+          <p className="text-sm text-surface-400 mt-1">
+            Master core engineering interview patterns with sandboxed multi-language execution
           </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="px-3 py-2 rounded-xl bg-surface-900 border border-surface-800 text-xs text-surface-300 font-mono">
+            <span className="text-emerald-400 font-bold">{problems.length}</span> Curated Problems
+          </div>
         </div>
       </div>
 
-      {/* Filter and Search controls */}
-      <Card>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <form
-            onSubmit={handleSearchSubmit}
-            style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}
-          >
-            <div style={{ flex: 1, minWidth: '240px' }}>
-              <Input
-                placeholder="Search problem title or keywords..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
-            </div>
-            <Button type="submit" variant="primary">
+      {/* Filter & Search Bar */}
+      <Card className="p-4 sm:p-5 border-surface-800 bg-surface-900/60 space-y-4">
+        <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="flex-1 w-full">
+            <Input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search problem title, keyword, or concept..."
+              leftIcon={Search}
+            />
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Button type="submit" variant="primary" size="sm" className="w-full sm:w-auto">
               Search
             </Button>
-            {(difficulty || selectedTag || search) && (
+            {(search || difficulty || selectedTag) && (
               <Button
                 type="button"
                 variant="ghost"
+                size="sm"
                 onClick={() => {
+                  setSearch('');
                   setDifficulty('');
                   setSelectedTag('');
-                  setSearch('');
                 }}
               >
-                Clear Filters
+                Clear
               </Button>
             )}
-          </form>
-
-          {/* Difficulty pills */}
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-              Difficulty:
-            </span>
-            {['', 'easy', 'medium', 'hard'].map(d => (
-              <button
-                key={d || 'all'}
-                onClick={() => setDifficulty(d)}
-                style={{
-                  background:
-                    difficulty === d
-                      ? 'var(--primary-subtle, rgba(99, 102, 241, 0.2))'
-                      : 'transparent',
-                  color: difficulty === d ? 'var(--primary, #6366f1)' : 'var(--text-muted)',
-                  border: `1px solid ${difficulty === d ? 'var(--primary, #6366f1)' : 'var(--border)'}`,
-                  borderRadius: '20px',
-                  padding: '4px 14px',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  textTransform: 'capitalize',
-                  transition: 'all 0.15s ease',
-                }}
-              >
-                {d || 'All'}
-              </button>
-            ))}
           </div>
+        </form>
 
-          {/* Tag pills */}
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-              Topics:
+        {/* Difficulty Selector Tabs */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-surface-800/80">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-xs font-semibold text-surface-400 mr-1 flex items-center gap-1">
+              <Filter className="w-3.5 h-3.5" /> Difficulty:
             </span>
-            {TAGS.map(t => (
+            {[
+              { id: '', label: 'All' },
+              { id: 'easy', label: 'Easy' },
+              { id: 'medium', label: 'Medium' },
+              { id: 'hard', label: 'Hard' },
+            ].map(d => (
               <button
-                key={t}
-                onClick={() => setSelectedTag(selectedTag === t ? '' : t)}
-                style={{
-                  background:
-                    selectedTag === t
-                      ? 'var(--primary-subtle, rgba(99, 102, 241, 0.2))'
-                      : 'transparent',
-                  color: selectedTag === t ? 'var(--primary, #6366f1)' : 'var(--text-muted)',
-                  border: `1px solid ${selectedTag === t ? 'var(--primary, #6366f1)' : 'var(--border)'}`,
-                  borderRadius: '16px',
-                  padding: '3px 10px',
-                  fontSize: '0.8rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                }}
+                key={d.id}
+                type="button"
+                onClick={() => setDifficulty(d.id)}
+                className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+                  difficulty === d.id
+                    ? 'bg-brand-600 text-white font-semibold'
+                    : 'bg-surface-800/60 text-surface-300 hover:bg-surface-800 hover:text-white'
+                }`}
               >
-                {t}
+                {d.label}
               </button>
             ))}
           </div>
         </div>
+
+        {/* Topic Roadmap Tags */}
+        <div className="flex items-center gap-1.5 flex-wrap pt-2">
+          <span className="text-xs text-surface-500 mr-1">Topics:</span>
+          {TAGS.map(tag => (
+            <button
+              key={tag}
+              type="button"
+              onClick={() => setSelectedTag(selectedTag === tag ? '' : tag)}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-colors ${
+                selectedTag === tag
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold'
+                  : 'bg-surface-950/60 text-surface-400 border border-surface-800 hover:border-surface-700 hover:text-surface-200'
+              }`}
+            >
+              #{tag}
+            </button>
+          ))}
+        </div>
       </Card>
 
-      {/* Problem list table */}
-      <Card style={{ padding: 0, overflow: 'hidden' }}>
+      {/* Problems List */}
+      <div className="space-y-2.5">
         {loading ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-            Loading algorithm challenges...
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map(i => (
+              <div key={i} className="h-16 rounded-xl bg-surface-900/40 border border-surface-800 animate-pulse" />
+            ))}
           </div>
         ) : problems.length === 0 ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-            No problems found matching selected criteria.
-          </div>
+          <Card className="p-12 text-center text-surface-400 text-sm">
+            No problems found matching the selected filters.
+          </Card>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-              <thead>
-                <tr
-                  style={{
-                    borderBottom: '1px solid var(--border)',
-                    background: 'rgba(255, 255, 255, 0.02)',
-                  }}
+          problems.map((prob, idx) => (
+            <div
+              key={prob._id}
+              onClick={() => navigate(`/coding/solve/${prob.slug}`)}
+              className="flex items-center justify-between p-4 rounded-xl border border-surface-800 bg-surface-900/40 hover:bg-surface-900/80 hover:border-surface-700 transition-all cursor-pointer group shadow-sm"
+            >
+              <div className="flex items-center gap-3.5 min-w-0">
+                <span className="text-xs font-mono text-surface-500 w-6 shrink-0">
+                  {idx + 1}.
+                </span>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-white group-hover:text-brand-400 transition-colors truncate">
+                      {prob.title}
+                    </h3>
+                    {getDifficultyBadge(prob.difficulty)}
+                  </div>
+                  {prob.tags?.length > 0 && (
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      {prob.tags.slice(0, 3).map(t => (
+                        <span key={t} className="text-[10px] font-mono text-surface-400">
+                          #{t}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4 shrink-0">
+                <div className="hidden sm:flex items-center gap-1 text-xs font-mono text-surface-400">
+                  <TrendingUp className="w-3.5 h-3.5 text-surface-500" />
+                  <span>{prob.acceptanceRate || 65}%</span>
+                </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  rightIcon={ArrowRight}
                 >
-                  <th
-                    style={{
-                      padding: '1rem 1.5rem',
-                      color: 'var(--text-muted)',
-                      fontSize: '0.85rem',
-                      fontWeight: 600,
-                    }}
-                  >
-                    Title
-                  </th>
-                  <th
-                    style={{
-                      padding: '1rem 1.5rem',
-                      color: 'var(--text-muted)',
-                      fontSize: '0.85rem',
-                      fontWeight: 600,
-                    }}
-                  >
-                    Difficulty
-                  </th>
-                  <th
-                    style={{
-                      padding: '1rem 1.5rem',
-                      color: 'var(--text-muted)',
-                      fontSize: '0.85rem',
-                      fontWeight: 600,
-                    }}
-                  >
-                    Topics
-                  </th>
-                  <th
-                    style={{
-                      padding: '1rem 1.5rem',
-                      textAlign: 'right',
-                      color: 'var(--text-muted)',
-                      fontSize: '0.85rem',
-                      fontWeight: 600,
-                    }}
-                  >
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {problems.map(prob => (
-                  <tr
-                    key={prob._id}
-                    style={{
-                      borderBottom: '1px solid var(--border)',
-                      transition: 'background 0.15s ease',
-                      cursor: 'pointer',
-                    }}
-                    onClick={() => navigate(`/coding/solve/${prob.slug}`)}
-                  >
-                    <td style={{ padding: '1rem 1.5rem' }}>
-                      <div
-                        style={{ fontWeight: 600, color: 'var(--text-main)', fontSize: '0.95rem' }}
-                      >
-                        {prob.title}
-                      </div>
-                    </td>
-                    <td style={{ padding: '1rem 1.5rem' }}>
-                      {getDifficultyBadge(prob.difficulty)}
-                    </td>
-                    <td style={{ padding: '1rem 1.5rem' }}>
-                      <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                        {(prob.tags || []).map(tg => (
-                          <span
-                            key={tg}
-                            style={{
-                              fontSize: '0.75rem',
-                              padding: '2px 8px',
-                              borderRadius: '4px',
-                              background: 'var(--bg-glass, rgba(255, 255, 255, 0.05))',
-                              color: 'var(--text-muted)',
-                              border: '1px solid var(--border)',
-                            }}
-                          >
-                            {tg}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={e => {
-                          e.stopPropagation();
-                          navigate(`/coding/solve/${prob.slug}`);
-                        }}
-                      >
-                        Solve
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                  Solve
+                </Button>
+              </div>
+            </div>
+          ))
         )}
-      </Card>
+      </div>
     </div>
   );
 }
