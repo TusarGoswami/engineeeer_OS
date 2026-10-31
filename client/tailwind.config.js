@@ -6,17 +6,17 @@ export default {
     extend: {
       colors: {
         brand: {
-          50: '#f0f7ff',
-          100: '#e0effe',
-          200: '#b9ddfd',
-          300: '#7cc2fb',
-          400: '#36a3f6',
-          500: '#0c87e8',
-          600: '#026bc5',
-          700: '#03559f',
-          800: '#074883',
-          900: '#0c3d6d',
-          950: '#082747',
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#2563eb', // Blueprint Cobalt Primary
+          600: '#1d4ed8',
+          700: '#1e40af',
+          800: '#1e3a8a',
+          900: '#172554',
+          950: '#0b1329',
         },
         surface: {
           50: '#f8fafc',
@@ -27,14 +27,54 @@ export default {
           500: '#64748b',
           600: '#475569',
           700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
-          950: '#020617',
+          800: '#1f2937',
+          850: '#162032',
+          900: '#111827',
+          950: '#0b0f17',
+        },
+        compiler: {
+          500: '#10b981', // Emerald / Compiler Green
+          600: '#059669',
+        },
+        signal: {
+          500: '#f59e0b', // Amber / Signal Amber
+          600: '#d97706',
+        },
+        fault: {
+          500: '#ef4444', // Rose / Fault Rose
+          600: '#dc2626',
+        },
+        alumni: {
+          500: '#8b5cf6', // Violet / Senior & Alumni
+          600: '#7c3aed',
+        },
+        logic: {
+          500: '#06b6d4', // Cyan / Logic Cyan
+          600: '#0891b2',
         },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+        mono: ['JetBrains Mono', 'Fira Code', 'Menlo', 'monospace'],
+      },
+      keyframes: {
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        'fade-in-up': {
+          '0%': { opacity: '0', transform: 'translateY(6px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'pulse-subtle': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.75' },
+        },
+      },
+      animation: {
+        'fade-in': 'fade-in 0.15s ease-out',
+        'fade-in-up': 'fade-in-up 0.2s ease-out',
+        'pulse-subtle': 'pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },
