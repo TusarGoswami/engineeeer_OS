@@ -1,13 +1,26 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Video,
+  Plus,
+  Play,
+  Award,
+  Calendar,
+  Layers,
+  Sparkles,
+  ArrowRight,
+} from 'lucide-react';
 import { aiService } from '../../services/ai.service.js';
-import Card from '../../components/Card';
-import Badge from '../../components/Badge';
-import Button from '../../components/Button';
-import Modal from '../../components/Modal';
+import Card from '../../components/Card.jsx';
+import Badge from '../../components/Badge.jsx';
+import Button from '../../components/Button.jsx';
+import Modal from '../../components/Modal.jsx';
+import Input from '../../components/Input.jsx';
+import { useToast } from '../../components/Toast.jsx';
 
 export function InterviewHubPage() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,10 +29,6 @@ export function InterviewHubPage() {
   const [mode, setMode] = useState('technical');
   const [targetRole, setTargetRole] = useState('Software Development Engineer (SDE-1)');
   const [isCreating, setIsCreating] = useState(false);
-
-  useEffect(() => {
-    fetchSessions();
-  }, []);
 
   const fetchSessions = async () => {
     try {
@@ -33,14 +42,21 @@ export function InterviewHubPage() {
     }
   };
 
+  useEffect(() => {
+    fetchSessions();
+  }, []);
+
   const handleStartInterview = async e => {
     e.preventDefault();
     try {
       setIsCreating(true);
       const newSession = await aiService.createInterview({ mode, targetRole });
       setIsModalOpen(false);
+      showToast('Interview session initiated!', 'success');
       navigate(`/interviews/${newSession._id}`);
-    } catch {
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to start interview', 'error');
+    } finally {
       setIsCreating(false);
     }
   };
@@ -49,350 +65,236 @@ export function InterviewHubPage() {
     {
       id: 'technical',
       title: 'Technical & System Architecture',
-      desc: 'Deep-dive into distributed systems, concurrency, caching, and database design trade-offs.',
+      desc: 'Distributed systems, concurrency, caching, and database design trade-offs.',
+      icon: Layers,
     },
     {
       id: 'dsa',
       title: 'Algorithms & Data Structures',
       desc: 'Real-time algorithmic reasoning, complexity analysis, and edge case probing.',
+      icon: Sparkles,
     },
     {
       id: 'project',
       title: 'Portfolio & Project Deep-Dive',
-      desc: 'Technical interrogation of your flagship projects, design decisions, and failure modes.',
+      desc: 'Technical interrogation of your flagship projects, architectural decisions, and failure modes.',
+      icon: Award,
     },
     {
       id: 'hr',
       title: 'Behavioral & Leadership (STAR)',
       desc: 'Situational leadership, conflict resolution, project delivery, and culture fit.',
+      icon: Video,
     },
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      {/* Header */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          flexWrap: 'wrap',
-          gap: '1rem',
-        }}
-      >
+    <div className="space-y-6 max-w-6xl mx-auto pb-12">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1
-            style={{
-              fontSize: '2rem',
-              fontWeight: 800,
-              color: 'var(--text-main)',
-              margin: '0 0 0.5rem 0',
-            }}
-          >
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono uppercase tracking-wider text-amber-400">
+              Candidate Preparation Arena
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-0.5">
             AI Mock Interview Studio
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', margin: 0 }}>
-            Multi-turn interactive technical and behavioral interviews with comprehensive rubric
-            evaluations.
+          <p className="text-sm text-surface-400 mt-1">
+            Multi-turn interactive technical and behavioral interviews with comprehensive rubric evaluations
           </p>
         </div>
-        <Button variant="primary" onClick={() => setIsModalOpen(true)}>
-          + Start New Interview
+
+        <Button
+          variant="primary"
+          onClick={() => setIsModalOpen(true)}
+          leftIcon={Plus}
+        >
+          Start New Interview
         </Button>
       </div>
 
-      {/* Modes Grid Preview */}
-      <div>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 1rem 0' }}>
-          Interview Formats
-        </h2>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-            gap: '1rem',
-          }}
-        >
-          {MODES.map(m => (
+      {/* Modes Grid Overview */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        {MODES.map(m => {
+          const Icon = m.icon;
+          return (
             <Card
               key={m.id}
-              style={{
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-              }}
+              hover
               onClick={() => {
                 setMode(m.id);
                 setIsModalOpen(true);
               }}
+              className="p-5 border-surface-800 bg-surface-900/40 cursor-pointer flex flex-col justify-between"
             >
-              <h3
-                style={{
-                  fontSize: '1.05rem',
-                  fontWeight: 700,
-                  margin: '0 0 0.5rem 0',
-                  color: 'var(--text-main)',
-                }}
-              >
-                {m.title}
-              </h3>
-              <p
-                style={{
-                  fontSize: '0.85rem',
-                  color: 'var(--text-muted)',
-                  margin: 0,
-                  lineHeight: 1.5,
-                }}
-              >
-                {m.desc}
-              </p>
+              <div>
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-3">
+                  <Icon className="w-5 h-5" />
+                </div>
+                <h3 className="text-sm font-semibold text-white">{m.title}</h3>
+                <p className="text-xs text-surface-400 mt-1 leading-relaxed line-clamp-3">
+                  {m.desc}
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-surface-800/60 flex items-center justify-between text-xs text-amber-400 font-medium">
+                <span>Configure & Start</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </div>
             </Card>
-          ))}
-        </div>
+          );
+        })}
       </div>
 
-      {/* Interview History */}
-      <div>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 1rem 0' }}>
-          My Interview Sessions
-        </h2>
+      {/* Interview Sessions History */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-bold text-white tracking-tight">
+            Interview Session History
+          </h2>
+          <span className="text-xs text-surface-400 font-mono">
+            {sessions.length} Sessions Logged
+          </span>
+        </div>
+
         {loading ? (
-          <p style={{ color: 'var(--text-muted)' }}>Loading sessions...</p>
+          <div className="space-y-3">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-20 rounded-xl bg-surface-900/40 border border-surface-800 animate-pulse" />
+            ))}
+          </div>
         ) : sessions.length === 0 ? (
-          <Card>
-            <p style={{ color: 'var(--text-muted)', textAlign: 'center', margin: '1rem 0' }}>
-              No interview sessions recorded yet. Start your first mock interview above to practice
-              live questions!
-            </p>
+          <Card className="p-12 text-center text-surface-400 text-sm">
+            No mock interview sessions recorded yet. Launch your first technical mock above!
           </Card>
         ) : (
-          <Card style={{ padding: 0, overflow: 'hidden' }}>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                <thead>
-                  <tr
-                    style={{
-                      borderBottom: '1px solid var(--border)',
-                      background: 'rgba(255, 255, 255, 0.02)',
-                    }}
-                  >
-                    <th
-                      style={{
-                        padding: '1rem 1.5rem',
-                        color: 'var(--text-muted)',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                      }}
-                    >
-                      Target Role
-                    </th>
-                    <th
-                      style={{
-                        padding: '1rem 1.5rem',
-                        color: 'var(--text-muted)',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                      }}
-                    >
-                      Mode
-                    </th>
-                    <th
-                      style={{
-                        padding: '1rem 1.5rem',
-                        color: 'var(--text-muted)',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                      }}
-                    >
-                      Status
-                    </th>
-                    <th
-                      style={{
-                        padding: '1rem 1.5rem',
-                        color: 'var(--text-muted)',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                      }}
-                    >
-                      Overall Score
-                    </th>
-                    <th
-                      style={{
-                        padding: '1rem 1.5rem',
-                        color: 'var(--text-muted)',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                      }}
-                    >
-                      Date
-                    </th>
-                    <th
-                      style={{
-                        padding: '1rem 1.5rem',
-                        textAlign: 'right',
-                        color: 'var(--text-muted)',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                      }}
-                    >
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sessions.map(s => (
-                    <tr
-                      key={s._id}
-                      style={{ borderBottom: '1px solid var(--border)', cursor: 'pointer' }}
-                      onClick={() => navigate(`/interviews/${s._id}`)}
-                    >
-                      <td style={{ padding: '1rem 1.5rem', fontWeight: 600 }}>{s.targetRole}</td>
-                      <td style={{ padding: '1rem 1.5rem', textTransform: 'capitalize' }}>
-                        <Badge variant="secondary">{s.mode}</Badge>
-                      </td>
-                      <td style={{ padding: '1rem 1.5rem' }}>
-                        <Badge
-                          variant={
-                            s.status === 'evaluated'
-                              ? 'success'
-                              : s.status === 'in_progress'
-                                ? 'warning'
-                                : 'primary'
-                          }
-                        >
-                          {s.status.replace('_', ' ').toUpperCase()}
-                        </Badge>
-                      </td>
-                      <td style={{ padding: '1rem 1.5rem' }}>
-                        {s.evaluation?.overallScore !== undefined ? (
-                          <strong style={{ color: 'var(--primary, #6366f1)' }}>
-                            {s.evaluation.overallScore} / 100
-                          </strong>
-                        ) : (
-                          <span style={{ color: 'var(--text-muted)' }}>—</span>
-                        )}
-                      </td>
-                      <td
-                        style={{
-                          padding: '1rem 1.5rem',
-                          color: 'var(--text-muted)',
-                          fontSize: '0.85rem',
-                        }}
+          <div className="space-y-3">
+            {sessions.map(s => {
+              const isCompleted = s.status === 'completed';
+              const score = s.evaluation?.overallScore;
+
+              return (
+                <div
+                  key={s._id}
+                  onClick={() => navigate(`/interviews/${s._id}`)}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-surface-800 bg-surface-900/50 hover:bg-surface-900/80 hover:border-surface-700 transition-all cursor-pointer shadow-sm"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-semibold text-white">
+                        {s.targetRole || 'Software Development Engineer'}
+                      </h3>
+                      <Badge
+                        variant={s.mode === 'technical' ? 'brand' : s.mode === 'dsa' ? 'cyan' : 'purple'}
+                        size="sm"
+                        className="uppercase font-mono text-[10px]"
                       >
+                        {s.mode}
+                      </Badge>
+                      <Badge
+                        variant={isCompleted ? 'success' : 'warning'}
+                        size="sm"
+                        className="capitalize"
+                      >
+                        {isCompleted ? 'Completed' : 'In Progress'}
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-xs text-surface-400 font-mono">
+                      <span className="inline-flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
                         {new Date(s.createdAt).toLocaleDateString()}
-                      </td>
-                      <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={e => {
-                            e.stopPropagation();
-                            navigate(`/interviews/${s._id}`);
-                          }}
-                        >
-                          {s.status === 'in_progress' ? 'Continue' : 'View Scorecard'}
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+                      </span>
+                      <span>•</span>
+                      <span>{s.messages?.length || 0} Exchanges</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    {score !== undefined && score !== null && (
+                      <div className="text-right">
+                        <div className="text-lg font-bold font-mono text-emerald-400">
+                          {score}/100
+                        </div>
+                        <div className="text-[10px] text-surface-500 uppercase font-mono">
+                          Readiness Score
+                        </div>
+                      </div>
+                    )}
+
+                    <Button size="sm" variant={isCompleted ? 'secondary' : 'primary'} rightIcon={Play}>
+                      {isCompleted ? 'View Rubric' : 'Resume'}
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
 
       {/* Start Interview Modal */}
-      {isModalOpen && (
-        <Modal
-          title="Configure AI Mock Interview"
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-        >
-          <form
-            onSubmit={handleStartInterview}
-            style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
-          >
-            <div>
-              <label
-                style={{
-                  display: 'block',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  color: 'var(--text-muted)',
-                  marginBottom: '6px',
-                }}
-              >
-                Target Engineering Role
-              </label>
-              <input
-                type="text"
-                value={targetRole}
-                onChange={e => setTargetRole(e.target.value)}
-                required
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  background: 'rgba(0, 0, 0, 0.3)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '6px',
-                  color: 'var(--text-main)',
-                  fontSize: '0.9rem',
-                  outline: 'none',
-                }}
-              />
-            </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Initialize AI Mock Interview"
+        description="Select your target engineering role and evaluation track"
+        size="md"
+      >
+        <form onSubmit={handleStartInterview} className="space-y-4">
+          <Input
+            label="Target Position / Level"
+            value={targetRole}
+            onChange={e => setTargetRole(e.target.value)}
+            placeholder="e.g. SDE-1, Backend Engineer, Cloud Infrastructure Intern"
+            required
+          />
 
-            <div>
-              <label
-                style={{
-                  display: 'block',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  color: 'var(--text-muted)',
-                  marginBottom: '6px',
-                }}
-              >
-                Interview Mode
-              </label>
-              <select
-                value={mode}
-                onChange={e => setMode(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  background: 'rgba(0, 0, 0, 0.3)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '6px',
-                  color: 'var(--text-main)',
-                  fontSize: '0.9rem',
-                  outline: 'none',
-                }}
-              >
-                <option value="technical">Technical & System Architecture</option>
-                <option value="dsa">Algorithms & Data Structures</option>
-                <option value="project">Portfolio & Project Deep-Dive</option>
-                <option value="hr">Behavioral & Leadership (STAR)</option>
-              </select>
+          <div className="space-y-2">
+            <label className="text-xs font-semibold uppercase tracking-wider text-surface-400">
+              Interview Track
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {MODES.map(m => (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => setMode(m.id)}
+                  className={`p-3 rounded-xl border text-left transition-all ${
+                    mode === m.id
+                      ? 'border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/50'
+                      : 'border-surface-800 bg-surface-950/60 hover:border-surface-700'
+                  }`}
+                >
+                  <div className="text-xs font-semibold text-white">{m.title}</div>
+                  <div className="text-[10px] text-surface-400 mt-0.5 line-clamp-2">
+                    {m.desc}
+                  </div>
+                </button>
+              ))}
             </div>
+          </div>
 
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: '0.75rem',
-                marginTop: '0.5rem',
-              }}
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-surface-800">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setIsModalOpen(false)}
+              disabled={isCreating}
             >
-              <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" variant="primary" disabled={isCreating}>
-                {isCreating ? 'Setting Up...' : 'Begin Interview'}
-              </Button>
-            </div>
-          </form>
-        </Modal>
-      )}
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              isLoading={isCreating}
+            >
+              Enter Session
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
