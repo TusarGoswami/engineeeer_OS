@@ -31,6 +31,7 @@ export const LoginPage = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(loginSchema),
@@ -39,6 +40,11 @@ export const LoginPage = () => {
       password: '',
     },
   });
+
+  const fillDemoAccount = (email, pass) => {
+    setValue('email', email, { shouldValidate: true });
+    setValue('password', pass, { shouldValidate: true });
+  };
 
   const onSubmit = async values => {
     setServerError('');
@@ -101,6 +107,41 @@ export const LoginPage = () => {
               Sign In
             </Button>
           </form>
+
+          <div className="mt-5 pt-4 border-t border-surface-800">
+            <p className="text-xs font-semibold text-surface-400 mb-2 uppercase tracking-wider">
+              Quick Demo Logins
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => fillDemoAccount('student@engineeros.dev', 'Password123')}
+                className="px-2.5 py-1 text-xs rounded-lg bg-surface-800/90 hover:bg-surface-700 text-surface-200 border border-surface-700 transition-colors"
+              >
+                🎓 Student
+              </button>
+              <button
+                type="button"
+                onClick={() => fillDemoAccount('senior@engineeros.dev', 'Password123')}
+                className="px-2.5 py-1 text-xs rounded-lg bg-surface-800/90 hover:bg-surface-700 text-surface-200 border border-surface-700 transition-colors"
+              >
+                💼 Senior / Alumni
+              </button>
+              <button
+                type="button"
+                onClick={() => fillDemoAccount('admin@engineeros.dev', 'Password123')}
+                className="px-2.5 py-1 text-xs rounded-lg bg-surface-800/90 hover:bg-surface-700 text-surface-200 border border-surface-700 transition-colors"
+              >
+                🛡️ Admin
+              </button>
+            </div>
+            {serverError && (
+              <p className="mt-3 text-[11px] text-surface-400 bg-surface-950/60 p-2 rounded-lg border border-surface-800">
+                💡 <span className="font-semibold text-surface-300">New machine or fresh clone?</span> Run{' '}
+                <code className="text-brand-400 font-mono">npm run seed</code> in the terminal to load demo accounts.
+              </p>
+            )}
+          </div>
         </CardContent>
 
         <CardFooter className="justify-center text-xs text-surface-400">

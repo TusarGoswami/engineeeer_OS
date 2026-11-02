@@ -5,6 +5,12 @@ echo             EngineerOS Development Launcher
 echo ===================================================
 echo.
 
+REM 0. Ensure server/.env exists
+if not exist "server\.env" (
+    echo [*] Creating server\.env from .env.example...
+    copy "server\.env.example" "server\.env" >nul
+)
+
 REM 1. Check if MongoDB is running on port 27017
 netstat -ano | findstr 27017 >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
