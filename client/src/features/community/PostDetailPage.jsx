@@ -191,7 +191,7 @@ I have completed DSA (graphs, trees, DP), but I'm looking for structured senior 
       </div>
 
       {/* Main Post Card */}
-      <Card className="border-surface-800 p-6 bg-surface-900/70 space-y-5">
+      <Card className="p-6 space-y-5">
         <div className="flex flex-wrap items-center gap-2">
           {post.isAskSenior && (
             <span className="flex items-center gap-1 text-[11px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-full">
@@ -338,7 +338,7 @@ I have completed DSA (graphs, trees, DP), but I'm looking for structured senior 
         )}
 
         {/* Reply Composer */}
-        <Card className="border-surface-800 p-5 bg-surface-900/80">
+        <Card className="p-5">
           <form onSubmit={handleAddReply} className="space-y-3">
             <label htmlFor="reply-composer" className="block text-xs font-semibold text-white">
               Write a Mentorship / Peer Response

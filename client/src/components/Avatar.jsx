@@ -24,19 +24,19 @@ export const Avatar = ({
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
 
-  // Consistent background hue from name string
+  // Consistent background hue from name string - strictly dark developer workspace tones
   const getHue = (str) => {
     let hash = 0;
     for (let i = 0; i < (str || '').length; i++) {
       hash = str.charCodeAt(i) + ((hash << 5) - hash);
     }
     const colors = [
-      'bg-brand-600 text-white',
+      'bg-[#FF6500] text-white',
       'bg-emerald-600 text-white',
-      'bg-violet-600 text-white',
+      'bg-[#38BDF8] text-zinc-900 font-bold',
       'bg-amber-600 text-white',
-      'bg-cyan-600 text-white',
       'bg-rose-600 text-white',
+      'bg-violet-600 text-white',
     ];
     return colors[Math.abs(hash) % colors.length];
   };
@@ -60,9 +60,9 @@ export const Avatar = ({
   };
 
   const statusColors = {
-    online: 'bg-emerald-500 ring-surface-950',
-    offline: 'bg-surface-500 ring-surface-950',
-    busy: 'bg-rose-500 ring-surface-950',
+    online: 'bg-emerald-500 ring-[#0B0D11]',
+    offline: 'bg-zinc-500 ring-[#0B0D11]',
+    busy: 'bg-rose-500 ring-[#0B0D11]',
   };
 
   return (
@@ -72,12 +72,12 @@ export const Avatar = ({
           src={src}
           alt={alt || name || 'Avatar'}
           onError={() => setHasError(true)}
-          className={cn('rounded-full object-cover ring-1 ring-surface-700/50', sizes[size] || sizes.md)}
+          className={cn('rounded-full object-cover ring-1 ring-[#292E38]', sizes[size] || sizes.md)}
         />
       ) : (
         <div
           className={cn(
-            'flex items-center justify-center font-mono font-semibold rounded-full ring-1 ring-surface-700/50',
+            'flex items-center justify-center font-mono font-semibold rounded-full ring-1 ring-[#292E38]',
             sizes[size] || sizes.md,
             getHue(name),
             fallbackClassName
@@ -102,4 +102,3 @@ export const Avatar = ({
 };
 
 export default Avatar;
-

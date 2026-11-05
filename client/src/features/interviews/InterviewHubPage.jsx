@@ -127,7 +127,7 @@ export function InterviewHubPage() {
                 setMode(m.id);
                 setIsModalOpen(true);
               }}
-              className="p-5 border-surface-800 bg-surface-900/40 cursor-pointer flex flex-col justify-between"
+              className="p-5 cursor-pointer flex flex-col justify-between"
             >
               <div>
                 <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-3">
@@ -178,7 +178,7 @@ export function InterviewHubPage() {
                 <div
                   key={s._id}
                   onClick={() => navigate(`/interviews/${s._id}`)}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-surface-800 bg-surface-900/50 hover:bg-surface-900/80 hover:border-surface-700 transition-all cursor-pointer shadow-sm"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-[#292E38] bg-[#151922] hover:bg-[#1B202A] hover:border-zinc-600 transition-all cursor-pointer shadow-sm"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">

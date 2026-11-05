@@ -1,9 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import {
+  ArrowLeft,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  Clock,
+  Target,
+  Award,
+  BookOpen,
+} from 'lucide-react';
 import { gateService } from '../../services/gate.service.js';
-import Card from '../../components/Card';
-import Badge from '../../components/Badge';
-import Button from '../../components/Button';
+import { Card } from '../../components/Card.jsx';
+import { Badge } from '../../components/Badge.jsx';
+import { Button } from '../../components/Button.jsx';
+import { StatCard } from '../../components/StatCard.jsx';
 
 export function GateResultPage() {
   const { id } = useParams();
@@ -30,289 +41,223 @@ export function GateResultPage() {
 
   if (loading) {
     return (
-      <div style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-        Loading examination results and solutions...
+      <div className="h-[calc(100vh-12rem)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-surface-400">
+          <div className="w-8 h-8 rounded-full border-2 border-brand-500 border-t-transparent animate-spin" />
+          <span className="text-sm font-mono">Loading examination results and solutions...</span>
+        </div>
       </div>
     );
   }
 
   if (!attempt) {
     return (
-      <div style={{ padding: '4rem', textAlign: 'center' }}>
-        <h2>Result not found</h2>
-        <Button onClick={() => navigate('/gate')}>Back to GATE Hub</Button>
+      <div className="max-w-md mx-auto my-16 p-8 text-center rounded-2xl border border-surface-700 bg-surface-850">
+        <h2 className="text-lg font-bold text-white mb-2">Result not found</h2>
+        <p className="text-xs text-surface-400 mb-6">
+          The requested exam attempt could not be retrieved.
+        </p>
+        <Button variant="primary" onClick={() => navigate('/gate')}>
+          Back to GATE Hub
+        </Button>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div className="space-y-8 max-w-6xl mx-auto pb-12 animate-fade-in">
       {/* Top Header */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem',
-        }}
-      >
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-surface-700/80 pb-6">
         <div>
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
+            type="button"
             onClick={() => navigate('/gate')}
-            style={{ marginBottom: '0.5rem' }}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-surface-400 hover:text-white transition-colors mb-2"
           >
-            ← Back to Mock Tests
-          </Button>
-          <h1
-            style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}
-          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to GATE Hub</span>
+          </button>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             {attempt.testId?.title || 'GATE CS Mock Exam'} — Result Analysis
           </h1>
-          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+          <span className="text-xs font-mono text-surface-400 mt-1 block">
             Completed on {new Date(attempt.submittedAt).toLocaleString()}
           </span>
         </div>
       </div>
 
       {/* Score Hero Stats */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '1rem',
-        }}
-      >
-        <Card>
-          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-            Total Score
-          </div>
-          <div
-            style={{
-              fontSize: '2rem',
-              fontWeight: 800,
-              color: 'var(--primary, #6366f1)',
-              margin: '4px 0',
-            }}
-          >
-            {attempt.score}{' '}
-            <span style={{ fontSize: '1rem', color: 'var(--text-muted)' }}>
-              / {attempt.totalMarksAvailable}
-            </span>
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            GATE Marking Applied
-          </div>
-        </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          title="Total Score"
+          value={`${attempt.score} / ${attempt.totalMarksAvailable}`}
+          subtitle="GATE Marking Algorithm Applied"
+          icon={Award}
+          variant="brand"
+        />
 
-        <Card>
-          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-            Accuracy Rate
-          </div>
-          <div
-            style={{
-              fontSize: '2rem',
-              fontWeight: 800,
-              color: 'var(--emerald-400, #34d399)',
-              margin: '4px 0',
-            }}
-          >
-            {attempt.accuracyRate}%
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            Of attempted questions
-          </div>
-        </Card>
+        <StatCard
+          title="Accuracy Rate"
+          value={`${attempt.accuracyRate}%`}
+          subtitle="Of attempted questions"
+          icon={Target}
+          variant="compiler"
+        />
 
-        <Card>
-          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+        <Card className="p-5 border-surface-700 bg-surface-850 flex flex-col justify-between">
+          <p className="text-xs font-medium text-surface-400 uppercase tracking-wider">
             Question Breakdown
-          </div>
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'baseline', margin: '8px 0' }}>
-            <span style={{ color: 'var(--emerald-400, #34d399)', fontWeight: 700 }}>
-              ✓ {attempt.correctCount} Correct
+          </p>
+          <div className="flex items-baseline gap-3 my-1">
+            <span className="font-mono text-sm font-bold text-emerald-400 flex items-center gap-1">
+              <CheckCircle2 className="w-4 h-4" />
+              {attempt.correctCount} Correct
             </span>
-            <span style={{ color: 'var(--rose-400, #f87171)', fontWeight: 700 }}>
-              ✗ {attempt.incorrectCount} Incorrect
+            <span className="font-mono text-sm font-bold text-rose-400 flex items-center gap-1">
+              <XCircle className="w-4 h-4" />
+              {attempt.incorrectCount} Incorrect
             </span>
           </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+          <p className="text-xs text-surface-400 font-mono">
             {attempt.unattemptedCount} Unattempted
-          </div>
+          </p>
         </Card>
 
-        <Card>
-          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-            Time Taken
-          </div>
-          <div
-            style={{
-              fontSize: '1.5rem',
-              fontWeight: 700,
-              margin: '8px 0',
-              color: 'var(--text-main)',
-            }}
-          >
-            {Math.round(attempt.timeTakenSeconds / 60)} mins
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            Pacing: ~{(attempt.timeTakenSeconds / (attempt.totalQuestions || 1)).toFixed(0)}s per
-            question
-          </div>
-        </Card>
+        <StatCard
+          title="Time Taken"
+          value={`${Math.round(attempt.timeTakenSeconds / 60)}m`}
+          subtitle={`Pacing: ~${(attempt.timeTakenSeconds / (attempt.totalQuestions || 1)).toFixed(0)}s per question`}
+          icon={Clock}
+          variant="default"
+        />
       </div>
 
       {/* Weak Topics Callout */}
       {attempt.weakTopics && attempt.weakTopics.length > 0 && (
-        <Card
-          style={{
-            borderLeft: '4px solid var(--rose-400, #f87171)',
-            background: 'rgba(248, 113, 113, 0.05)',
-          }}
-        >
-          <h3
-            style={{
-              fontSize: '1rem',
-              fontWeight: 700,
-              margin: '0 0 0.5rem 0',
-              color: 'var(--rose-400, #f87171)',
-            }}
-          >
-            ⚠️ Targeted Study Recommended
-          </h3>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0 0 0.75rem 0' }}>
-            You scored below 50% accuracy in the following syllabus topics. Focus revision on these
-            core concepts:
-          </p>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            {attempt.weakTopics.map(wt => (
-              <Badge key={wt} variant="danger">
-                {wt}
-              </Badge>
-            ))}
+        <div className="flex items-start gap-3 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300">
+          <AlertTriangle className="w-5 h-5 shrink-0 text-amber-400 mt-0.5" />
+          <div className="space-y-1.5 flex-1">
+            <h3 className="text-sm font-bold text-amber-200">
+              Targeted Diagnostic Recommendation
+            </h3>
+            <p className="text-xs text-amber-300/80 leading-relaxed">
+              You scored below 50% accuracy in the following syllabus topics. Focus revision on these
+              core concepts to maximize mock percentile:
+            </p>
+            <div className="flex gap-1.5 flex-wrap pt-1">
+              {attempt.weakTopics.map((wt) => (
+                <Badge key={wt} variant="signal" size="sm">
+                  #{wt}
+                </Badge>
+              ))}
+            </div>
           </div>
-        </Card>
+        </div>
       )}
 
       {/* Detailed Question Review & Solutions */}
-      <div>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 1rem 0' }}>
-          Question & Solution Review
-        </h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {(attempt.reviewQuestions || []).map((q, idx) => (
-            <Card
-              key={q.questionId}
-              style={{
-                borderLeft: `4px solid ${
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-brand-500" />
+            <span>Question & Solution Review</span>
+          </h2>
+          <span className="text-xs text-surface-400 font-mono">
+            {attempt.reviewQuestions?.length || 0} Questions Evaluated
+          </span>
+        </div>
+
+        <div className="space-y-4">
+          {(attempt.reviewQuestions || []).map((q, idx) => {
+            const isAnswered = q.selectedOptions?.length > 0 || q.natAnswer !== null;
+            return (
+              <Card
+                key={q.questionId}
+                className={`p-5 border-surface-700 bg-surface-850 border-l-4 transition-all ${
                   q.isCorrect
-                    ? 'var(--emerald-500, #10b981)'
-                    : q.selectedOptions?.length || q.natAnswer !== null
-                      ? 'var(--rose-500, #ef4444)'
-                      : 'var(--border)'
-                }`,
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: '0.75rem',
-                }}
+                    ? 'border-l-emerald-500'
+                    : isAnswered
+                    ? 'border-l-rose-500'
+                    : 'border-l-surface-600'
+                }`}
               >
-                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 700 }}>Question {idx + 1}</span>
-                  <Badge variant="primary">{q.type?.toUpperCase()}</Badge>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{q.topic}</span>
-                </div>
-                <div>
-                  <Badge
-                    variant={
-                      q.isCorrect ? 'success' : q.negativeDeducted > 0 ? 'danger' : 'secondary'
-                    }
-                  >
-                    {q.marksAwarded > 0
-                      ? `+${q.marksAwarded}`
-                      : q.negativeDeducted > 0
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-bold text-white font-mono">
+                      Q{idx + 1}.
+                    </span>
+                    <Badge variant="cyan" size="sm" className="font-mono text-[10px]">
+                      {q.type?.toUpperCase()}
+                    </Badge>
+                    <span className="text-xs font-mono text-surface-400">{q.topic}</span>
+                  </div>
+                  <div>
+                    <Badge
+                      variant={
+                        q.isCorrect ? 'compiler' : q.negativeDeducted > 0 ? 'fault' : 'surface'
+                      }
+                      size="sm"
+                      className="font-mono"
+                    >
+                      {q.marksAwarded > 0
+                        ? `+${q.marksAwarded}`
+                        : q.negativeDeducted > 0
                         ? `-${q.negativeDeducted}`
                         : '0'}{' '}
-                    Marks
-                  </Badge>
+                      Marks
+                    </Badge>
+                  </div>
                 </div>
-              </div>
 
-              {/* Question Statement */}
-              <p
-                style={{
-                  margin: '0 0 1rem 0',
-                  fontSize: '0.95rem',
-                  lineHeight: 1.5,
-                  color: 'var(--text-main)',
-                  whiteSpace: 'pre-line',
-                }}
-              >
-                {q.questionText}
-              </p>
+                {/* Question Statement */}
+                <p className="text-sm text-surface-200 leading-relaxed whitespace-pre-line mb-4 font-sans">
+                  {q.questionText}
+                </p>
 
-              {/* Answers Review */}
-              <div
-                style={{
-                  background: 'rgba(0, 0, 0, 0.2)',
-                  padding: '12px',
-                  borderRadius: '6px',
-                  fontSize: '0.85rem',
-                  marginBottom: '0.75rem',
-                }}
-              >
-                <div style={{ marginBottom: '4px' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>Your Answer: </span>
-                  <strong
-                    style={{
-                      color: q.isCorrect
-                        ? 'var(--emerald-400, #34d399)'
-                        : 'var(--rose-400, #f87171)',
-                    }}
-                  >
-                    {q.type === 'nat'
-                      ? q.natAnswer !== null
-                        ? q.natAnswer
-                        : 'Unattempted'
-                      : q.selectedOptions?.length
+                {/* Answers Review Box */}
+                <div className="p-3.5 rounded-xl bg-surface-950/80 border border-surface-700 space-y-2 font-mono text-xs mb-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-surface-400">Your Answer:</span>
+                    <strong
+                      className={
+                        q.isCorrect
+                          ? 'text-emerald-400 font-bold'
+                          : isAnswered
+                          ? 'text-rose-400 font-bold'
+                          : 'text-surface-500 font-normal'
+                      }
+                    >
+                      {q.type === 'nat'
+                        ? q.natAnswer !== null
+                          ? q.natAnswer
+                          : 'Unattempted'
+                        : q.selectedOptions?.length
                         ? q.selectedOptions.join(', ')
                         : 'Unattempted'}
-                  </strong>
+                    </strong>
+                  </div>
+                  <div className="flex items-center justify-between pt-1 border-t border-surface-800">
+                    <span className="text-surface-400">Official Correct Answer:</span>
+                    <strong className="text-emerald-400 font-bold">
+                      {q.type === 'nat'
+                        ? `${q.natRange?.min ?? q.correctOptions?.[0]}`
+                        : q.correctOptions?.join(', ')}
+                    </strong>
+                  </div>
                 </div>
-                <div>
-                  <span style={{ color: 'var(--text-muted)' }}>Official Answer: </span>
-                  <strong style={{ color: 'var(--emerald-400, #34d399)' }}>
-                    {q.type === 'nat'
-                      ? `${q.natRange?.min ?? q.correctOptions?.[0]}`
-                      : q.correctOptions?.join(', ')}
-                  </strong>
-                </div>
-              </div>
 
-              {/* Step-by-Step Explanation */}
-              {q.explanation && (
-                <div
-                  style={{
-                    fontSize: '0.85rem',
-                    color: 'var(--text-muted)',
-                    borderTop: '1px solid var(--border)',
-                    paddingTop: '0.75rem',
-                  }}
-                >
-                  <strong style={{ color: 'var(--primary, #6366f1)' }}>
-                    Step-by-Step Solution:{' '}
-                  </strong>
-                  {q.explanation}
-                </div>
-              )}
-            </Card>
-          ))}
+                {/* Step-by-Step Explanation */}
+                {q.explanation && (
+                  <div className="pt-3 border-t border-surface-700/60 text-xs text-surface-300 leading-relaxed font-sans">
+                    <strong className="text-brand-400 block mb-1 font-mono uppercase tracking-wider text-[11px]">
+                      Step-by-Step Solution Breakdown:
+                    </strong>
+                    <p className="text-surface-300">{q.explanation}</p>
+                  </div>
+                )}
+              </Card>
+            );
+          })}
         </div>
       </div>
     </div>

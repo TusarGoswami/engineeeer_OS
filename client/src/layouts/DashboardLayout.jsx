@@ -142,7 +142,7 @@ export const DashboardLayout = () => {
               cn(
                 'group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
                 isActive
-                  ? 'bg-brand-600/15 text-brand-300 font-semibold border border-brand-500/20 shadow-sm shadow-brand-500/5'
+                  ? 'bg-brand-500/15 text-brand-400 font-semibold border border-brand-500/25 shadow-sm shadow-brand-500/10'
                   : 'text-surface-400 hover:text-surface-100 hover:bg-surface-800/60'
               )
             }
@@ -167,14 +167,14 @@ export const DashboardLayout = () => {
   return (
     <div className="flex min-h-screen bg-surface-950 text-surface-100 font-sans">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-64 flex-col fixed inset-y-0 border-r border-surface-800/80 bg-surface-900/40 backdrop-blur-2xl z-30">
+      <aside className="hidden lg:flex w-64 flex-col fixed inset-y-0 border-r border-surface-700/80 bg-surface-900/90 backdrop-blur-2xl z-30">
         {/* Brand Header */}
-        <div className="flex h-16 items-center gap-3 px-6 border-b border-surface-800/80">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 font-bold text-white shadow-md shadow-brand-600/30 text-sm">
+        <div className="flex h-16 items-center gap-3 px-6 border-b border-surface-700/80">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 font-bold text-white shadow-md shadow-brand-500/25 text-sm">
             OS
           </div>
           <div>
-            <span className="font-bold text-base text-white tracking-tight">EngineerOS</span>
+            <span className="font-bold text-base text-white tracking-tight">Engineer<span className="text-brand-500">OS</span></span>
             <span className="block text-[10px] text-surface-400 -mt-1 font-mono uppercase tracking-wider">
               Student Edition
             </span>
@@ -185,7 +185,7 @@ export const DashboardLayout = () => {
         <div className="flex-1 overflow-y-auto px-4 py-5 space-y-6">{renderNavLinks()}</div>
 
         {/* User Card & Logout Footer */}
-        <div className="p-4 border-t border-surface-800/80 bg-surface-950/40">
+        <div className="p-4 border-t border-surface-700/80 bg-surface-950/60">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3 overflow-hidden">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-800 border border-surface-700 text-brand-400 font-bold text-xs uppercase">
@@ -219,10 +219,10 @@ export const DashboardLayout = () => {
           <div className="fixed inset-y-0 left-0 w-72 bg-surface-900 border-r border-surface-800 p-5 flex flex-col shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-surface-800 mb-4">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-brand-600 font-bold text-white text-xs">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 font-bold text-white text-xs">
                   OS
                 </div>
-                <span className="font-bold text-white">EngineerOS</span>
+                <span className="font-bold text-white">Engineer<span className="text-brand-500">OS</span></span>
               </div>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -248,7 +248,7 @@ export const DashboardLayout = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col lg:pl-64 min-w-0">
         {/* Top Navbar */}
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between px-6 border-b border-surface-800/80 bg-surface-950/80 backdrop-blur-xl">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between px-6 border-b border-surface-700/80 bg-surface-950/80 backdrop-blur-xl">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
@@ -267,7 +267,7 @@ export const DashboardLayout = () => {
           <button
             type="button"
             onClick={() => setIsCommandPaletteOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-900 border border-surface-800 text-surface-400 hover:text-surface-200 text-xs transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-900 border border-surface-700 text-surface-400 hover:text-surface-200 text-xs transition-colors"
           >
             <Search className="w-3.5 h-3.5" />
             <span className="hidden md:inline">Search platform or press</span>
@@ -375,7 +375,7 @@ export const DashboardLayout = () => {
         </main>
 
         {/* Mobile Bottom Navigation Bar */}
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-surface-950/95 backdrop-blur-xl border-t border-surface-800/80 px-2 py-1.5 flex items-center justify-around">
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-surface-950/95 backdrop-blur-xl border-t border-surface-700/80 px-2 py-1.5 flex items-center justify-around">
           {[
             { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
             { name: 'Coding', path: '/coding', icon: Code2 },

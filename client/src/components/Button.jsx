@@ -17,19 +17,19 @@ export const Button = ({
   ...props
 }) => {
   const baseStyles =
-    'inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-950 disabled:opacity-50 disabled:cursor-not-allowed select-none';
+    'inline-flex items-center justify-center font-semibold transition-all duration-150 rounded-[9px] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0B0D11] disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.98]';
 
   const variants = {
     primary:
-      'bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-600/25 focus:ring-brand-500 active:scale-[0.98]',
+      'bg-[#FF6500] hover:bg-[#E65300] text-white shadow-sm focus:ring-[#FF6500]/50',
     secondary:
-      'bg-surface-800 hover:bg-surface-700 text-surface-100 border border-surface-700 focus:ring-surface-500 active:scale-[0.98]',
+      'bg-[#1B202A] hover:bg-[#222733] text-[#F4F4F5] border border-[#292E38] focus:ring-zinc-500/40',
     outline:
-      'bg-transparent border border-surface-700 hover:border-brand-500 hover:bg-brand-500/10 text-surface-200 hover:text-white focus:ring-brand-500',
+      'bg-transparent border border-[#292E38] hover:border-[#FF6500] hover:bg-[#FF6500]/10 text-[#A1A1AA] hover:text-[#F4F4F5] focus:ring-[#FF6500]/50',
     ghost:
-      'bg-transparent hover:bg-surface-800/60 text-surface-300 hover:text-white focus:ring-surface-600',
+      'bg-transparent hover:bg-[#1B202A] text-[#A1A1AA] hover:text-[#F4F4F5] focus:ring-zinc-600',
     danger:
-      'bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-600/25 focus:ring-rose-500 active:scale-[0.98]',
+      'bg-rose-600 hover:bg-rose-500 text-white shadow-sm focus:ring-rose-500/50',
   };
 
   const sizes = {

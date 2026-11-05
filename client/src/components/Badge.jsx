@@ -5,7 +5,7 @@ const cn = (...inputs) => twMerge(clsx(inputs));
 
 export const Badge = ({ children, variant = 'surface', size = 'sm', className = '' }) => {
   const variants = {
-    brand: 'bg-brand-500/15 text-brand-300 border-brand-500/30',
+    brand: 'bg-[#FF6500]/15 text-[#FF6500] border-[#FF6500]/30',
     success: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
     compiler: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
     warning: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
@@ -14,10 +14,10 @@ export const Badge = ({ children, variant = 'surface', size = 'sm', className = 
     fault: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
     purple: 'bg-violet-500/15 text-violet-300 border-violet-500/30',
     alumni: 'bg-violet-500/15 text-violet-300 border-violet-500/30',
-    cyan: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
-    logic: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
-    surface: 'bg-surface-800 text-surface-300 border-surface-700',
-    outline: 'bg-transparent text-surface-300 border-surface-700',
+    cyan: 'bg-[#38BDF8]/15 text-[#38BDF8] border-[#38BDF8]/30',
+    logic: 'bg-[#38BDF8]/15 text-[#38BDF8] border-[#38BDF8]/30',
+    surface: 'bg-[#1B202A] text-zinc-300 border-[#292E38]',
+    outline: 'bg-transparent text-zinc-300 border-[#292E38]',
   };
 
   const sizes = {

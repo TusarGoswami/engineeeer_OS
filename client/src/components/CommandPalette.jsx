@@ -14,7 +14,7 @@ export const CommandPalette = ({ isOpen, onClose }) => {
 
   const commands = useMemo(
     () => [
-      { id: 'dash', title: 'Dashboard', category: 'Navigation', icon: Code2, path: '/' },
+      { id: 'dash', title: 'Dashboard', category: 'Navigation', icon: Code2, path: '/dashboard' },
       { id: 'coding', title: 'Coding Problems & DSA', category: 'Navigation', icon: Code2, path: '/coding' },
       { id: 'gate', title: 'GATE Preparation Hub', category: 'Navigation', icon: Brain, path: '/gate' },
       { id: 'academics', title: 'Academic Hub & Syllabus', category: 'Navigation', icon: GraduationCap, path: '/academics' },
@@ -58,7 +58,7 @@ export const CommandPalette = ({ isOpen, onClose }) => {
         setSelectedIndex((prev) => (prev + 1) % Math.max(filteredCommands.length, 1));
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setSelectedIndex((prev) => (prev - 1 + filteredCommands.length) % Math.max(filteredCommands.length, 1));
+        setSelectedIndex((prev) => (prev - 1 + Math.max(filteredCommands.length, 1)) % Math.max(filteredCommands.length, 1));
       } else if (e.key === 'Enter') {
         e.preventDefault();
         if (filteredCommands[selectedIndex]) {
@@ -77,15 +77,18 @@ export const CommandPalette = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 p-4" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 p-4 overflow-y-auto">
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-surface-950/80 backdrop-blur-md" onClick={onClose} aria-hidden="true" />
+      <div
+        className="fixed inset-0 bg-[#0B0D11]/80 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      />
 
-      {/* Palette Container */}
-      <div className="relative w-full max-w-xl rounded-2xl border border-surface-700 bg-surface-900 shadow-2xl overflow-hidden z-10 animate-fade-in">
-        {/* Search Header */}
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-surface-800">
-          <Search className="w-5 h-5 text-surface-400" />
+      {/* Modal Dialog */}
+      <div className="relative w-full max-w-xl rounded-2xl border border-[#292E38] bg-[#151922] shadow-2xl z-10 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        {/* Search Input Bar */}
+        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[#292E38] bg-[#0D1015]">
+          <Search className="w-5 h-5 text-zinc-500" />
           <input
             ref={inputRef}
             type="text"
@@ -93,27 +96,27 @@ export const CommandPalette = ({ isOpen, onClose }) => {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Type a command or jump to a module..."
             aria-label="Command palette search"
-            className="flex-1 bg-transparent text-sm text-white placeholder-surface-500 focus:outline-none"
+            className="flex-1 bg-transparent text-sm text-[#F4F4F5] placeholder-zinc-600 focus:outline-none"
           />
           {query && (
             <button
               type="button"
               onClick={() => setQuery('')}
-              className="text-surface-400 hover:text-white p-1 rounded"
+              className="text-[#A1A1AA] hover:text-white p-1 rounded"
               aria-label="Clear query"
             >
               <X className="w-4 h-4" />
             </button>
           )}
-          <span className="hidden sm:inline-block text-[11px] font-mono text-surface-500 border border-surface-700/60 rounded px-1.5 py-0.5">
+          <span className="hidden sm:inline-block text-[11px] font-mono text-zinc-500 border border-[#292E38] rounded px-1.5 py-0.5">
             ESC to close
           </span>
         </div>
 
         {/* Results List */}
-        <div className="max-h-80 overflow-y-auto p-2 divide-y divide-surface-850/50">
+        <div className="max-h-80 overflow-y-auto p-2 divide-y divide-[#292E38]/40">
           {filteredCommands.length === 0 ? (
-            <div className="p-6 text-center text-xs text-surface-400">
+            <div className="p-6 text-center text-xs text-[#A1A1AA]">
               No matching commands or destinations found for &quot;{query}&quot;
             </div>
           ) : (
@@ -130,19 +133,19 @@ export const CommandPalette = ({ isOpen, onClose }) => {
                   onMouseEnter={() => setSelectedIndex(idx)}
                   className={cn(
                     'flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer text-xs transition-colors',
-                    isSelected ? 'bg-brand-600/20 text-white border border-brand-500/30' : 'text-surface-300 hover:bg-surface-800/60'
+                    isSelected ? 'bg-[#FF6500]/15 text-white border border-[#FF6500]/30' : 'text-zinc-300 hover:bg-[#1B202A]'
                   )}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={cn('p-1.5 rounded-lg border border-surface-700/40', isSelected ? 'bg-brand-500/20 text-brand-300' : 'bg-surface-800 text-surface-400')}>
+                    <div className={cn('p-1.5 rounded-lg border border-[#292E38]', isSelected ? 'bg-[#FF6500]/20 text-[#FF6500]' : 'bg-[#1B202A] text-zinc-400')}>
                       <Icon className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="font-medium text-white">{cmd.title}</p>
-                      <p className="text-[10px] text-surface-400">{cmd.category}</p>
+                      <p className="font-medium text-[#F4F4F5]">{cmd.title}</p>
+                      <p className="text-[10px] text-[#A1A1AA]">{cmd.category}</p>
                     </div>
                   </div>
-                  {isSelected && <ArrowRight className="w-3.5 h-3.5 text-brand-400" />}
+                  {isSelected && <ArrowRight className="w-3.5 h-3.5 text-[#FF6500]" />}
                 </div>
               );
             })
@@ -150,12 +153,12 @@ export const CommandPalette = ({ isOpen, onClose }) => {
         </div>
 
         {/* Footer shortcuts */}
-        <div className="flex items-center justify-between px-4 py-2 border-t border-surface-800 bg-surface-950/60 text-[11px] font-mono text-surface-400">
+        <div className="flex items-center justify-between px-4 py-2 border-t border-[#292E38] bg-[#0B0D11] text-[11px] font-mono text-[#A1A1AA]">
           <div className="flex items-center gap-2">
             <span>Navigation:</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-surface-800 border border-surface-700 text-surface-300">↑</kbd>
-            <kbd className="px-1.5 py-0.5 rounded bg-surface-800 border border-surface-700 text-surface-300">↓</kbd>
-            <kbd className="px-1.5 py-0.5 rounded bg-surface-800 border border-surface-700 text-surface-300">↵ Select</kbd>
+            <kbd className="px-1.5 py-0.5 rounded bg-[#1B202A] border border-[#292E38] text-zinc-300">↑</kbd>
+            <kbd className="px-1.5 py-0.5 rounded bg-[#1B202A] border border-[#292E38] text-zinc-300">↓</kbd>
+            <kbd className="px-1.5 py-0.5 rounded bg-[#1B202A] border border-[#292E38] text-zinc-300">↵ Select</kbd>
           </div>
           <span>EngineerOS v1.0</span>
         </div>
@@ -165,4 +168,3 @@ export const CommandPalette = ({ isOpen, onClose }) => {
 };
 
 export default CommandPalette;
-

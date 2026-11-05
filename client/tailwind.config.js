@@ -6,32 +6,52 @@ export default {
     extend: {
       colors: {
         brand: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#2563eb', // Blueprint Cobalt Primary
-          600: '#1d4ed8',
-          700: '#1e40af',
-          800: '#1e3a8a',
-          900: '#172554',
-          950: '#0b1329',
+          50: '#fff7ed',
+          100: '#ffedd5',
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c',
+          500: '#FF6500', // Primary Brand Accent
+          600: '#E65300', // Hover Accent
+          700: '#c2410c',
+          800: '#9a3412',
+          900: '#7c2d12',
+          950: '#431407',
+        },
+        orange: {
+          50: '#fff7ed',
+          100: '#ffedd5',
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c',
+          500: '#FF6500',
+          600: '#E65300',
+          700: '#c2410c',
+        },
+        auth: {
+          bg: '#0B0D11',
+          card: '#151922',
+          input: '#0D1015',
+          border: '#292E38',
         },
         surface: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1f2937',
-          850: '#162032',
-          900: '#111827',
-          950: '#0b0f17',
+          50: '#FAFAFA',
+          100: '#F4F4F5', // Primary text
+          200: '#E4E4E7',
+          300: '#D4D4D8',
+          400: '#A1A1AA', // Secondary text
+          500: '#71717A', // Muted text
+          600: '#3F4450',
+          700: '#292E38', // Standard borders
+          800: '#292E38', // Border alias
+          850: '#151922', // Card background
+          900: '#101319', // Secondary background / Panel
+          950: '#0B0D11', // Main canvas background
         },
+        canvas: '#0B0D11',
+        card: '#151922',
+        elevated: '#1B202A',
+        panel: '#101319',
         compiler: {
           500: '#10b981', // Emerald / Compiler Green
           600: '#059669',
@@ -49,8 +69,12 @@ export default {
           600: '#7c3aed',
         },
         logic: {
-          500: '#06b6d4', // Cyan / Logic Cyan
-          600: '#0891b2',
+          500: '#38BDF8', // Terminal Cyan
+          600: '#0284c7',
+        },
+        cyan: {
+          400: '#38BDF8',
+          500: '#38BDF8',
         },
       },
       fontFamily: {

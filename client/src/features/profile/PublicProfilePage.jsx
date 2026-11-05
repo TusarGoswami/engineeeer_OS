@@ -67,18 +67,18 @@ export const PublicProfilePage = () => {
   }, [username, token]);
 
   return (
-    <div className="min-h-screen bg-[#07090E] text-surface-100 flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+    <div className="min-h-screen bg-surface-950 text-surface-100 flex flex-col justify-between selection:bg-brand-500 selection:text-white">
       {/* Top Banner */}
-      <header className="border-b border-surface-800/80 bg-surface-950/70 backdrop-blur-md sticky top-0 z-40">
+      <header className="border-b border-surface-700/80 bg-surface-950/70 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link
             to="/"
             className="flex items-center gap-2.5 font-bold text-white text-sm hover:opacity-90 transition-opacity"
           >
-            <div className="w-7 h-7 rounded-lg bg-brand-600 flex items-center justify-center font-bold text-xs shadow-md shadow-brand-600/30">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center font-bold text-xs shadow-md shadow-brand-500/25">
               OS
             </div>
-            <span>EngineerOS</span>
+            <span>Engineer<span className="text-brand-500">OS</span></span>
           </Link>
 
           <div className="flex items-center gap-3">

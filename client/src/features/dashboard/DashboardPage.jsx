@@ -191,7 +191,7 @@ export const DashboardPage = () => {
           </div>
 
           {/* Daily Progress Tracker */}
-          <div className="flex items-center gap-3 bg-surface-900/60 border border-surface-800 rounded-xl px-3.5 py-2">
+          <div className="flex items-center gap-3 bg-[#151922] border border-[#292E38] rounded-xl px-3.5 py-2">
             <div className="text-xs font-mono text-surface-300">
               <span className="text-emerald-400 font-bold">{completedCount}</span> / {totalTasks} Completed
             </div>
@@ -230,7 +230,7 @@ export const DashboardPage = () => {
                       ? 'bg-surface-900/30 border-surface-800/50 opacity-60'
                       : isSnoozed
                       ? 'bg-surface-950/40 border-surface-800/50 opacity-70'
-                      : 'bg-surface-900/70 border-surface-800 hover:border-surface-700 shadow-md'
+                      : 'bg-[#151922] border-[#292E38] hover:border-zinc-600 shadow-md'
                   }`}
                 >
                   <div className="space-y-2.5">
@@ -319,7 +319,7 @@ export const DashboardPage = () => {
           </div>
         </div>
 
-        <Card className="border-surface-800 bg-surface-900/40 p-4 sm:p-5">
+        <Card className="p-4 sm:p-5">
           {isHeatmapLoading ? (
             <div className="h-32 w-full animate-pulse bg-surface-800/40 rounded-xl" />
           ) : (
@@ -346,7 +346,7 @@ export const DashboardPage = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Tile 1: Coding & DSA */}
-          <Card hover className="p-5 flex flex-col justify-between border-surface-800 bg-surface-900/40">
+          <Card hover className="p-5 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400 font-mono">
@@ -381,7 +381,7 @@ export const DashboardPage = () => {
           </Card>
 
           {/* Tile 2: GATE Examination */}
-          <Card hover className="p-5 flex flex-col justify-between border-surface-800 bg-surface-900/40">
+          <Card hover className="p-5 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-cyan-400 font-mono">
@@ -414,7 +414,7 @@ export const DashboardPage = () => {
           </Card>
 
           {/* Tile 3: Academics & Syllabus */}
-          <Card hover className="p-5 flex flex-col justify-between border-surface-800 bg-surface-900/40">
+          <Card hover className="p-5 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-brand-400 font-mono">
@@ -443,7 +443,7 @@ export const DashboardPage = () => {
           </Card>
 
           {/* Tile 4: AI Learning Copilot */}
-          <Card hover className="p-5 flex flex-col justify-between border-surface-800 bg-surface-900/40">
+          <Card hover className="p-5 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-purple-400 font-mono">
@@ -472,7 +472,7 @@ export const DashboardPage = () => {
           </Card>
 
           {/* Tile 5: AI Mock Interviews */}
-          <Card hover className="p-5 flex flex-col justify-between border-surface-800 bg-surface-900/40">
+          <Card hover className="p-5 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-amber-400 font-mono">
@@ -501,7 +501,7 @@ export const DashboardPage = () => {
           </Card>
 
           {/* Tile 6: Senior Mentorship & Community */}
-          <Card hover className="p-5 flex flex-col justify-between border-surface-800 bg-surface-900/40">
+          <Card hover className="p-5 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-rose-400 font-mono">

@@ -1,9 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  BookOpen,
+  Clock,
+  Target,
+  ArrowRight,
+  FileCheck2,
+} from 'lucide-react';
 import { gateService } from '../../services/gate.service.js';
-import Card from '../../components/Card';
-import Badge from '../../components/Badge';
-import Button from '../../components/Button';
+import { Card } from '../../components/Card.jsx';
+import { Badge } from '../../components/Badge.jsx';
+import { Button } from '../../components/Button.jsx';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/Table.jsx';
 
 export function GateCataloguePage() {
   const navigate = useNavigate();
@@ -32,104 +40,111 @@ export function GateCataloguePage() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div className="space-y-8 max-w-6xl mx-auto pb-12 animate-fade-in">
       {/* Header section */}
-      <div>
-        <h1
-          style={{
-            fontSize: '2rem',
-            fontWeight: 800,
-            color: 'var(--text-main)',
-            margin: '0 0 0.5rem 0',
-          }}
-        >
-          GATE Mock Examination Hub
-        </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', margin: 0 }}>
-          High-yield mock exams matching standard IIT GATE patterns with precise MCQ, MSQ, and NAT
-          negative scoring.
-        </p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-surface-700/80 pb-6">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <BookOpen className="w-6 h-6 text-brand-500" />
+            <span className="text-xs font-mono uppercase tracking-wider text-brand-400">
+              National Examination Engine
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            GATE Mock Examination Hub
+          </h1>
+          <p className="text-sm text-surface-400 mt-1 max-w-2xl leading-relaxed">
+            High-yield mock exams matching standard IIT GATE patterns with precise MCQ, MSQ, and NAT
+            negative scoring algorithms.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="px-3.5 py-2 rounded-xl bg-surface-900 border border-surface-700 text-xs text-surface-300 font-mono">
+            <span className="text-brand-400 font-bold">{tests.length}</span> Official Mocks
+          </div>
+        </div>
       </div>
 
       {/* Available Tests */}
-      <div>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 1rem 0' }}>
-          Available Mock Tests
-        </h2>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+            <span>Available Mock Tests</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-500" />
+          </h2>
+          <span className="text-xs text-surface-400">Timed IIT-Pattern Simulations</span>
+        </div>
+
         {loading ? (
-          <p style={{ color: 'var(--text-muted)' }}>Loading tests...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-56 rounded-2xl bg-surface-900/40 border border-surface-700 animate-pulse"
+              />
+            ))}
+          </div>
         ) : tests.length === 0 ? (
-          <Card>
-            <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>
-              No mock tests available at the moment.
-            </p>
+          <Card className="p-8 text-center text-surface-400 text-sm">
+            No mock tests available at the moment. Check back soon!
           </Card>
         ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-              gap: '1.25rem',
-            }}
-          >
-            {tests.map(test => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {tests.map((test) => (
               <Card
                 key={test._id}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  gap: '1rem',
-                }}
+                hover
+                className="flex flex-col justify-between p-5 border-surface-700 bg-surface-850 shadow-md group"
               >
-                <div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      marginBottom: '0.5rem',
-                    }}
-                  >
-                    <h3
-                      style={{
-                        fontSize: '1.1rem',
-                        fontWeight: 700,
-                        margin: 0,
-                        color: 'var(--text-main)',
-                      }}
-                    >
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <Badge variant="cyan" size="sm" className="font-mono text-[10px]">
+                      {test.subject || 'CS & IT'}
+                    </Badge>
+                    <span className="text-[11px] font-mono text-surface-400">
+                      {test.totalMarks} Marks
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="text-base font-bold text-white group-hover:text-brand-400 transition-colors line-clamp-1">
                       {test.title}
                     </h3>
+                    <p className="text-xs text-surface-400 mt-1 line-clamp-2 leading-relaxed">
+                      {test.description}
+                    </p>
                   </div>
-                  <p
-                    style={{
-                      fontSize: '0.85rem',
-                      color: 'var(--text-muted)',
-                      margin: '0 0 1rem 0',
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    {test.description}
-                  </p>
-                  <div
-                    style={{
-                      display: 'flex',
-                      gap: '0.75rem',
-                      flexWrap: 'wrap',
-                      fontSize: '0.8rem',
-                      color: 'var(--text-muted)',
-                    }}
-                  >
-                    <span>⏱ {test.durationMinutes} mins</span>
-                    <span>📝 {test.totalQuestions} Questions</span>
-                    <span>🎯 {test.totalMarks} Marks</span>
+
+                  <div className="flex items-center gap-3 pt-2 text-xs font-mono text-surface-400 border-t border-surface-700/60">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5 text-surface-500" />
+                      {test.durationMinutes}m
+                    </span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1">
+                      <FileCheck2 className="w-3.5 h-3.5 text-surface-500" />
+                      {test.totalQuestions} Qs
+                    </span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1">
+                      <Target className="w-3.5 h-3.5 text-surface-500" />
+                      {test.totalMarks} Pts
+                    </span>
                   </div>
                 </div>
 
-                <Button variant="primary" onClick={() => navigate(`/gate/test/${test._id}`)}>
-                  Start Exam
-                </Button>
+                <div className="mt-5 pt-3 border-t border-surface-700">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="w-full justify-between"
+                    rightIcon={ArrowRight}
+                    onClick={() => navigate(`/gate/test/${test._id}`)}
+                  >
+                    Start Exam
+                  </Button>
+                </div>
               </Card>
             ))}
           </div>
@@ -137,129 +152,74 @@ export function GateCataloguePage() {
       </div>
 
       {/* Recent Attempts History */}
-      <div>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 1rem 0' }}>
-          My Test Attempts
-        </h2>
+      <div className="space-y-4 pt-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+            <span>My Test Attempts & Diagnostics</span>
+          </h2>
+          <span className="text-xs text-surface-400">Historical performance & solutions</span>
+        </div>
+
         {attempts.length === 0 ? (
-          <Card>
-            <p style={{ color: 'var(--text-muted)', textAlign: 'center', margin: '1rem 0' }}>
-              You haven&apos;t taken any GATE mock exams yet. Take your first test above to evaluate
-              your readiness!
-            </p>
+          <Card className="p-8 text-center text-surface-400 text-sm">
+            You haven&apos;t taken any GATE mock exams yet. Take your first test above to evaluate
+            your readiness!
           </Card>
         ) : (
-          <Card style={{ padding: 0, overflow: 'hidden' }}>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                <thead>
-                  <tr
-                    style={{
-                      borderBottom: '1px solid var(--border)',
-                      background: 'rgba(255, 255, 255, 0.02)',
-                    }}
-                  >
-                    <th
-                      style={{
-                        padding: '1rem 1.5rem',
-                        color: 'var(--text-muted)',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
+          <Table containerClassName="border-surface-700 bg-surface-850">
+            <TableHeader className="bg-surface-900 border-surface-700">
+              <TableRow hover={false}>
+                <TableHead>Test Title</TableHead>
+                <TableHead>Score</TableHead>
+                <TableHead>Accuracy</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead className="text-right">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-surface-700/80">
+              {attempts.map((att) => (
+                <TableRow
+                  key={att._id}
+                  onClick={() => navigate(`/gate/results/${att._id}`)}
+                  className="cursor-pointer hover:bg-surface-800/60 transition-colors"
+                >
+                  <TableCell className="font-semibold text-white">
+                    <div className="flex items-center gap-2">
+                      <span>{att.testId?.title || 'GATE CS Mock Exam'}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-mono font-bold text-brand-400">
+                      {att.score}
+                    </span>{' '}
+                    <span className="text-xs font-mono text-surface-500">
+                      / {att.totalMarksAvailable}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={att.accuracyRate >= 70 ? 'compiler' : 'signal'} size="sm">
+                      {att.accuracyRate}%
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-xs font-mono text-surface-400">
+                    {new Date(att.submittedAt).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/gate/results/${att._id}`);
                       }}
                     >
-                      Test Title
-                    </th>
-                    <th
-                      style={{
-                        padding: '1rem 1.5rem',
-                        color: 'var(--text-muted)',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                      }}
-                    >
-                      Score
-                    </th>
-                    <th
-                      style={{
-                        padding: '1rem 1.5rem',
-                        color: 'var(--text-muted)',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                      }}
-                    >
-                      Accuracy
-                    </th>
-                    <th
-                      style={{
-                        padding: '1rem 1.5rem',
-                        color: 'var(--text-muted)',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                      }}
-                    >
-                      Date
-                    </th>
-                    <th
-                      style={{
-                        padding: '1rem 1.5rem',
-                        textAlign: 'right',
-                        color: 'var(--text-muted)',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                      }}
-                    >
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {attempts.map(att => (
-                    <tr
-                      key={att._id}
-                      style={{ borderBottom: '1px solid var(--border)', cursor: 'pointer' }}
-                      onClick={() => navigate(`/gate/results/${att._id}`)}
-                    >
-                      <td style={{ padding: '1rem 1.5rem', fontWeight: 600 }}>
-                        {att.testId?.title || 'GATE CS Mock Exam'}
-                      </td>
-                      <td style={{ padding: '1rem 1.5rem' }}>
-                        <span style={{ fontWeight: 700, color: 'var(--primary, #6366f1)' }}>
-                          {att.score}
-                        </span>{' '}
-                        / {att.totalMarksAvailable}
-                      </td>
-                      <td style={{ padding: '1rem 1.5rem' }}>
-                        <Badge variant={att.accuracyRate >= 70 ? 'success' : 'warning'}>
-                          {att.accuracyRate}%
-                        </Badge>
-                      </td>
-                      <td
-                        style={{
-                          padding: '1rem 1.5rem',
-                          color: 'var(--text-muted)',
-                          fontSize: '0.85rem',
-                        }}
-                      >
-                        {new Date(att.submittedAt).toLocaleDateString()}
-                      </td>
-                      <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={e => {
-                            e.stopPropagation();
-                            navigate(`/gate/results/${att._id}`);
-                          }}
-                        >
-                          Review Solutions
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+                      Review Solutions
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         )}
       </div>
     </div>

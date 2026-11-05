@@ -215,7 +215,7 @@ export const CommunityForumPage = () => {
             <Card
               key={post._id}
               onClick={() => navigate(`/community/${post._id}`)}
-              className="border-surface-800 hover:border-surface-700 transition-all p-5 cursor-pointer bg-surface-900/60 group"
+              className="p-5 cursor-pointer group"
             >
               <div className="flex items-start gap-4">
                 {/* Upvote Counter */}

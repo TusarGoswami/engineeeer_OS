@@ -44,7 +44,7 @@ export const Drawer = ({
     <div className="fixed inset-0 z-50 overflow-hidden" role="dialog" aria-modal="true">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-surface-950/80 backdrop-blur-sm transition-opacity duration-200"
+        className="fixed inset-0 bg-[#0B0D11]/80 backdrop-blur-sm transition-opacity duration-200"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -52,7 +52,7 @@ export const Drawer = ({
       {/* Drawer Container */}
       <div
         className={cn(
-          'fixed flex flex-col bg-surface-900 border-surface-800 shadow-2xl z-10 w-full overflow-hidden',
+          'fixed flex flex-col bg-[#151922] border-[#292E38] shadow-2xl z-10 w-full overflow-hidden',
           side === 'right' && 'border-l',
           side === 'left' && 'border-r',
           side === 'bottom' && 'border-t',
@@ -62,27 +62,27 @@ export const Drawer = ({
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-surface-800">
+        <div className="flex items-center justify-between p-5 border-b border-[#292E38]">
           <div>
-            {title && <h3 className="text-base font-semibold text-white">{title}</h3>}
-            {description && <p className="text-xs text-surface-400 mt-0.5">{description}</p>}
+            {title && <h3 className="text-base font-semibold text-[#F4F4F5]">{title}</h3>}
+            {description && <p className="text-xs text-[#A1A1AA] mt-0.5">{description}</p>}
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close drawer"
-            className="rounded-lg p-1 text-surface-400 hover:text-white hover:bg-surface-800 transition-colors focus:outline-none focus:ring-1 focus:ring-brand-500"
+            className="rounded-lg p-1 text-[#A1A1AA] hover:text-white hover:bg-[#1B202A] transition-colors focus:outline-none focus:ring-1 focus:ring-[#FF6500]"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content Body */}
-        <div className="flex-1 overflow-y-auto p-5 text-surface-200">{children}</div>
+        <div className="flex-1 overflow-y-auto p-5 text-[#F4F4F5]">{children}</div>
 
         {/* Optional Footer */}
         {footer && (
-          <div className="p-4 border-t border-surface-800 bg-surface-950/40 flex justify-end gap-3">
+          <div className="p-4 border-t border-[#292E38] bg-[#101319] flex justify-end gap-3">
             {footer}
           </div>
         )}
@@ -92,4 +92,3 @@ export const Drawer = ({
 };
 
 export default Drawer;
-

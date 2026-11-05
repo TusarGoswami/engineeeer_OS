@@ -46,7 +46,7 @@ export const CardExportModal = ({
       const dataUrl = await toPng(cardElementRef.current, {
         cacheBust: true,
         pixelRatio: 2,
-        backgroundColor: '#0A0F1D',
+        backgroundColor: '#0B0D11',
       });
       const link = document.createElement('a');
       link.download = `engineeros-${username}-card.png`;
@@ -67,7 +67,7 @@ export const CardExportModal = ({
       const blob = await toBlob(cardElementRef.current, {
         cacheBust: true,
         pixelRatio: 2,
-        backgroundColor: '#0A0F1D',
+        backgroundColor: '#0B0D11',
       });
       if (blob && navigator.clipboard && window.ClipboardItem) {
         await navigator.clipboard.write([

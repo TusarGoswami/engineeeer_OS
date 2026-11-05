@@ -4,32 +4,28 @@
 
 :root {
   color-scheme: dark;
-  --bg-canvas: #0b0f17;
-  --bg-surface: #111827;
-  --border-subtle: #1f2937;
-  --text-primary: #f3f4f6;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --color-brand: #2563eb;
-  --color-compiler: #10b981;
-  --color-signal: #f59e0b;
-  --color-fault: #ef4444;
-}
-
-.light {
-  color-scheme: light;
-  --bg-canvas: #f8fafc;
-  --bg-surface: #ffffff;
-  --border-subtle: #e2e8f0;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
+  --bg-canvas: #0B0D11;
+  --bg-surface: #101319;
+  --bg-card: #151922;
+  --bg-elevated: #1B202A;
+  --bg-input: #0D1015;
+  --border-subtle: #292E38;
+  --text-primary: #F4F4F5;
+  --text-secondary: #A1A1AA;
+  --text-muted: #71717A;
+  --color-brand: #FF6500;
+  --color-brand-hover: #E65300;
+  --color-compiler: #10B981;
+  --color-signal: #F59E0B;
+  --color-fault: #EF4444;
+  --color-orange: #FF6500;
+  --color-cyan: #38BDF8;
 }
 
 body {
   margin: 0;
-  background-color: var(--bg-canvas);
-  color: var(--text-primary);
+  background-color: #0B0D11;
+  color: #F4F4F5;
   font-family:
     'Inter',
     -apple-system,
@@ -43,8 +39,25 @@ body {
 
 /* Accessible focus ring across all keyboard interactive elements */
 :focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid #FF6500;
   outline-offset: 2px;
+}
+
+/* Auth-page inputs: suppress browser autofill styling */
+.auth-input:-webkit-autofill,
+.auth-input:-webkit-autofill:hover,
+.auth-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #0D1015 inset;
+  -webkit-text-fill-color: #f4f4f5;
+  caret-color: #f4f4f5;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* Suppress autofill highlight for all inputs in auth panel */
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #0D1015 inset !important;
+  -webkit-text-fill-color: #f4f4f5 !important;
+  caret-color: #f4f4f5;
 }
 
 /* Motion reduction compliance */
@@ -66,14 +79,14 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(11, 15, 23, 0.7);
+  background: #0B0D11;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(100, 116, 139, 0.35);
+  background: #292E38;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.65);
+  background: #3F4450;
 }

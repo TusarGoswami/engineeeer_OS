@@ -97,7 +97,7 @@ export function CodingCataloguePage() {
       </div>
 
       {/* Filter & Search Bar */}
-      <Card className="p-4 sm:p-5 border-surface-800 bg-surface-900/60 space-y-4">
+      <Card className="p-4 sm:p-5 space-y-4">
         <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row items-center gap-3">
           <div className="flex-1 w-full">
             <Input
@@ -193,7 +193,7 @@ export function CodingCataloguePage() {
             <div
               key={prob._id}
               onClick={() => navigate(`/coding/solve/${prob.slug}`)}
-              className="flex items-center justify-between p-4 rounded-xl border border-surface-800 bg-surface-900/40 hover:bg-surface-900/80 hover:border-surface-700 transition-all cursor-pointer group shadow-sm"
+              className="flex items-center justify-between p-4 rounded-xl border border-[#292E38] bg-[#151922] hover:bg-[#1B202A] hover:border-zinc-600 transition-all cursor-pointer group shadow-sm"
             >
               <div className="flex items-center gap-3.5 min-w-0">
                 <span className="text-xs font-mono text-surface-500 w-6 shrink-0">
