@@ -231,10 +231,10 @@ export function GateTestPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-6.5rem)] space-y-3 pb-2 max-w-7xl mx-auto w-full">
       {/* Top Test Header Bar */}
-      <div className="flex items-center justify-between p-3.5 rounded-2xl border border-surface-800 bg-surface-900/60 backdrop-blur-md">
+      <div className="flex items-center justify-between p-3.5 rounded-2xl border border-surface-700 bg-surface-850 backdrop-blur-md">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-sm sm:text-base font-bold text-white tracking-tight">
+            <h2 className="text-sm sm:text-base font-bold text-surface-100 tracking-tight">
               {test.title}
             </h2>
             <Badge variant="cyan" size="sm" className="font-mono text-[10px]">
@@ -262,10 +262,10 @@ export function GateTestPage() {
             className={`font-mono text-sm sm:text-base font-bold px-3 py-1.5 rounded-xl border flex items-center gap-1.5 ${
               timeRemaining < 300
                 ? 'bg-rose-500/10 text-rose-400 border-rose-500/30 animate-pulse'
-                : 'bg-surface-950 text-cyan-300 border-surface-700'
+                : 'bg-surface-850 text-cyan-600 dark:text-cyan-300 border-surface-700'
             }`}
           >
-            <Clock className="w-4 h-4 text-cyan-400" />
+            <Clock className="w-4 h-4 text-cyan-500 dark:text-cyan-400" />
             <span>{formatTime(timeRemaining)}</span>
           </div>
 
@@ -283,13 +283,13 @@ export function GateTestPage() {
       {/* Main Examination Split Screen */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0">
         {/* Left Column: Active Question */}
-        <div className="lg:col-span-8 flex flex-col justify-between p-6 rounded-2xl border border-surface-800 bg-surface-900/70 overflow-y-auto space-y-6 shadow-xl">
+        <div className="lg:col-span-8 flex flex-col justify-between p-6 rounded-2xl border border-surface-700 bg-surface-850 overflow-y-auto space-y-6 shadow-xl">
           {currentQ && (
             <div className="space-y-6">
               {/* Question Header */}
-              <div className="flex items-center justify-between border-b border-surface-800/80 pb-3">
+              <div className="flex items-center justify-between border-b border-surface-700 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-base text-white">
+                  <span className="font-bold text-base text-surface-100">
                     Question {currentIdx + 1}
                   </span>
                   <Badge variant="brand" size="sm" className="font-mono text-[10px]">
@@ -331,8 +331,8 @@ export function GateTestPage() {
                         onClick={() => handleSelectOption(opt.optionId)}
                         className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
                           isSelected
-                            ? 'border-brand-500 bg-brand-500/10 text-white shadow-md'
-                            : 'border-surface-800 bg-surface-950/60 hover:bg-surface-800/60 text-surface-200'
+                            ? 'border-brand-500 bg-brand-500/10 text-brand-600 dark:text-brand-300 shadow-md font-medium'
+                            : 'border-surface-700 bg-surface-900/60 hover:bg-surface-800/60 text-surface-200'
                         }`}
                       >
                         <div
@@ -341,7 +341,7 @@ export function GateTestPage() {
                           } border flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 ${
                             isSelected
                               ? 'border-brand-500 bg-brand-600 text-white'
-                              : 'border-surface-700 bg-surface-900 text-surface-400'
+                              : 'border-surface-700 bg-surface-850 text-surface-400'
                           }`}
                         >
                           {opt.optionId.toUpperCase()}
@@ -355,7 +355,7 @@ export function GateTestPage() {
 
               {/* NAT Numerical Input */}
               {currentQ.type === 'nat' && (
-                <div className="p-5 rounded-xl border border-surface-800 bg-surface-950/70 space-y-3 max-w-sm">
+                <div className="p-5 rounded-xl border border-surface-700 bg-surface-900 space-y-3 max-w-sm">
                   <label className="text-xs font-semibold uppercase tracking-wider text-surface-400">
                     Numerical Answer:
                   </label>
@@ -370,7 +370,7 @@ export function GateTestPage() {
                     }
                     onChange={e => handleNatChange(e.target.value)}
                     placeholder="Enter numerical value..."
-                    className="w-full px-4 py-2.5 rounded-xl bg-surface-900 border border-surface-700 text-white font-mono text-sm focus:outline-none focus:border-brand-500"
+                    className="w-full px-4 py-2.5 rounded-xl bg-surface-850 border border-surface-700 text-surface-100 font-mono text-sm focus:outline-none focus:border-brand-500"
                   />
                   <p className="text-[11px] text-surface-500">
                     Calculated values should conform to standard rounding rules.
@@ -381,7 +381,7 @@ export function GateTestPage() {
           )}
 
           {/* Question Footer Action Bar */}
-          <div className="flex items-center justify-between pt-4 border-t border-surface-800/80">
+          <div className="flex items-center justify-between pt-4 border-t border-surface-700">
             <Button
               size="sm"
               variant="ghost"
@@ -419,14 +419,14 @@ export function GateTestPage() {
         </div>
 
         {/* Right Column: GATE Official Question Palette */}
-        <div className="lg:col-span-4 flex flex-col justify-between p-5 rounded-2xl border border-surface-800 bg-surface-900/60 overflow-hidden shadow-xl space-y-4">
+        <div className="lg:col-span-4 flex flex-col justify-between p-5 rounded-2xl border border-surface-700 bg-surface-850 overflow-hidden shadow-xl space-y-4">
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-surface-300 mb-3">
               Question Palette
             </h3>
 
             {/* Legend */}
-            <div className="grid grid-cols-2 gap-2 text-[10px] text-surface-400 font-mono mb-4 p-2.5 rounded-xl bg-surface-950/70 border border-surface-800">
+            <div className="grid grid-cols-2 gap-2 text-[10px] text-surface-400 font-mono mb-4 p-2.5 rounded-xl bg-surface-900 border border-surface-700">
               <div className="flex items-center gap-1.5">
                 <span className="w-3 h-3 rounded bg-emerald-500" />
                 <span>Answered</span>
@@ -440,7 +440,7 @@ export function GateTestPage() {
                 <span>Visited</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded bg-surface-900 border border-surface-800" />
+                <span className="w-3 h-3 rounded bg-surface-850 border border-surface-700" />
                 <span>Not Visited</span>
               </div>
             </div>
@@ -453,7 +453,7 @@ export function GateTestPage() {
                 const isCurrent = idx === currentIdx;
                 const isVisited = visitedQuestions.has(idx);
 
-                let btnClass = 'bg-surface-950 text-surface-400 border border-surface-800';
+                let btnClass = 'bg-surface-900 text-surface-400 border border-surface-700';
                 if (isCurrent) {
                   btnClass = 'ring-2 ring-brand-400 text-white font-bold bg-brand-600/30';
                 } else if (isMarked) {
@@ -478,7 +478,7 @@ export function GateTestPage() {
             </div>
           </div>
 
-          <div className="pt-3 border-t border-surface-800">
+          <div className="pt-3 border-t border-surface-700">
             <Button
               variant="danger"
               size="sm"
@@ -500,10 +500,10 @@ export function GateTestPage() {
         size="sm"
       >
         <div className="space-y-4">
-          <div className="p-3.5 rounded-xl bg-surface-950 border border-surface-800 space-y-2 text-xs font-mono">
+          <div className="p-3.5 rounded-xl bg-surface-900 border border-surface-700 space-y-2 text-xs font-mono">
             <div className="flex justify-between">
               <span className="text-surface-400">Total Questions:</span>
-              <span className="text-white font-bold">{totalQuestions}</span>
+              <span className="text-surface-100 font-bold">{totalQuestions}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-surface-400">Answered:</span>
@@ -549,7 +549,7 @@ export function GateTestPage() {
         size="sm"
       >
         <div className="space-y-3 font-mono">
-          <div className="p-3 rounded-xl bg-surface-950 border border-surface-800 text-right text-lg text-emerald-400 font-bold overflow-x-auto min-h-12 flex items-center justify-end px-4">
+          <div className="p-3 rounded-xl bg-surface-900 border border-surface-700 text-right text-lg text-emerald-400 font-bold overflow-x-auto min-h-12 flex items-center justify-end px-4">
             {calcInput || '0'}
           </div>
 

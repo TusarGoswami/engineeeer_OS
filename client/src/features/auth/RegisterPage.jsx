@@ -32,7 +32,7 @@ const registerSchema = z.object({
   semester: z.coerce.number().min(1).max(8).default(1),
 });
 
-// ─── Accessible AuthInput (Identical to LoginPage) ───────────────────────────
+// ─── Accessible AuthInput ─────────────────────────────────────────────────────
 const AuthInput = forwardRef(
   ({ label, error, leftIcon: LeftIcon, rightIcon: RightIcon, id, className = '', ...props }, ref) => {
     const generatedId = useId();
@@ -41,13 +41,13 @@ const AuthInput = forwardRef(
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
-          <label htmlFor={inputId} className="text-[13px] font-medium text-zinc-300">
+          <label htmlFor={inputId} className="text-[13px] font-medium text-surface-200">
             {label}
           </label>
         )}
         <div className="relative flex items-center">
           {LeftIcon && (
-            <div className="pointer-events-none absolute left-3.5 text-zinc-500">
+            <div className="pointer-events-none absolute left-3.5 text-surface-400">
               <LeftIcon className="h-4 w-4" />
             </div>
           )}
@@ -55,15 +55,15 @@ const AuthInput = forwardRef(
             id={inputId}
             ref={ref}
             className={[
-              'w-full rounded-[9px] border bg-[#0D1015] px-3.5 py-2.5 text-sm text-zinc-100',
-              'placeholder-zinc-600 transition-all duration-200 outline-none',
+              'w-full rounded-[9px] border bg-auth-input px-3.5 py-2.5 text-sm text-surface-100',
+              'placeholder-surface-500 transition-all duration-200 outline-none',
               'focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50',
               'disabled:opacity-50 disabled:cursor-not-allowed',
               LeftIcon ? 'pl-10' : '',
               RightIcon ? 'pr-10' : '',
               error
                 ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/40'
-                : 'border-[#292E38]',
+                : 'border-surface-700',
               className,
             ]
               .filter(Boolean)
@@ -75,7 +75,7 @@ const AuthInput = forwardRef(
           )}
         </div>
         {error && (
-          <p className="text-[12px] font-medium text-rose-400">{error}</p>
+          <p className="text-[12px] font-medium text-rose-500 dark:text-rose-400">{error}</p>
         )}
       </div>
     );
@@ -83,7 +83,7 @@ const AuthInput = forwardRef(
 );
 AuthInput.displayName = 'AuthInput';
 
-// ─── Accessible AuthSelect (Custom Styled for Dark Architecture) ──────────────
+// ─── Accessible AuthSelect ───────────────────────────────────────────────────
 const AuthSelect = forwardRef(
   ({ label, error, children, id, className = '', ...props }, ref) => {
     const generatedId = useId();
@@ -92,7 +92,7 @@ const AuthSelect = forwardRef(
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
-          <label htmlFor={selectId} className="text-[13px] font-medium text-zinc-300">
+          <label htmlFor={selectId} className="text-[13px] font-medium text-surface-200">
             {label}
           </label>
         )}
@@ -101,13 +101,13 @@ const AuthSelect = forwardRef(
             id={selectId}
             ref={ref}
             className={[
-              'w-full appearance-none rounded-[9px] border bg-[#0D1015] px-3.5 py-2.5 pr-9 text-sm text-zinc-100',
+              'w-full appearance-none rounded-[9px] border bg-auth-input px-3.5 py-2.5 pr-9 text-sm text-surface-100',
               'transition-all duration-200 outline-none cursor-pointer',
               'focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50',
               'disabled:opacity-50 disabled:cursor-not-allowed',
               error
                 ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/40'
-                : 'border-[#292E38]',
+                : 'border-surface-700',
               className,
             ]
               .filter(Boolean)
@@ -116,12 +116,12 @@ const AuthSelect = forwardRef(
           >
             {children}
           </select>
-          <div className="pointer-events-none absolute right-3 text-zinc-500">
+          <div className="pointer-events-none absolute right-3 text-surface-400">
             <ChevronDown className="h-4 w-4" />
           </div>
         </div>
         {error && (
-          <p className="text-[12px] font-medium text-rose-400">{error}</p>
+          <p className="text-[12px] font-medium text-rose-500 dark:text-rose-400">{error}</p>
         )}
       </div>
     );
@@ -172,7 +172,7 @@ export const RegisterPage = () => {
 
   return (
     <div className="relative w-full max-w-[480px]">
-      {/* Subtle ambient accent illumination behind signup card (identical to LoginPage) */}
+      {/* Subtle ambient accent illumination behind signup card */}
       <div
         className="absolute -inset-1 rounded-[20px] pointer-events-none -z-10 opacity-70 blur-md transition-opacity duration-300"
         style={{
@@ -181,21 +181,21 @@ export const RegisterPage = () => {
         }}
       />
 
-      {/* ── Signup Card (Specifications: max-w 480px, #151922, border #292E38, radius 16px) ── */}
-      <div className="rounded-[16px] border border-[#292E38] bg-[#151922] px-7 py-7 shadow-2xl shadow-black/60 sm:px-8 sm:py-8">
+      {/* ── Signup Card ── */}
+      <div className="rounded-[16px] border border-surface-700 bg-surface-850 px-7 py-7 shadow-xl dark:shadow-2xl dark:shadow-black/60 sm:px-8 sm:py-8">
         {/* Card heading */}
         <div className="mb-6">
-          <h2 className="text-[22px] font-bold tracking-tight text-[#F4F4F5]">
+          <h2 className="text-[22px] font-bold tracking-tight text-surface-100">
             Create your account
           </h2>
-          <p className="mt-1.5 text-sm leading-relaxed text-[#A1A1AA]">
+          <p className="mt-1.5 text-sm leading-relaxed text-surface-400">
             Join EngineerOS to organize your studies, code, and career.
           </p>
         </div>
 
         {/* Server error banner — original error state logic preserved */}
         {serverError && (
-          <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-rose-500/20 bg-rose-500/10 p-3.5 text-sm text-rose-400">
+          <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-rose-500/20 bg-rose-500/10 p-3.5 text-sm text-rose-500 dark:text-rose-400">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <span className="leading-snug">{serverError}</span>
           </div>
@@ -227,15 +227,15 @@ export const RegisterPage = () => {
           {/* Password with requirement hint and visibility toggle */}
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <label htmlFor="password" className="text-[13px] font-medium text-zinc-300">
+              <label htmlFor="password" className="text-[13px] font-medium text-surface-200">
                 Password
               </label>
-              <span className="text-[11px] text-zinc-500">
+              <span className="text-[11px] text-surface-500">
                 min 8 chars, 1 uppercase, 1 digit
               </span>
             </div>
             <div className="relative flex items-center">
-              <div className="pointer-events-none absolute left-3.5 text-zinc-500">
+              <div className="pointer-events-none absolute left-3.5 text-surface-400">
                 <Lock className="h-4 w-4" />
               </div>
               <input
@@ -243,13 +243,13 @@ export const RegisterPage = () => {
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 className={[
-                  'w-full rounded-[9px] border bg-[#0D1015] px-3.5 py-2.5 pl-10 pr-10 text-sm text-zinc-100',
-                  'placeholder-zinc-600 transition-all duration-200 outline-none',
+                  'w-full rounded-[9px] border bg-auth-input px-3.5 py-2.5 pl-10 pr-10 text-sm text-surface-100',
+                  'placeholder-surface-500 transition-all duration-200 outline-none',
                   'focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50',
                   'disabled:opacity-50 disabled:cursor-not-allowed',
                   errors.password
                     ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/40'
-                    : 'border-[#292E38]',
+                    : 'border-surface-700',
                 ]
                   .filter(Boolean)
                   .join(' ')}
@@ -260,7 +260,7 @@ export const RegisterPage = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3.5 text-zinc-500 transition-colors duration-150 hover:text-zinc-300 focus:outline-none focus-visible:ring-1 focus-visible:ring-orange-500"
+                className="absolute right-3.5 text-surface-400 transition-colors duration-150 hover:text-surface-200 focus:outline-none focus-visible:ring-1 focus-visible:ring-orange-500"
                 aria-label={showPassword ? 'Hide text' : 'Show text'}
                 tabIndex={0}
               >
@@ -272,7 +272,7 @@ export const RegisterPage = () => {
               </button>
             </div>
             {errors.password && (
-              <p className="text-[12px] font-medium text-rose-400">
+              <p className="text-[12px] font-medium text-rose-500 dark:text-rose-400">
                 {errors.password.message}
               </p>
             )}
@@ -308,7 +308,7 @@ export const RegisterPage = () => {
               {...register('semester')}
             >
               {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
-                <option key={s} value={s} className="bg-[#151922] text-zinc-100">
+                <option key={s} value={s} className="bg-surface-850 text-surface-100">
                   Semester {s}
                 </option>
               ))}
@@ -320,20 +320,20 @@ export const RegisterPage = () => {
               error={errors.role?.message}
               {...register('role')}
             >
-              <option value="student" className="bg-[#151922] text-zinc-100">
+              <option value="student" className="bg-surface-850 text-surface-100">
                 Student
               </option>
-              <option value="senior" className="bg-[#151922] text-zinc-100">
+              <option value="senior" className="bg-surface-850 text-surface-100">
                 Senior / Peer Mentor
               </option>
             </AuthSelect>
           </div>
 
-          {/* Submit button — brand orange with loading spinner */}
+          {/* Submit button */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-[9px] bg-[#FF6500] py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:bg-[#E65300] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-[9px] bg-brand-500 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:bg-brand-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? (
               <>
@@ -346,8 +346,8 @@ export const RegisterPage = () => {
           </button>
         </form>
 
-        {/* ── Footer Link — original destination preserved ──────────────── */}
-        <p className="mt-5 text-center text-[13px] text-[#71717A]">
+        {/* ── Footer Link ── */}
+        <p className="mt-5 text-center text-[13px] text-surface-500">
           Already have an account?{' '}
           <Link
             to="/login"

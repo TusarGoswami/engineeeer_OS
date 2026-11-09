@@ -33,4 +33,4 @@ export { default as Input } from './Input.jsx';
 export { default as Tooltip } from './Tooltip.jsx';
 export { default as CommandPalette } from './CommandPalette.jsx';
 export { default as ProtectedRoute } from './ProtectedRoute.jsx';
-
+export { default as ThemeToggle } from './ThemeToggle.jsx';

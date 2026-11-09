@@ -29,29 +29,29 @@ export default {
           700: '#c2410c',
         },
         auth: {
-          bg: '#0B0D11',
-          card: '#151922',
-          input: '#0D1015',
-          border: '#292E38',
+          bg: 'rgb(var(--bg-canvas-rgb) / <alpha-value>)',
+          card: 'rgb(var(--bg-card-rgb) / <alpha-value>)',
+          input: 'rgb(var(--bg-input-rgb) / <alpha-value>)',
+          border: 'rgb(var(--border-subtle-rgb) / <alpha-value>)',
         },
         surface: {
-          50: '#FAFAFA',
-          100: '#F4F4F5', // Primary text
-          200: '#E4E4E7',
-          300: '#D4D4D8',
-          400: '#A1A1AA', // Secondary text
-          500: '#71717A', // Muted text
-          600: '#3F4450',
-          700: '#292E38', // Standard borders
-          800: '#292E38', // Border alias
-          850: '#151922', // Card background
-          900: '#101319', // Secondary background / Panel
-          950: '#0B0D11', // Main canvas background
+          50: 'rgb(var(--surface-50-rgb) / <alpha-value>)',
+          100: 'rgb(var(--surface-100-rgb) / <alpha-value>)', // Primary text
+          200: 'rgb(var(--surface-200-rgb) / <alpha-value>)',
+          300: 'rgb(var(--surface-300-rgb) / <alpha-value>)',
+          400: 'rgb(var(--surface-400-rgb) / <alpha-value>)', // Secondary text
+          500: 'rgb(var(--surface-500-rgb) / <alpha-value>)', // Muted text
+          600: 'rgb(var(--surface-600-rgb) / <alpha-value>)',
+          700: 'rgb(var(--surface-700-rgb) / <alpha-value>)', // Standard borders
+          800: 'rgb(var(--surface-800-rgb) / <alpha-value>)', // Elevated / hover bg
+          850: 'rgb(var(--surface-850-rgb) / <alpha-value>)', // Card background
+          900: 'rgb(var(--surface-900-rgb) / <alpha-value>)', // Panel / sidebar bg
+          950: 'rgb(var(--surface-950-rgb) / <alpha-value>)', // Main canvas background
         },
-        canvas: '#0B0D11',
-        card: '#151922',
-        elevated: '#1B202A',
-        panel: '#101319',
+        canvas: 'rgb(var(--bg-canvas-rgb) / <alpha-value>)',
+        card: 'rgb(var(--bg-card-rgb) / <alpha-value>)',
+        elevated: 'rgb(var(--bg-elevated-rgb) / <alpha-value>)',
+        panel: 'rgb(var(--bg-surface-rgb) / <alpha-value>)',
         compiler: {
           500: '#10b981', // Emerald / Compiler Green
           600: '#059669',
@@ -76,6 +76,11 @@ export default {
           400: '#38BDF8',
           500: '#38BDF8',
         },
+      },
+      boxShadow: {
+        'card-light': '0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05)',
+        'elevated-light': '0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07)',
+        'card-dark': '0 4px 20px -2px rgba(0, 0, 0, 0.4)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],

@@ -146,7 +146,7 @@ export function InterviewSessionPage() {
   if (!session) {
     return (
       <div className="max-w-md mx-auto my-16 p-8 text-center rounded-2xl border border-surface-700 bg-surface-850">
-        <h2 className="text-lg font-bold text-white mb-2">Session not found</h2>
+        <h2 className="text-lg font-bold text-surface-100 mb-2">Session not found</h2>
         <p className="text-xs text-surface-400 mb-6">
           The requested interview session could not be retrieved.
         </p>
@@ -170,12 +170,12 @@ export function InterviewSessionPage() {
             size="sm"
             onClick={() => navigate('/interviews')}
             leftIcon={ArrowLeft}
-            className="text-xs text-surface-400 hover:text-white"
+            className="text-xs text-surface-400 hover:text-surface-100"
           >
             Studio
           </Button>
           <div className="h-4 w-[1px] bg-surface-700" />
-          <h2 className="text-sm sm:text-base font-bold text-white tracking-tight">
+          <h2 className="text-sm sm:text-base font-bold text-surface-100 tracking-tight">
             {session.targetRole}
           </h2>
           <Badge variant="brand" size="sm" className="capitalize font-mono text-[10px]">
@@ -228,7 +228,7 @@ export function InterviewSessionPage() {
 
           {/* Rubric Breakdown Bars */}
           <Card className="p-5 border-surface-700 bg-surface-850 space-y-4">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
+            <h3 className="text-sm font-bold text-surface-100 uppercase tracking-wider font-mono">
               Rubric Competency Breakdown
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -356,7 +356,7 @@ export function InterviewSessionPage() {
           <div className="w-12 h-12 rounded-2xl bg-brand-500/10 text-brand-400 flex items-center justify-center border border-brand-500/20">
             <RotateCw className="w-6 h-6 animate-spin" />
           </div>
-          <h3 className="text-lg font-bold text-white">Synthesizing Comprehensive Evaluation</h3>
+          <h3 className="text-lg font-bold text-surface-100">Synthesizing Comprehensive Evaluation</h3>
           <p className="text-xs text-surface-400 max-w-md leading-relaxed">
             The AI Hiring Committee is analyzing your full technical transcript, evaluating code
             structure, communication clarity, and rubric scores...

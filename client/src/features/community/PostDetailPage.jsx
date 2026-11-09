@@ -183,7 +183,7 @@ I have completed DSA (graphs, trees, DP), but I'm looking for structured senior 
       <div>
         <button
           onClick={() => navigate('/community')}
-          className="flex items-center gap-1.5 text-xs text-surface-400 hover:text-white transition-colors"
+          className="flex items-center gap-1.5 text-xs text-surface-400 hover:text-surface-100 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Discussions</span>
@@ -204,7 +204,7 @@ I have completed DSA (graphs, trees, DP), but I'm looking for structured senior 
           </Badge>
         </div>
 
-        <h1 className="text-xl font-bold text-white leading-snug">{post.title}</h1>
+        <h1 className="text-xl font-bold text-surface-100 leading-snug">{post.title}</h1>
 
         <div className="flex items-center gap-3 text-xs text-surface-400 pb-4 border-b border-surface-800">
           <div className="w-8 h-8 rounded-full bg-brand-600/30 text-brand-300 font-bold flex items-center justify-center text-xs border border-brand-500/30">
@@ -212,7 +212,7 @@ I have completed DSA (graphs, trees, DP), but I'm looking for structured senior 
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-semibold text-white">{post.author?.name}</span>
+              <span className="font-semibold text-surface-100">{post.author?.name}</span>
               {post.author?.role === 'senior' && (
                 <span className="flex items-center gap-1 text-[10px] text-amber-400 bg-amber-500/10 px-1.5 py-0.2 rounded border border-amber-500/20">
                   <GraduationCap className="w-2.5 h-2.5" />
@@ -258,7 +258,7 @@ I have completed DSA (graphs, trees, DP), but I'm looking for structured senior 
       {/* Replies Section */}
       <div className="space-y-4 pt-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-bold text-white flex items-center gap-2">
+          <h3 className="text-base font-bold text-surface-100 flex items-center gap-2">
             <MessageSquare className="w-4 h-4 text-brand-400" />
             <span>
               {replies.length} {replies.length === 1 ? 'Reply' : 'Replies'}
@@ -294,7 +294,7 @@ I have completed DSA (graphs, trees, DP), but I'm looking for structured senior 
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <span className="font-semibold text-white text-xs">{reply.author?.name}</span>
+                      <span className="font-semibold text-surface-100 text-xs">{reply.author?.name}</span>
                       {reply.author?.role === 'senior' && (
                         <span className="flex items-center gap-1 text-[10px] text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 font-medium">
                           <GraduationCap className="w-3 h-3" />
@@ -340,7 +340,7 @@ I have completed DSA (graphs, trees, DP), but I'm looking for structured senior 
         {/* Reply Composer */}
         <Card className="p-5">
           <form onSubmit={handleAddReply} className="space-y-3">
-            <label htmlFor="reply-composer" className="block text-xs font-semibold text-white">
+            <label htmlFor="reply-composer" className="block text-xs font-semibold text-surface-100">
               Write a Mentorship / Peer Response
             </label>
             <textarea

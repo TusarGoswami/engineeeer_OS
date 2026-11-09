@@ -106,7 +106,7 @@ export const AvatarCropperModal = ({ isOpen, onClose, onAvatarUpdated }) => {
     >
       <div className="space-y-4">
         {!imageSrc ? (
-          <div className="flex flex-col items-center justify-center border-2 border-dashed border-surface-700 hover:border-brand-500 rounded-2xl p-8 transition-colors bg-surface-900/50">
+          <div className="flex flex-col items-center justify-center border-2 border-dashed border-surface-700 hover:border-brand-500 rounded-2xl p-8 transition-colors bg-surface-900">
             <div className="w-16 h-16 rounded-full bg-surface-800 flex items-center justify-center text-surface-400 mb-4">
               <ImageIcon className="w-8 h-8" />
             </div>
@@ -128,7 +128,7 @@ export const AvatarCropperModal = ({ isOpen, onClose, onAvatarUpdated }) => {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="relative w-full h-64 bg-surface-950 rounded-2xl overflow-hidden border border-surface-800">
+            <div className="relative w-full h-64 bg-surface-900 rounded-2xl overflow-hidden border border-surface-700">
               <Cropper
                 image={imageSrc}
                 crop={crop}
@@ -157,7 +157,7 @@ export const AvatarCropperModal = ({ isOpen, onClose, onAvatarUpdated }) => {
               <ZoomIn className="w-4 h-4 text-surface-400 shrink-0" />
             </div>
 
-            <div className="flex justify-between items-center pt-2 border-t border-surface-800">
+            <div className="flex justify-between items-center pt-2 border-t border-surface-700">
               <Button
                 variant="ghost"
                 size="sm"

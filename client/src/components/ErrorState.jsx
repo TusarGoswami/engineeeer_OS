@@ -11,7 +11,7 @@ export const ErrorState = ({
       <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-500/20 text-rose-400 mb-4 border border-rose-500/30">
         <AlertTriangle className="w-6 h-6" />
       </div>
-      <h3 className="text-base font-semibold text-white mb-1">{title}</h3>
+      <h3 className="text-base font-semibold text-surface-100 mb-1">{title}</h3>
       <p className="text-sm text-surface-400 max-w-sm mb-5">{message}</p>
       {onRetry && (
         <Button variant="outline" size="sm" onClick={onRetry}>

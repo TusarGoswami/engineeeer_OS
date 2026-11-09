@@ -2,17 +2,111 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   ENGINEEROS THEME SYSTEM — DESIGN TOKENS
+   • Default Theme: Light Theme (:root)
+   • Alternative Theme: Dark Theme (.dark)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 :root {
+  color-scheme: light;
+
+  /* Semantic Canvas & Surfaces (Light) */
+  --bg-canvas: #F8FAFC;
+  --bg-canvas-rgb: 248 250 252;
+  --bg-surface: #FFFFFF;
+  --bg-surface-rgb: 255 255 255;
+  --bg-card: #FFFFFF;
+  --bg-card-rgb: 255 255 255;
+  --bg-elevated: #F1F5F9;
+  --bg-elevated-rgb: 241 245 249;
+  --bg-input: #FFFFFF;
+  --bg-input-rgb: 255 255 255;
+
+  /* Borders (Light) */
+  --border-subtle: #E2E8F0;
+  --border-subtle-rgb: 226 232 240;
+  --border-default: #CBD5E1;
+  --border-default-rgb: 203 213 225;
+
+  /* Typography (Light - WCAG 2.2 AA compliant contrast) */
+  --text-primary: #0F172A;
+  --text-primary-rgb: 15 23 42;
+  --text-secondary: #475569;
+  --text-secondary-rgb: 71 85 105;
+  --text-muted: #64748B;
+  --text-muted-rgb: 100 116 139;
+
+  /* Brand Accents */
+  --color-brand: #FF6500;
+  --color-brand-hover: #E65300;
+  --color-compiler: #059669;
+  --color-signal: #D97706;
+  --color-fault: #DC2626;
+  --color-orange: #FF6500;
+  --color-cyan: #0284C7;
+
+  /* Surface scale (Light) */
+  --surface-50: #0F172A;
+  --surface-50-rgb: 15 23 42;
+  --surface-100: #0F172A;
+  --surface-100-rgb: 15 23 42;
+  --surface-200: #1E293B;
+  --surface-200-rgb: 30 41 59;
+  --surface-300: #334155;
+  --surface-300-rgb: 51 65 85;
+  --surface-400: #475569;
+  --surface-400-rgb: 71 85 105;
+  --surface-500: #64748B;
+  --surface-500-rgb: 100 116 139;
+  --surface-600: #CBD5E1;
+  --surface-600-rgb: 203 213 225;
+  --surface-700: #E2E8F0;
+  --surface-700-rgb: 226 232 240;
+  --surface-800: #F1F5F9;
+  --surface-800-rgb: 241 245 249;
+  --surface-850: #FFFFFF;
+  --surface-850-rgb: 255 255 255;
+  --surface-900: #FFFFFF;
+  --surface-900-rgb: 255 255 255;
+  --surface-950: #F8FAFC;
+  --surface-950-rgb: 248 250 252;
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+}
+
+.dark {
   color-scheme: dark;
+
+  /* Semantic Canvas & Surfaces (Dark — preserving exact visual character) */
   --bg-canvas: #0B0D11;
+  --bg-canvas-rgb: 11 13 17;
   --bg-surface: #101319;
+  --bg-surface-rgb: 16 19 25;
   --bg-card: #151922;
+  --bg-card-rgb: 21 25 34;
   --bg-elevated: #1B202A;
+  --bg-elevated-rgb: 27 32 42;
   --bg-input: #0D1015;
+  --bg-input-rgb: 13 16 21;
+
+  /* Borders (Dark) */
   --border-subtle: #292E38;
+  --border-subtle-rgb: 41 46 56;
+  --border-default: #3F4450;
+  --border-default-rgb: 63 68 80;
+
+  /* Typography (Dark) */
   --text-primary: #F4F4F5;
+  --text-primary-rgb: 244 244 245;
   --text-secondary: #A1A1AA;
+  --text-secondary-rgb: 161 161 170;
   --text-muted: #71717A;
+  --text-muted-rgb: 113 113 122;
+
+  /* Brand Accents */
   --color-brand: #FF6500;
   --color-brand-hover: #E65300;
   --color-compiler: #10B981;
@@ -20,12 +114,42 @@
   --color-fault: #EF4444;
   --color-orange: #FF6500;
   --color-cyan: #38BDF8;
+
+  /* Surface scale (Dark) */
+  --surface-50: #FAFAFA;
+  --surface-50-rgb: 250 250 250;
+  --surface-100: #F4F4F5;
+  --surface-100-rgb: 244 244 245;
+  --surface-200: #E4E4E7;
+  --surface-200-rgb: 228 228 231;
+  --surface-300: #D4D4D8;
+  --surface-300-rgb: 212 212 216;
+  --surface-400: #A1A1AA;
+  --surface-400-rgb: 161 161 170;
+  --surface-500: #71717A;
+  --surface-500-rgb: 113 113 122;
+  --surface-600: #3F4450;
+  --surface-600-rgb: 63 68 80;
+  --surface-700: #292E38;
+  --surface-700-rgb: 41 46 56;
+  --surface-800: #1B202A;
+  --surface-800-rgb: 27 32 42;
+  --surface-850: #151922;
+  --surface-850-rgb: 21 25 34;
+  --surface-900: #101319;
+  --surface-900-rgb: 16 19 25;
+  --surface-950: #0B0D11;
+  --surface-950-rgb: 11 13 17;
+
+  /* Shadows */
+  --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 8px 30px -4px rgba(0, 0, 0, 0.6);
 }
 
 body {
   margin: 0;
-  background-color: #0B0D11;
-  color: #F4F4F5;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
   font-family:
     'Inter',
     -apple-system,
@@ -46,18 +170,12 @@ body {
 /* Auth-page inputs: suppress browser autofill styling */
 .auth-input:-webkit-autofill,
 .auth-input:-webkit-autofill:hover,
-.auth-input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 1000px #0D1015 inset;
-  -webkit-text-fill-color: #f4f4f5;
-  caret-color: #f4f4f5;
-  transition: background-color 9999s ease-in-out 0s;
-}
-
-/* Suppress autofill highlight for all inputs in auth panel */
+.auth-input:-webkit-autofill:focus,
 input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 1000px #0D1015 inset !important;
-  -webkit-text-fill-color: #f4f4f5 !important;
-  caret-color: #f4f4f5;
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-input) inset !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  caret-color: var(--text-primary);
+  transition: background-color 9999s ease-in-out 0s;
 }
 
 /* Motion reduction compliance */
@@ -79,14 +197,58 @@ input:-webkit-autofill {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0B0D11;
+  background: var(--bg-canvas);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #292E38;
+  background: var(--border-subtle);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3F4450;
+  background: var(--border-default);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIGHT THEME ADAPTATION OVERRIDES FOR ARBITRARY DARK HEX VALUES
+   Ensures legacy hardcoded hex classes automatically respond in Light Theme
+   without breaking dark mode or isolated illustration palettes.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root:not(.dark) .bg-\[\#0B0D11\],
+:root:not(.dark) .bg-\[\#0D1015\] {
+  background-color: var(--bg-canvas);
+}
+
+:root:not(.dark) .bg-\[\#101319\] {
+  background-color: var(--bg-surface);
+}
+
+:root:not(.dark) .bg-\[\#151922\] {
+  background-color: var(--bg-card);
+}
+
+:root:not(.dark) .bg-\[\#1B202A\],
+:root:not(.dark) .bg-\[\#1A1E26\] {
+  background-color: var(--bg-elevated);
+}
+
+:root:not(.dark) .border-\[\#292E38\] {
+  border-color: var(--border-subtle);
+}
+
+:root:not(.dark) .border-\[\#3F3F46\] {
+  border-color: var(--border-default);
+}
+
+:root:not(.dark) .text-\[\#F4F4F5\] {
+  color: var(--text-primary);
+}
+
+:root:not(.dark) .text-\[\#A1A1AA\] {
+  color: var(--text-secondary);
+}
+
+:root:not(.dark) .text-\[\#71717A\] {
+  color: var(--text-muted);
 }

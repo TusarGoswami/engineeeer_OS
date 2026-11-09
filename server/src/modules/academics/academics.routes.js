@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { AcademicsController } from './academics.controller.js';
 import { requireAuth, optionalAuth } from '../../middleware/auth.js';
 import { requireRole } from '../../middleware/rbac.js';
+import { resourceUpload } from '../../middleware/upload.js';
 
 const router = Router();
 
@@ -35,6 +36,13 @@ router.post(
   requireAuth,
   requireRole('contentAdmin', 'platformAdmin'),
   AcademicsController.createResource
+);
+router.post(
+  '/subjects/:id/resources/upload',
+  requireAuth,
+  requireRole('contentAdmin', 'platformAdmin', 'senior'),
+  resourceUpload.single('file'),
+  AcademicsController.uploadResource
 );
 
 export default router;

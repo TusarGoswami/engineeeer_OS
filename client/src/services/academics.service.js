@@ -22,6 +22,15 @@ export const academicsService = {
     });
     return response.data.data;
   },
+
+  async uploadResource(subjectId, formData) {
+    const response = await api.post(`/academics/subjects/${subjectId}/resources/upload`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data.data;
+  },
 };
 
 export default academicsService;

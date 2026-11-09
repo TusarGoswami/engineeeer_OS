@@ -76,7 +76,7 @@ export const AssessmentCataloguePage = () => {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <ShieldCheck className="w-6 h-6 text-brand-400" />
-            <h1 className="text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-2xl font-bold text-surface-100 tracking-tight">
               Assessments & Proctored Tests
             </h1>
           </div>
@@ -94,7 +94,7 @@ export const AssessmentCataloguePage = () => {
             <CheckCircle2 className="w-5 h-5" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-sm font-semibold text-white">Transparent & Fair Proctoring</h3>
+            <h3 className="text-sm font-semibold text-surface-100">Transparent & Fair Proctoring</h3>
             <p className="text-xs text-surface-400 leading-relaxed">
               EngineerOS implements client-authoritative transparency. We audit tab visibility,
               window blur, and fullscreen status. Review signals are reported to course instructors
@@ -130,7 +130,7 @@ export const AssessmentCataloguePage = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-base font-semibold text-white group-hover:text-brand-400 transition-colors">
+                  <h3 className="text-base font-semibold text-surface-100 group-hover:text-brand-500 transition-colors">
                     {item.title}
                   </h3>
                   <p className="text-xs text-surface-400 line-clamp-2 mt-1.5 leading-relaxed">
@@ -185,7 +185,7 @@ export const AssessmentCataloguePage = () => {
       >
         <div className="space-y-4 text-sm text-surface-300">
           <p className="text-xs text-surface-400">
-            Before launching <strong className="text-white">{selectedAssessment?.title}</strong>,
+            Before launching <strong className="text-surface-100">{selectedAssessment?.title}</strong>,
             please acknowledge the test rules:
           </p>
 

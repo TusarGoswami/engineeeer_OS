@@ -38,8 +38,11 @@ const envSchema = z.object({
   ANTHROPIC_API_KEY: z.string().optional().default(''),
   LLM_MODEL: z.string().default('claude-3-5-sonnet-20241022'),
 
-  STORAGE_PROVIDER: z.enum(['local', 's3']).default('local'),
+  STORAGE_PROVIDER: z.enum(['local', 's3', 'cloudinary']).default('local'),
   STORAGE_LOCAL_DIR: z.string().default('./uploads'),
+  CLOUDINARY_CLOUD_NAME: z.string().optional().default(''),
+  CLOUDINARY_API_KEY: z.string().optional().default(''),
+  CLOUDINARY_API_SECRET: z.string().optional().default(''),
 
   EMAIL_PROVIDER: z.enum(['console', 'ses', 'smtp']).default('console'),
   EMAIL_FROM: z.string().default('noreply@engineeros.dev'),

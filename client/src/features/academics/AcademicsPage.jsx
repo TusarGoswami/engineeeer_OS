@@ -73,7 +73,7 @@ export const AcademicsPage = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-surface-800">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
+          <h1 className="text-2xl font-bold tracking-tight text-surface-100 flex items-center gap-2.5">
             <GraduationCap className="w-6 h-6 text-brand-400" />
             <span>Academic Curriculum Hub</span>
           </h1>
@@ -167,7 +167,7 @@ export const AcademicsPage = () => {
                       {subject.credits || 4} Credits
                     </span>
                   </div>
-                  <CardTitle className="text-base text-white line-clamp-1">
+                  <CardTitle className="text-base text-surface-100 line-clamp-1">
                     {subject.name}
                   </CardTitle>
                   <CardDescription className="line-clamp-2 mt-1">
@@ -229,7 +229,7 @@ export const AcademicsPage = () => {
                 className={`px-4 py-2 font-medium border-b-2 transition-colors ${
                   activeTab === 'topics'
                     ? 'border-brand-500 text-brand-400'
-                    : 'border-transparent text-surface-400 hover:text-white'
+                    : 'border-transparent text-surface-400 hover:text-surface-100'
                 }`}
               >
                 Topics Checklist ({subjectDetails?.topics?.length || 0})
@@ -239,7 +239,7 @@ export const AcademicsPage = () => {
                 className={`px-4 py-2 font-medium border-b-2 transition-colors ${
                   activeTab === 'resources'
                     ? 'border-brand-500 text-brand-400'
-                    : 'border-transparent text-surface-400 hover:text-white'
+                    : 'border-transparent text-surface-400 hover:text-surface-100'
                 }`}
               >
                 Study Resources & PYQs
@@ -277,7 +277,7 @@ export const AcademicsPage = () => {
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
                           <p
-                            className={`text-xs font-semibold ${isDone ? 'line-through text-surface-400' : 'text-white'}`}
+                            className={`text-xs font-semibold ${isDone ? 'line-through text-surface-400' : 'text-surface-100'}`}
                           >
                             {index + 1}. {topic.title}
                           </p>
@@ -314,7 +314,7 @@ export const AcademicsPage = () => {
                           <FileText className="w-4 h-4" />
                         </div>
                         <div>
-                          <p className="text-xs font-medium text-white">{res.title}</p>
+                          <p className="text-xs font-medium text-surface-100">{res.title}</p>
                           <p className="text-[11px] text-surface-400 mt-0.5 line-clamp-2">
                             {res.textContent || 'Verified academic resource.'}
                           </p>

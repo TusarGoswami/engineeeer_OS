@@ -202,7 +202,7 @@ export function AiAssistantPage() {
               <Bot className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white tracking-tight">
+              <h2 className="text-sm font-bold text-surface-100 tracking-tight">
                 AI Academic Assistant
               </h2>
               <p className="text-[11px] text-surface-400">
@@ -223,7 +223,7 @@ export function AiAssistantPage() {
                 <Sparkles className="w-7 h-7" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white">
+                <h3 className="text-base font-bold text-surface-100">
                   How can I assist your engineering studies?
                 </h3>
                 <p className="text-xs text-surface-400 mt-1 leading-relaxed">
@@ -244,7 +244,7 @@ export function AiAssistantPage() {
                     <span className="text-[10px] uppercase font-mono text-purple-400 block font-semibold mb-0.5">
                       {sug.tag}
                     </span>
-                    <span className="text-xs text-surface-200 group-hover:text-white leading-snug block">
+                    <span className="text-xs text-surface-200 group-hover:text-surface-100 leading-snug block">
                       {sug.title}
                     </span>
                   </button>
@@ -335,7 +335,7 @@ export function AiAssistantPage() {
               value={inputQuery}
               onChange={e => setInputQuery(e.target.value)}
               disabled={isStreaming}
-              className="flex-1 px-4 py-2.5 rounded-xl bg-surface-900 border border-surface-700 text-xs sm:text-sm text-white placeholder-surface-500 focus:outline-none focus:border-brand-500"
+              className="flex-1 px-4 py-2.5 rounded-xl bg-surface-900 border border-surface-700 text-xs sm:text-sm text-surface-100 placeholder-surface-500 focus:outline-none focus:border-brand-500"
             />
             <Button
               type="submit"

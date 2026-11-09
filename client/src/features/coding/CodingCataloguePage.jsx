@@ -81,7 +81,7 @@ export function CodingCataloguePage() {
               Algorithm & Data Structure Arena
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-0.5">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-surface-100 tracking-tight mt-0.5">
             Coding Challenges
           </h1>
           <p className="text-sm text-surface-400 mt-1">
@@ -147,7 +147,7 @@ export function CodingCataloguePage() {
                 className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                   difficulty === d.id
                     ? 'bg-brand-600 text-white font-semibold'
-                    : 'bg-surface-800/60 text-surface-300 hover:bg-surface-800 hover:text-white'
+                    : 'bg-surface-800/60 text-surface-300 hover:bg-surface-800 hover:text-surface-100'
                 }`}
               >
                 {d.label}
@@ -193,7 +193,7 @@ export function CodingCataloguePage() {
             <div
               key={prob._id}
               onClick={() => navigate(`/coding/solve/${prob.slug}`)}
-              className="flex items-center justify-between p-4 rounded-xl border border-[#292E38] bg-[#151922] hover:bg-[#1B202A] hover:border-zinc-600 transition-all cursor-pointer group shadow-sm"
+              className="flex items-center justify-between p-4 rounded-xl border border-surface-700 bg-surface-850 hover:bg-surface-800 hover:border-surface-600 transition-all cursor-pointer group shadow-sm"
             >
               <div className="flex items-center gap-3.5 min-w-0">
                 <span className="text-xs font-mono text-surface-500 w-6 shrink-0">
@@ -201,7 +201,7 @@ export function CodingCataloguePage() {
                 </span>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-white group-hover:text-brand-400 transition-colors truncate">
+                    <h3 className="text-sm font-semibold text-surface-100 group-hover:text-brand-500 transition-colors truncate">
                       {prob.title}
                     </h3>
                     {getDifficultyBadge(prob.difficulty)}

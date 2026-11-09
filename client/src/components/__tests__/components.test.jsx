@@ -23,7 +23,9 @@ import {
   Drawer,
   Tooltip,
   CommandPalette,
+  ThemeToggle,
 } from '../index.js';
+import { ThemeProvider } from '../../context/ThemeContext.jsx';
 import { Code2 } from 'lucide-react';
 
 describe('Shared Component Library (Phase 7 Design System)', () => {
@@ -185,6 +187,31 @@ describe('Shared Component Library (Phase 7 Design System)', () => {
     );
     expect(screen.getByPlaceholderText(/Type a command or jump to a module/i)).toBeInTheDocument();
     expect(screen.getByText('Coding Problems & DSA')).toBeInTheDocument();
+  });
+
+  it('renders ThemeToggle and allows switching between light and dark themes', () => {
+    localStorage.clear();
+    render(
+      <ThemeProvider>
+        <ThemeToggle />
+      </ThemeProvider>
+    );
+
+    // Default theme is light, button prompts to switch to dark theme
+    const toggleBtn = screen.getByRole('button', { name: /switch to dark theme/i });
+    expect(toggleBtn).toBeInTheDocument();
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+
+    // Click to switch to dark mode
+    fireEvent.click(toggleBtn);
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(localStorage.getItem('engineeros_theme')).toBe('dark');
+    expect(screen.getByRole('button', { name: /switch to light theme/i })).toBeInTheDocument();
+
+    // Click to switch back to light mode
+    fireEvent.click(toggleBtn);
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(localStorage.getItem('engineeros_theme')).toBe('light');
   });
 });
 

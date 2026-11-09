@@ -5,6 +5,7 @@ import { ActivityService } from '../progress/activity.service.js';
 import { getRedisClient } from '../../config/redis.js';
 import { NotFoundError } from '../../middleware/error.js';
 import { logger } from '../../config/logger.js';
+import { storageAdapter } from '../../integrations/storage/index.js';
 
 const CACHE_TTL_SECONDS = 3600; // 1 hour
 
@@ -184,10 +185,56 @@ export class AcademicsService {
   }
 
   /**
-   * Content Admin: Create resource
+   * Content Admin / Senior: Create resource
    */
   static async createResource(resourceData) {
     return AcademicResource.create(resourceData);
+  }
+
+  /**
+   * Upload academic document (PDF, notes, PYQ) to Cloudinary/Storage and register resource
+   */
+  static async uploadResource({
+    subjectId,
+    file,
+    title,
+    type = 'notes',
+    topicId = '',
+    year = null,
+    author = 'Verified Contributor',
+    tags = [],
+    textContent = '',
+  }) {
+    const subject = await Subject.findById(subjectId);
+    if (!subject) {
+      throw new NotFoundError('Subject not found');
+    }
+
+    const sanitizedFilename = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const key = `academic_${subjectId}_${Date.now()}_${sanitizedFilename}`;
+
+    const uploadResult = await storageAdapter.upload({
+      key,
+      buffer: file.buffer,
+      contentType: file.mimetype,
+      folder: 'engineeros/academics',
+      resourceType: 'auto',
+    });
+
+    const resource = await AcademicResource.create({
+      subjectId,
+      topicId,
+      title: title || file.originalname,
+      type,
+      contentUrl: uploadResult.url,
+      textContent,
+      year: year || null,
+      author,
+      tags,
+      isPublished: true,
+    });
+
+    return resource;
   }
 
   /**

@@ -114,18 +114,19 @@ export const DashboardPage = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-12">
+    <div className="max-w-6xl mx-auto space-y-10 pb-12">
       {/* 1. Hero Section: EngineerOS Profile Card Showcase */}
-      <section className="space-y-3">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <section>
+        {/* Main Greeting Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mb-1.5">
               <span className="text-xs font-semibold uppercase tracking-wider text-surface-400">
                 Operating System Dashboard
               </span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-0.5">
+            <h1 className="text-[28px] sm:text-[32px] font-bold text-surface-100 tracking-tight leading-tight">
               Welcome back, {user?.name?.split(' ')[0] || 'Engineer'}
             </h1>
           </div>
@@ -159,7 +160,7 @@ export const DashboardPage = () => {
         </div>
 
         {/* Hero Card Container */}
-        <div className="w-full flex justify-center pt-1">
+        <div className="w-full flex justify-center">
           {isProfileLoading ? (
             <CardSkeleton />
           ) : (
@@ -174,14 +175,14 @@ export const DashboardPage = () => {
       </section>
 
       {/* 2. "What Should I Do Today?" Action Panel */}
-      <section className="space-y-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+      <section className="space-y-5">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white tracking-tight">
+              <h2 className="text-lg font-bold text-surface-100 tracking-tight">
                 What Should I Do Today?
               </h2>
               <p className="text-xs text-surface-400">
@@ -191,7 +192,7 @@ export const DashboardPage = () => {
           </div>
 
           {/* Daily Progress Tracker */}
-          <div className="flex items-center gap-3 bg-[#151922] border border-[#292E38] rounded-xl px-3.5 py-2">
+          <div className="flex items-center gap-3 bg-surface-850 border border-surface-700 rounded-xl px-3.5 py-2">
             <div className="text-xs font-mono text-surface-300">
               <span className="text-emerald-400 font-bold">{completedCount}</span> / {totalTasks} Completed
             </div>
@@ -207,7 +208,7 @@ export const DashboardPage = () => {
 
         {/* Tasks List */}
         {isTodayLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[1, 2, 3].map((i) => (
               <StatSkeleton key={i} />
             ))}
@@ -217,7 +218,7 @@ export const DashboardPage = () => {
             All tasks completed or none scheduled for today. Great job!
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {tasks.map((task) => {
               const isCompleted = task.status === 'completed';
               const isSnoozed = task.status === 'snoozed';
@@ -230,7 +231,7 @@ export const DashboardPage = () => {
                       ? 'bg-surface-900/30 border-surface-800/50 opacity-60'
                       : isSnoozed
                       ? 'bg-surface-950/40 border-surface-800/50 opacity-70'
-                      : 'bg-[#151922] border-[#292E38] hover:border-zinc-600 shadow-md'
+                      : 'bg-surface-850 border-surface-700 hover:border-surface-600 shadow-sm dark:shadow-md'
                   }`}
                 >
                   <div className="space-y-2.5">
@@ -275,7 +276,7 @@ export const DashboardPage = () => {
                     </div>
 
                     <h3
-                      className={`text-sm font-semibold text-white leading-snug ${
+                      className={`text-sm font-semibold text-surface-100 leading-snug ${
                         isCompleted ? 'line-through text-surface-400' : ''
                       }`}
                     >
@@ -303,11 +304,11 @@ export const DashboardPage = () => {
       </section>
 
       {/* 3. Consistency Stream (12-Month Heatmap) */}
-      <section className="space-y-3">
+      <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Flame className="w-5 h-5 text-amber-500" />
-            <h2 className="text-lg font-bold text-white tracking-tight">
+            <h2 className="text-lg font-bold text-surface-100 tracking-tight">
               Annual Consistency Stream
             </h2>
           </div>
@@ -335,8 +336,8 @@ export const DashboardPage = () => {
 
       {/* 4. Module Telemetry Strip: 6 Focused Workspaces */}
       <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white tracking-tight">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+          <h2 className="text-lg font-bold text-surface-100 tracking-tight">
             Academic & Skill Workspaces
           </h2>
           <span className="text-xs text-surface-400">
@@ -344,7 +345,7 @@ export const DashboardPage = () => {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Tile 1: Coding & DSA */}
           <Card hover className="p-5 flex flex-col justify-between">
             <div>
@@ -357,7 +358,7 @@ export const DashboardPage = () => {
                 </div>
               </div>
               <div className="mt-3">
-                <div className="text-2xl font-bold font-mono text-white">
+                <div className="text-2xl font-bold font-mono text-surface-100">
                   {stats?.coding?.solvedCount || 0} Solved
                 </div>
                 <div className="text-xs text-surface-400 mt-1 flex items-center gap-1.5">
@@ -392,7 +393,7 @@ export const DashboardPage = () => {
                 </div>
               </div>
               <div className="mt-3">
-                <div className="text-2xl font-bold font-mono text-white">
+                <div className="text-2xl font-bold font-mono text-surface-100">
                   {stats?.gate?.averageScore ? `${stats.gate.averageScore}/100` : `${stats?.gate?.testsAttempted || 0} Mocks`}
                 </div>
                 <div className="text-xs text-surface-400 mt-1 truncate">
@@ -425,7 +426,7 @@ export const DashboardPage = () => {
                 </div>
               </div>
               <div className="mt-3">
-                <div className="text-2xl font-bold font-mono text-white">
+                <div className="text-2xl font-bold font-mono text-surface-100">
                   {stats?.academics?.percentComplete || 0}% Complete
                 </div>
                 <div className="text-xs text-surface-400 mt-1">
@@ -454,7 +455,7 @@ export const DashboardPage = () => {
                 </div>
               </div>
               <div className="mt-3">
-                <div className="text-xl font-bold text-white">
+                <div className="text-xl font-bold text-surface-100">
                   Contextual AI Copilot
                 </div>
                 <div className="text-xs text-surface-400 mt-1">
@@ -483,7 +484,7 @@ export const DashboardPage = () => {
                 </div>
               </div>
               <div className="mt-3">
-                <div className="text-2xl font-bold font-mono text-white">
+                <div className="text-2xl font-bold font-mono text-surface-100">
                   {stats?.interviews?.averageReadinessScore || 75}/100
                 </div>
                 <div className="text-xs text-surface-400 mt-1">
@@ -512,7 +513,7 @@ export const DashboardPage = () => {
                 </div>
               </div>
               <div className="mt-3">
-                <div className="text-xl font-bold text-white">
+                <div className="text-xl font-bold text-surface-100">
                   Ask a Senior
                 </div>
                 <div className="text-xs text-surface-400 mt-1">

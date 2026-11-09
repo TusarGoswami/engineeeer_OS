@@ -64,7 +64,7 @@ export const ProgressRing = ({
       </svg>
       {showValue && (
         <span
-          className="absolute inset-0 flex items-center justify-center font-mono font-bold text-white tracking-tight"
+          className="absolute inset-0 flex items-center justify-center font-mono font-bold text-surface-100 tracking-tight"
           style={{ fontSize: Math.max(size * 0.22, 10) }}
         >
           {Math.round(normalizedProgress)}%

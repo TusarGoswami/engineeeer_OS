@@ -265,16 +265,16 @@ export const AssessmentTakePage = () => {
   if (submissionResult) {
     return (
       <div className="max-w-xl mx-auto py-12 px-4 animate-fadeIn">
-        <Card className="border-surface-800 p-8 text-center bg-surface-900/80">
+        <Card className="border-surface-700 p-8 text-center bg-surface-850">
           <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
             <CheckCircle className="w-8 h-8" />
           </div>
-          <h2 className="text-xl font-bold text-white mb-2">Assessment Completed</h2>
+          <h2 className="text-xl font-bold text-surface-100 mb-2">Assessment Completed</h2>
           <p className="text-xs text-surface-400 mb-6">
             Your responses have been successfully submitted and audited for faculty review.
           </p>
 
-          <div className="bg-surface-950 p-6 rounded-2xl border border-surface-800 mb-6">
+          <div className="bg-surface-900 p-6 rounded-2xl border border-surface-700 mb-6">
             <span className="text-xs text-surface-500 uppercase tracking-wider font-semibold">
               Evaluation Score
             </span>
@@ -304,12 +304,12 @@ export const AssessmentTakePage = () => {
   return (
     <div className="space-y-6">
       {/* Test Environment Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface-900 border border-surface-800 p-4 rounded-2xl sticky top-20 z-10 shadow-xl backdrop-blur-md">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface-850 border border-surface-700 p-4 rounded-2xl sticky top-20 z-10 shadow-xl backdrop-blur-md">
         <div>
           <span className="text-xs font-semibold text-brand-400 uppercase tracking-wider">
             Active Examination
           </span>
-          <h2 className="text-base font-bold text-white">{assessment.title}</h2>
+          <h2 className="text-base font-bold text-surface-100">{assessment.title}</h2>
         </div>
 
         <div className="flex items-center gap-3">
@@ -323,7 +323,7 @@ export const AssessmentTakePage = () => {
           {/* Fullscreen toggle button */}
           <button
             onClick={enterFullscreen}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-surface-700 bg-surface-800 text-xs text-surface-300 hover:text-white"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-surface-700 bg-surface-800 text-xs text-surface-300 hover:text-surface-100"
           >
             {isFullscreen ? (
               <Minimize2 className="w-3.5 h-3.5" />
@@ -340,7 +340,7 @@ export const AssessmentTakePage = () => {
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-mono text-sm font-bold border ${
               remainingSeconds < 300
                 ? 'bg-rose-500/10 text-rose-400 border-rose-500/30 animate-pulse'
-                : 'bg-surface-800 text-white border-surface-700'
+                : 'bg-surface-800 text-surface-100 border-surface-700'
             }`}
           >
             <Clock className="w-4 h-4" />
@@ -379,8 +379,8 @@ export const AssessmentTakePage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Question Panel */}
         <div className="lg:col-span-3 space-y-6">
-          <Card className="border-surface-800 p-6 bg-surface-900/60">
-            <div className="flex items-center justify-between border-b border-surface-800 pb-4 mb-6">
+          <Card className="border-surface-700 p-6 bg-surface-850">
+            <div className="flex items-center justify-between border-b border-surface-700 pb-4 mb-6">
               <div className="flex items-center gap-2">
                 <Badge variant="brand" size="sm">
                   Question {currentQuestionIndex + 1} of {assessment.questions.length}
@@ -394,7 +394,7 @@ export const AssessmentTakePage = () => {
                 className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg border transition-colors ${
                   flaggedQuestions.has(currentQuestionIndex)
                     ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
-                    : 'border-surface-700 text-surface-400 hover:text-white'
+                    : 'border-surface-700 text-surface-400 hover:text-surface-100'
                 }`}
               >
                 <Flag className="w-3.5 h-3.5" />
@@ -420,15 +420,15 @@ export const AssessmentTakePage = () => {
                     onClick={() => handleSelectOption(currentQ.questionId, opt.id)}
                     className={`w-full flex items-start gap-3 p-4 rounded-xl border text-left text-xs transition-all ${
                       selected
-                        ? 'bg-brand-600/15 border-brand-500 text-white font-medium shadow-sm'
-                        : 'bg-surface-950/60 border-surface-800 text-surface-300 hover:border-surface-700 hover:bg-surface-800/40'
+                        ? 'bg-brand-600/15 border-brand-500 text-brand-600 dark:text-brand-300 font-medium shadow-sm'
+                        : 'bg-surface-900 border-surface-700 text-surface-300 hover:border-surface-600 hover:bg-surface-800/40'
                     }`}
                   >
                     <div
                       className={`w-5 h-5 rounded-md flex items-center justify-center font-bold text-[11px] shrink-0 border ${
                         selected
                           ? 'bg-brand-600 text-white border-brand-500'
-                          : 'bg-surface-900 border-surface-700 text-surface-400'
+                          : 'bg-surface-850 border-surface-700 text-surface-400'
                       }`}
                     >
                       {opt.id}
@@ -469,8 +469,8 @@ export const AssessmentTakePage = () => {
 
         {/* Palette Sidebar */}
         <div className="lg:col-span-1 space-y-6">
-          <Card className="border-surface-800 p-5 bg-surface-900/60 space-y-4">
-            <h4 className="text-xs font-semibold text-white uppercase tracking-wider">
+          <Card className="border-surface-700 p-5 bg-surface-850 space-y-4">
+            <h4 className="text-xs font-semibold text-surface-100 uppercase tracking-wider">
               Question Palette
             </h4>
 

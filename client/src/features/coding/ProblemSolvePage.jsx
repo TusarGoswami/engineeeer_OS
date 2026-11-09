@@ -17,11 +17,13 @@ import Card from '../../components/Card.jsx';
 import Badge from '../../components/Badge.jsx';
 import Button from '../../components/Button.jsx';
 import { useToast } from '../../components/Toast.jsx';
+import { useTheme } from '../../context/ThemeContext.jsx';
 
 export function ProblemSolvePage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { isDark } = useTheme();
 
   const [problem, setProblem] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -222,12 +224,12 @@ export function ProblemSolvePage() {
         <div className="flex items-center gap-3">
           <Link
             to="/coding"
-            className="p-1.5 rounded-xl border border-surface-800 bg-surface-900 text-surface-400 hover:text-white transition-colors"
+            className="p-1.5 rounded-xl border border-surface-700 bg-surface-850 text-surface-400 hover:text-surface-100 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div className="flex items-center gap-2">
-            <h1 className="text-base sm:text-lg font-bold text-white tracking-tight">
+            <h1 className="text-base sm:text-lg font-bold text-surface-100 tracking-tight">
               {problem?.title}
             </h1>
             <Badge
@@ -281,14 +283,14 @@ export function ProblemSolvePage() {
       {/* Main Split Layout: Description on Left, Editor on Right */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0">
         {/* Left Column: Problem Tabs (Description, Submissions) */}
-        <div className="lg:col-span-5 flex flex-col h-full min-h-0 rounded-2xl border border-surface-800 bg-surface-900/60 overflow-hidden shadow-lg">
-          <div className="flex items-center border-b border-surface-800 bg-surface-950/40 px-3 pt-2">
+        <div className="lg:col-span-5 flex flex-col h-full min-h-0 rounded-2xl border border-surface-700 bg-surface-850 overflow-hidden shadow-lg">
+          <div className="flex items-center border-b border-surface-700 bg-surface-900 px-3 pt-2">
             <button
               type="button"
               onClick={() => setActiveTab('description')}
               className={`px-3 py-2 text-xs font-semibold border-b-2 transition-colors ${
                 activeTab === 'description'
-                  ? 'border-brand-500 text-white'
+                  ? 'border-brand-500 text-surface-100'
                   : 'border-transparent text-surface-400 hover:text-surface-200'
               }`}
             >
@@ -299,7 +301,7 @@ export function ProblemSolvePage() {
               onClick={() => setActiveTab('submissions')}
               className={`px-3 py-2 text-xs font-semibold border-b-2 transition-colors flex items-center gap-1.5 ${
                 activeTab === 'submissions'
-                  ? 'border-brand-500 text-white'
+                  ? 'border-brand-500 text-surface-100'
                   : 'border-transparent text-surface-400 hover:text-surface-200'
               }`}
             >
@@ -422,15 +424,15 @@ export function ProblemSolvePage() {
         {/* Right Column: Monaco Code Editor & Execution Results Drawer */}
         <div className="lg:col-span-7 flex flex-col h-full min-h-0 space-y-2">
           {/* Editor Container */}
-          <div className="flex-1 flex flex-col min-h-0 rounded-2xl border border-surface-800 bg-[#1e1e1e] overflow-hidden shadow-lg">
+          <div className="flex-1 flex flex-col min-h-0 rounded-2xl border border-surface-700 bg-surface-850 overflow-hidden shadow-lg">
             {/* Editor Action Bar */}
-            <div className="flex items-center justify-between px-3 py-2 border-b border-surface-800 bg-surface-950/70">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-surface-700 bg-surface-900">
               <div className="flex items-center gap-2">
                 <Code2 className="w-4 h-4 text-brand-400" />
                 <select
                   value={language}
                   onChange={e => handleLanguageChange(e.target.value)}
-                  className="rounded-lg bg-surface-900 border border-surface-700 text-xs text-white px-2.5 py-1 focus:outline-none focus:border-brand-500 font-mono"
+                  className="rounded-lg bg-surface-850 border border-surface-700 text-xs text-surface-100 px-2.5 py-1 focus:outline-none focus:border-brand-500 font-mono"
                 >
                   <option value="python">Python 3</option>
                   <option value="cpp">C++ (GCC)</option>
@@ -456,7 +458,7 @@ export function ProblemSolvePage() {
                 height="100%"
                 language={getMonacoLang(language)}
                 value={sourceCode}
-                theme="vs-dark"
+                theme={isDark ? 'vs-dark' : 'light'}
                 onChange={handleCodeChange}
                 options={{
                   minimap: { enabled: false },
@@ -473,7 +475,7 @@ export function ProblemSolvePage() {
 
           {/* Execution Drawer (Sample Runs or Submission Verdict) */}
           {(runResults || submitVerdict) && (
-            <Card className="max-h-60 overflow-y-auto p-4 border-surface-800 bg-surface-950/90 shadow-xl space-y-3">
+            <Card className="max-h-60 overflow-y-auto p-4 border-surface-700 bg-surface-850 shadow-xl space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold uppercase tracking-wider text-surface-300">
@@ -554,7 +556,7 @@ export function ProblemSolvePage() {
                   <div className="flex items-center gap-4 text-surface-300">
                     <span>
                       Passed:{' '}
-                      <strong className="text-white">
+                      <strong className="text-surface-100">
                         {submitVerdict.passedCount || 0} / {submitVerdict.totalTestCases || 0}
                       </strong>
                     </span>
@@ -565,7 +567,7 @@ export function ProblemSolvePage() {
                     )}
                   </div>
                   {submitVerdict.compileOutput && (
-                    <div className="p-2 rounded bg-surface-900 border border-surface-800 text-rose-400 font-mono text-[11px] whitespace-pre-wrap">
+                    <div className="p-2 rounded bg-surface-900 border border-surface-700 text-rose-400 font-mono text-[11px] whitespace-pre-wrap">
                       {submitVerdict.compileOutput}
                     </div>
                   )}

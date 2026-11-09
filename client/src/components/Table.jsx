@@ -4,7 +4,7 @@ import { twMerge } from 'tailwind-merge';
 const cn = (...inputs) => twMerge(clsx(inputs));
 
 export const Table = ({ children, className = '', containerClassName = '' }) => (
-  <div className={cn('relative w-full overflow-auto rounded-xl border border-[#292E38] bg-[#151922]', containerClassName)}>
+  <div className={cn('relative w-full overflow-auto rounded-xl border border-surface-700 bg-surface-850', containerClassName)}>
     <table className={cn('w-full caption-bottom text-sm', className)}>
       {children}
     </table>
@@ -12,19 +12,19 @@ export const Table = ({ children, className = '', containerClassName = '' }) => 
 );
 
 export const TableHeader = ({ children, className = '' }) => (
-  <thead className={cn('bg-[#101319] border-b border-[#292E38] text-xs font-semibold uppercase tracking-wider text-[#A1A1AA]', className)}>
+  <thead className={cn('bg-surface-900 border-b border-surface-700 text-xs font-semibold uppercase tracking-wider text-surface-400', className)}>
     {children}
   </thead>
 );
 
 export const TableBody = ({ children, className = '' }) => (
-  <tbody className={cn('divide-y divide-[#292E38]', className)}>
+  <tbody className={cn('divide-y divide-surface-700', className)}>
     {children}
   </tbody>
 );
 
 export const TableFooter = ({ children, className = '' }) => (
-  <tfoot className={cn('border-t border-[#292E38] bg-[#101319] font-medium text-[#A1A1AA]', className)}>
+  <tfoot className={cn('border-t border-surface-700 bg-surface-900 font-medium text-surface-400', className)}>
     {children}
   </tfoot>
 );
@@ -33,7 +33,7 @@ export const TableRow = ({ children, className = '', hover = true }) => (
   <tr
     className={cn(
       'transition-colors',
-      hover && 'hover:bg-[#1B202A]/60',
+      hover && 'hover:bg-surface-800/60',
       className
     )}
   >
@@ -44,7 +44,7 @@ export const TableRow = ({ children, className = '', hover = true }) => (
 export const TableHead = ({ children, className = '' }) => (
   <th
     className={cn(
-      'h-10 px-4 text-left align-middle font-medium text-[#A1A1AA] select-none [&:has([role=checkbox])]:pr-0',
+      'h-10 px-4 text-left align-middle font-medium text-surface-400 select-none [&:has([role=checkbox])]:pr-0',
       className
     )}
   >
@@ -53,13 +53,13 @@ export const TableHead = ({ children, className = '' }) => (
 );
 
 export const TableCell = ({ children, className = '' }) => (
-  <td className={cn('p-4 align-middle text-[#F4F4F5] [&:has([role=checkbox])]:pr-0', className)}>
+  <td className={cn('p-4 align-middle text-surface-100 [&:has([role=checkbox])]:pr-0', className)}>
     {children}
   </td>
 );
 
 export const TableCaption = ({ children, className = '' }) => (
-  <caption className={cn('mt-4 text-xs text-[#71717A]', className)}>
+  <caption className={cn('mt-4 text-xs text-surface-500', className)}>
     {children}
   </caption>
 );

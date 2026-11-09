@@ -139,7 +139,7 @@ export const CardCustomizerDrawer = ({
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-white">{t.name}</span>
+                    <span className="text-sm font-semibold text-surface-100">{t.name}</span>
                     {theme === t.id && (
                       <span className="text-[10px] bg-brand-500 text-white px-1.5 py-0.5 rounded font-mono font-bold">
                         ACTIVE
@@ -154,7 +154,7 @@ export const CardCustomizerDrawer = ({
         </div>
 
         {/* Identity & Handle */}
-        <div className="space-y-3 pt-4 border-t border-surface-800">
+        <div className="space-y-3 pt-4 border-t border-surface-700">
           <label className="text-xs font-semibold text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
             <Sparkles className="w-4 h-4 text-cyan-400" />
             Handle & Bio
@@ -176,7 +176,7 @@ export const CardCustomizerDrawer = ({
                 onChange={e => setHeadline(e.target.value)}
                 maxLength={120}
                 rows={2}
-                className="w-full rounded-xl bg-surface-950/80 border border-surface-800 text-surface-100 text-sm p-3 focus:outline-none focus:border-brand-500 placeholder-surface-500"
+                className="w-full rounded-xl bg-surface-900 border border-surface-700 text-surface-100 text-sm p-3 focus:outline-none focus:border-brand-500 placeholder-surface-500"
                 placeholder="Systems Engineer • Distributed Systems & DSA • Rust/Go"
               />
               <div className="text-right text-[11px] text-surface-500">
@@ -187,7 +187,7 @@ export const CardCustomizerDrawer = ({
         </div>
 
         {/* Visibility Setting */}
-        <div className="space-y-3 pt-4 border-t border-surface-800">
+        <div className="space-y-3 pt-4 border-t border-surface-700">
           <label className="text-xs font-semibold text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
             <Shield className="w-4 h-4 text-emerald-400" />
             Card Visibility & Privacy
@@ -205,10 +205,10 @@ export const CardCustomizerDrawer = ({
                 className={`p-3 rounded-xl border text-center transition-all ${
                   visibility === v.id
                     ? 'border-brand-500 bg-brand-500/10 shadow-sm'
-                    : 'border-surface-800 bg-surface-900/40 hover:border-surface-700'
+                    : 'border-surface-700 bg-surface-900/40 hover:border-surface-600'
                 }`}
               >
-                <div className="text-sm font-semibold text-white capitalize">{v.label}</div>
+                <div className="text-sm font-semibold text-surface-100 capitalize">{v.label}</div>
                 <div className="text-[10px] text-surface-400 mt-0.5">{v.desc}</div>
               </button>
             ))}
@@ -216,7 +216,7 @@ export const CardCustomizerDrawer = ({
 
           {/* Share Link Box */}
           {visibility !== 'private' && (
-            <div className="p-3 rounded-xl bg-surface-950/80 border border-surface-800 space-y-2">
+            <div className="p-3 rounded-xl bg-surface-900 border border-surface-700 space-y-2">
               <div className="flex items-center justify-between text-xs text-surface-400">
                 <span>Public Share Link</span>
                 {visibility === 'unlisted' && (
@@ -235,7 +235,7 @@ export const CardCustomizerDrawer = ({
                 <input
                   readOnly
                   value={shareUrl}
-                  className="w-full text-xs font-mono bg-surface-900 border border-surface-700/60 rounded-lg px-2.5 py-1.5 text-surface-300 select-all"
+                  className="w-full text-xs font-mono bg-surface-850 border border-surface-700 rounded-lg px-2.5 py-1.5 text-surface-300 select-all"
                 />
                 <Button
                   size="sm"
@@ -251,7 +251,7 @@ export const CardCustomizerDrawer = ({
         </div>
 
         {/* Section Disclosures */}
-        <div className="space-y-3 pt-4 border-t border-surface-800">
+        <div className="space-y-3 pt-4 border-t border-surface-700">
           <label className="text-xs font-semibold text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
             <Eye className="w-4 h-4 text-purple-400" />
             Displayed Sections

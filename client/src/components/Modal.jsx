@@ -30,34 +30,34 @@ export const Modal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-[#0B0D11]/80 backdrop-blur-md transition-opacity duration-200"
+        className="fixed inset-0 bg-surface-950/80 backdrop-blur-md transition-opacity duration-200"
         onClick={onClose}
       />
 
       {/* Modal Dialog Content */}
       <div
         className={cn(
-          'relative w-full rounded-2xl border border-[#292E38] bg-[#151922] p-6 shadow-2xl z-10 animate-in fade-in zoom-in-95 duration-200',
+          'relative w-full rounded-2xl border border-surface-700 bg-surface-850 p-6 shadow-2xl z-10 animate-in fade-in zoom-in-95 duration-200',
           maxWidth
         )}
       >
         <div className="flex items-start justify-between mb-4">
           <div>
-            {title && <h3 className="text-lg font-semibold text-[#F4F4F5]">{title}</h3>}
-            {description && <p className="text-sm text-[#A1A1AA] mt-0.5">{description}</p>}
+            {title && <h3 className="text-lg font-semibold text-surface-100">{title}</h3>}
+            {description && <p className="text-sm text-surface-400 mt-0.5">{description}</p>}
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-[#A1A1AA] hover:text-white hover:bg-[#1B202A] transition-colors focus:outline-none"
+            className="rounded-lg p-1 text-surface-400 hover:text-surface-100 hover:bg-surface-800 transition-colors focus:outline-none"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="py-2 text-[#F4F4F5]">{children}</div>
+        <div className="py-2 text-surface-100">{children}</div>
 
         {footer && (
-          <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-[#292E38]">
+          <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-surface-700">
             {footer}
           </div>
         )}

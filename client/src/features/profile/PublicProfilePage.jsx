@@ -11,6 +11,7 @@ import ProfileCard from './components/ProfileCard.jsx';
 import CardExportModal from './components/CardExportModal.jsx';
 import Button from '../../components/Button.jsx';
 import { CardSkeleton } from '../../components/Skeleton.jsx';
+import ThemeToggle from '../../components/ThemeToggle.jsx';
 
 export const PublicProfilePage = () => {
   const { username } = useParams();
@@ -73,15 +74,16 @@ export const PublicProfilePage = () => {
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link
             to="/"
-            className="flex items-center gap-2.5 font-bold text-white text-sm hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2.5 font-bold text-surface-100 text-sm hover:opacity-90 transition-opacity"
           >
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center font-bold text-xs shadow-md shadow-brand-500/25">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center font-bold text-xs text-white shadow-md shadow-brand-500/25">
               OS
             </div>
             <span>Engineer<span className="text-brand-500">OS</span></span>
           </Link>
 
           <div className="flex items-center gap-3">
+            <ThemeToggle size="sm" />
             <Link to="/register">
               <Button size="sm" variant="primary" leftIcon={Sparkles}>
                 Create Your Card
@@ -102,7 +104,7 @@ export const PublicProfilePage = () => {
             <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
               <Lock className="w-6 h-6" />
             </div>
-            <h2 className="text-lg font-bold text-white">Profile Restricted</h2>
+            <h2 className="text-lg font-bold text-surface-100">Profile Restricted</h2>
             <p className="text-sm text-surface-400 leading-relaxed">{error}</p>
             <div className="pt-2">
               <Link to="/">

@@ -50,7 +50,7 @@ export function GateCataloguePage() {
               National Examination Engine
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-surface-100 tracking-tight">
             GATE Mock Examination Hub
           </h1>
           <p className="text-sm text-surface-400 mt-1 max-w-2xl leading-relaxed">
@@ -69,7 +69,7 @@ export function GateCataloguePage() {
       {/* Available Tests */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+          <h2 className="text-lg font-bold text-surface-100 tracking-tight flex items-center gap-2">
             <span>Available Mock Tests</span>
             <span className="w-1.5 h-1.5 rounded-full bg-brand-500" />
           </h2>
@@ -108,7 +108,7 @@ export function GateCataloguePage() {
                   </div>
 
                   <div>
-                    <h3 className="text-base font-bold text-white group-hover:text-brand-400 transition-colors line-clamp-1">
+                    <h3 className="text-base font-bold text-surface-100 group-hover:text-brand-500 transition-colors line-clamp-1">
                       {test.title}
                     </h3>
                     <p className="text-xs text-surface-400 mt-1 line-clamp-2 leading-relaxed">
@@ -154,7 +154,7 @@ export function GateCataloguePage() {
       {/* Recent Attempts History */}
       <div className="space-y-4 pt-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+          <h2 className="text-lg font-bold text-surface-100 tracking-tight flex items-center gap-2">
             <span>My Test Attempts & Diagnostics</span>
           </h2>
           <span className="text-xs text-surface-400">Historical performance & solutions</span>
@@ -183,7 +183,7 @@ export function GateCataloguePage() {
                   onClick={() => navigate(`/gate/results/${att._id}`)}
                   className="cursor-pointer hover:bg-surface-800/60 transition-colors"
                 >
-                  <TableCell className="font-semibold text-white">
+                  <TableCell className="font-semibold text-surface-100">
                     <div className="flex items-center gap-2">
                       <span>{att.testId?.title || 'GATE CS Mock Exam'}</span>
                     </div>

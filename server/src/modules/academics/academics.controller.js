@@ -1,4 +1,5 @@
 import { AcademicsService } from './academics.service.js';
+import { ValidationError } from '../../middleware/error.js';
 
 export class AcademicsController {
   static async getSubjects(req, res, next) {
@@ -73,6 +74,32 @@ export class AcademicsController {
       const resource = await AcademicsService.createResource({
         ...req.body,
         subjectId: req.params.id,
+      });
+      res.status(201).json({ data: resource });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async uploadResource(req, res, next) {
+    try {
+      if (!req.file || !req.file.buffer) {
+        throw new ValidationError('No document file provided in multipart upload');
+      }
+      const resource = await AcademicsService.uploadResource({
+        subjectId: req.params.id,
+        file: req.file,
+        title: req.body.title || req.file.originalname,
+        type: req.body.type || 'notes',
+        topicId: req.body.topicId,
+        year: req.body.year ? Number(req.body.year) : undefined,
+        author: req.body.author || req.user?.name || 'Verified Contributor',
+        tags: req.body.tags
+          ? typeof req.body.tags === 'string'
+            ? req.body.tags.split(',').map(t => t.trim())
+            : req.body.tags
+          : [],
+        textContent: req.body.textContent || '',
       });
       res.status(201).json({ data: resource });
     } catch (error) {

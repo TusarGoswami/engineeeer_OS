@@ -46,10 +46,10 @@ export const ToastProvider = ({ children }) => {
   };
 
   const styles = {
-    success: 'border-emerald-500/40 bg-surface-900/95 text-emerald-300',
-    error: 'border-rose-500/40 bg-surface-900/95 text-rose-300',
-    warning: 'border-amber-500/40 bg-surface-900/95 text-amber-300',
-    info: 'border-brand-500/40 bg-surface-900/95 text-brand-300',
+    success: 'border-emerald-500/40 bg-surface-850/95 text-emerald-600 dark:text-emerald-300',
+    error: 'border-rose-500/40 bg-surface-850/95 text-rose-600 dark:text-rose-300',
+    warning: 'border-amber-500/40 bg-surface-850/95 text-amber-600 dark:text-amber-300',
+    info: 'border-brand-500/40 bg-surface-850/95 text-brand-600 dark:text-brand-300',
   };
 
   return (
@@ -75,14 +75,14 @@ export const ToastProvider = ({ children }) => {
             >
               <Icon className="w-5 h-5 flex-shrink-0 mt-0.5" />
               <div className="flex-1 text-xs">
-                {t.title && <h5 className="font-semibold text-white">{t.title}</h5>}
+                {t.title && <h5 className="font-semibold text-surface-100">{t.title}</h5>}
                 {t.message && <p className="text-surface-300 mt-0.5">{t.message}</p>}
               </div>
               <button
                 type="button"
                 onClick={() => removeToast(t.id)}
                 aria-label="Dismiss toast"
-                className="text-surface-400 hover:text-white p-0.5 rounded transition-colors focus:outline-none"
+                className="text-surface-400 hover:text-surface-100 p-0.5 rounded transition-colors focus:outline-none"
               >
                 <X className="w-4 h-4" />
               </button>

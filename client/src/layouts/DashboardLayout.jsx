@@ -22,6 +22,7 @@ import {
 import { useAuth } from '../features/auth/AuthContext.jsx';
 import { Badge } from '../components/Badge.jsx';
 import { CommandPalette } from '../components/CommandPalette.jsx';
+import { ThemeToggle } from '../components/ThemeToggle.jsx';
 import { notificationService } from '../services/notification.service.js';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -174,7 +175,7 @@ export const DashboardLayout = () => {
             OS
           </div>
           <div>
-            <span className="font-bold text-base text-white tracking-tight">Engineer<span className="text-brand-500">OS</span></span>
+            <span className="font-bold text-base text-surface-100 tracking-tight">Engineer<span className="text-brand-500">OS</span></span>
             <span className="block text-[10px] text-surface-400 -mt-1 font-mono uppercase tracking-wider">
               Student Edition
             </span>
@@ -192,7 +193,7 @@ export const DashboardLayout = () => {
                 {user?.name?.slice(0, 2) || 'ST'}
               </div>
               <div className="overflow-hidden">
-                <p className="text-xs font-medium text-white truncate">{user?.name}</p>
+                <p className="text-xs font-medium text-surface-100 truncate">{user?.name}</p>
                 <p className="text-[11px] text-surface-400 truncate capitalize">
                   {user?.role} {user?.isAlumni ? '• Alumni' : ''}
                 </p>
@@ -222,14 +223,17 @@ export const DashboardLayout = () => {
                 <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 font-bold text-white text-xs">
                   OS
                 </div>
-                <span className="font-bold text-white">Engineer<span className="text-brand-500">OS</span></span>
+                <span className="font-bold text-surface-100">Engineer<span className="text-brand-500">OS</span></span>
               </div>
-              <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="p-1 rounded-lg hover:bg-surface-800"
-              >
-                <X className="w-5 h-5 text-surface-400" />
-              </button>
+              <div className="flex items-center gap-1">
+                <ThemeToggle size="sm" />
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-1 rounded-lg hover:bg-surface-800"
+                >
+                  <X className="w-5 h-5 text-surface-400" />
+                </button>
+              </div>
             </div>
             <div className="flex-1 overflow-y-auto">{renderNavLinks()}</div>
             <div className="pt-4 border-t border-surface-800">
@@ -276,12 +280,15 @@ export const DashboardLayout = () => {
             </kbd>
           </button>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Theme Toggle Button */}
+            <ThemeToggle size="md" />
+
             {/* Notification Center */}
             <div className="relative">
               <button
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
-                className="relative p-2 rounded-xl text-surface-400 hover:text-white hover:bg-surface-800 transition-colors"
+                className="relative p-2 rounded-xl text-surface-400 hover:text-surface-100 hover:bg-surface-800 transition-colors"
                 title="Notifications"
               >
                 <Bell className="w-5 h-5" />
@@ -296,7 +303,7 @@ export const DashboardLayout = () => {
                 <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-surface-900 border border-surface-800 shadow-2xl z-50 overflow-hidden animate-fadeIn">
                   <div className="flex items-center justify-between p-4 border-b border-surface-800 bg-surface-950/60">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-white">Notifications</span>
+                      <span className="text-xs font-bold text-surface-100">Notifications</span>
                       {unreadCount > 0 && (
                         <span className="text-[10px] bg-brand-500/20 text-brand-300 px-1.5 py-0.5 rounded-full font-semibold">
                           {unreadCount} new
@@ -331,7 +338,7 @@ export const DashboardLayout = () => {
                           <div className="flex items-start justify-between gap-2">
                             <span
                               className={`text-xs font-semibold ${
-                                !n.isRead ? 'text-white' : 'text-surface-300'
+                                !n.isRead ? 'text-surface-100' : 'text-surface-300'
                               }`}
                             >
                               {n.title}

@@ -147,7 +147,7 @@ export const CommunityForumPage = () => {
         <div>
           <div className="flex items-center gap-2">
             <Users className="w-6 h-6 text-brand-400" />
-            <h1 className="text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-2xl font-bold text-surface-100 tracking-tight">
               Senior-Junior Community Network
             </h1>
           </div>
@@ -179,7 +179,7 @@ export const CommunityForumPage = () => {
               className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all border ${
                 selectedCategory === cat
                   ? 'bg-brand-600 text-white border-brand-500 shadow-sm'
-                  : 'bg-surface-900 border-surface-800 text-surface-400 hover:text-white hover:border-surface-700'
+                  : 'bg-surface-900 border-surface-800 text-surface-400 hover:text-surface-100 hover:border-surface-700'
               }`}
             >
               {cat === 'Ask a Senior' && (
@@ -246,7 +246,7 @@ export const CommunityForumPage = () => {
                     )}
                   </div>
 
-                  <h3 className="text-base font-semibold text-white group-hover:text-brand-400 transition-colors line-clamp-2">
+                  <h3 className="text-base font-semibold text-surface-100 group-hover:text-brand-500 transition-colors line-clamp-2">
                     {post.title}
                   </h3>
                   <p className="text-xs text-surface-400 line-clamp-2 leading-relaxed">
@@ -364,7 +364,7 @@ export const CommunityForumPage = () => {
               className="rounded bg-surface-800 border-surface-700 text-brand-600 focus:ring-0"
             />
             <label htmlFor="ask-senior-toggle" className="text-surface-300 cursor-pointer">
-              <span className="font-semibold text-white">Ask a Senior:</span> Prioritize this
+              <span className="font-semibold text-surface-100">Ask a Senior:</span> Prioritize this
               question for senior and alumni review with email notifications.
             </label>
           </div>

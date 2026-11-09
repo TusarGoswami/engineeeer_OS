@@ -4,11 +4,11 @@ import { twMerge } from 'tailwind-merge';
 const cn = (...inputs) => twMerge(clsx(inputs));
 
 export const Skeleton = ({ className = '', ...props }) => {
-  return <div className={cn('animate-pulse rounded-xl bg-[#1B202A]', className)} {...props} />;
+  return <div className={cn('animate-pulse rounded-xl bg-surface-800', className)} {...props} />;
 };
 
 export const CardSkeleton = ({ className = '', lines = 3 }) => (
-  <div className={cn('rounded-2xl border border-[#292E38] bg-[#151922] p-6 space-y-4 animate-pulse', className)}>
+  <div className={cn('rounded-2xl border border-surface-700 bg-surface-850 p-6 space-y-4 animate-pulse', className)}>
     <div className="flex items-center justify-between">
       <Skeleton className="h-5 w-1/3 rounded-lg" />
       <Skeleton className="h-4 w-12 rounded-full" />
@@ -22,7 +22,7 @@ export const CardSkeleton = ({ className = '', lines = 3 }) => (
 );
 
 export const StatSkeleton = ({ className = '' }) => (
-  <div className={cn('rounded-2xl border border-[#292E38] bg-[#151922] p-5 space-y-3 animate-pulse', className)}>
+  <div className={cn('rounded-2xl border border-surface-700 bg-surface-850 p-5 space-y-3 animate-pulse', className)}>
     <div className="flex items-center justify-between">
       <Skeleton className="h-3 w-20 rounded" />
       <Skeleton className="h-8 w-8 rounded-xl" />
@@ -33,14 +33,14 @@ export const StatSkeleton = ({ className = '' }) => (
 );
 
 export const TableSkeleton = ({ rows = 5, cols = 4, className = '' }) => (
-  <div className={cn('w-full border border-[#292E38] rounded-xl overflow-hidden bg-[#151922] p-4 space-y-3 animate-pulse', className)}>
-    <div className="flex gap-4 border-b border-[#292E38] pb-3">
+  <div className={cn('w-full border border-surface-700 rounded-xl overflow-hidden bg-surface-850 p-4 space-y-3 animate-pulse', className)}>
+    <div className="flex gap-4 border-b border-surface-700 pb-3">
       {Array.from({ length: cols }).map((_, c) => (
         <Skeleton key={c} className="h-4 flex-1 rounded" />
       ))}
     </div>
     {Array.from({ length: rows }).map((_, r) => (
-      <div key={r} className="flex gap-4 py-2 border-b border-[#292E38]/50">
+      <div key={r} className="flex gap-4 py-2 border-b border-surface-700/50">
         {Array.from({ length: cols }).map((_, c) => (
           <Skeleton key={c} className="h-3 flex-1 rounded" />
         ))}

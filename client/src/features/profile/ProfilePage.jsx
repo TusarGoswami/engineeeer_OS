@@ -169,7 +169,7 @@ export const ProfilePage = () => {
       <div className="flex flex-col items-center space-y-4">
         <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 pb-2">
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-2xl font-bold text-surface-100 tracking-tight">
               My EngineerOS Card
             </h1>
             <p className="text-sm text-surface-400">

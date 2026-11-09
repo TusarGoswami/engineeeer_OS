@@ -98,7 +98,7 @@ export function InterviewHubPage() {
               Candidate Preparation Arena
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-0.5">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-surface-100 tracking-tight mt-0.5">
             AI Mock Interview Studio
           </h1>
           <p className="text-sm text-surface-400 mt-1">
@@ -133,7 +133,7 @@ export function InterviewHubPage() {
                 <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-3">
                   <Icon className="w-5 h-5" />
                 </div>
-                <h3 className="text-sm font-semibold text-white">{m.title}</h3>
+                <h3 className="text-sm font-semibold text-surface-100">{m.title}</h3>
                 <p className="text-xs text-surface-400 mt-1 leading-relaxed line-clamp-3">
                   {m.desc}
                 </p>
@@ -150,7 +150,7 @@ export function InterviewHubPage() {
       {/* Interview Sessions History */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-white tracking-tight">
+          <h2 className="text-base font-bold text-surface-100 tracking-tight">
             Interview Session History
           </h2>
           <span className="text-xs text-surface-400 font-mono">
@@ -178,11 +178,11 @@ export function InterviewHubPage() {
                 <div
                   key={s._id}
                   onClick={() => navigate(`/interviews/${s._id}`)}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-[#292E38] bg-[#151922] hover:bg-[#1B202A] hover:border-zinc-600 transition-all cursor-pointer shadow-sm"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-surface-700 bg-surface-850 hover:bg-surface-800 hover:border-surface-600 transition-all cursor-pointer shadow-sm"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-semibold text-white">
+                      <h3 className="text-sm font-semibold text-surface-100">
                         {s.targetRole || 'Software Development Engineer'}
                       </h3>
                       <Badge

@@ -66,18 +66,18 @@ export const AssessmentReviewPage = () => {
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-surface-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-surface-700 pb-6">
         <div>
           <button
             onClick={() => navigate('/assessments')}
-            className="flex items-center gap-1.5 text-xs text-surface-400 hover:text-white mb-2 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-surface-400 hover:text-surface-100 mb-2 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Assessments</span>
           </button>
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-6 h-6 text-amber-400" />
-            <h1 className="text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-2xl font-bold text-surface-100 tracking-tight">
               Proctoring Audit & Review Signals
             </h1>
           </div>
@@ -101,17 +101,17 @@ export const AssessmentReviewPage = () => {
 
       {/* Overview Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="border-surface-800 p-4 bg-surface-900/60">
+        <Card className="border-surface-700 p-4 bg-surface-850">
           <span className="text-xs text-surface-400 font-medium">Total Examinees</span>
-          <div className="text-2xl font-bold text-white mt-1">{signals.length}</div>
+          <div className="text-2xl font-bold text-surface-100 mt-1">{signals.length}</div>
         </Card>
-        <Card className="border-surface-800 p-4 bg-surface-900/60">
+        <Card className="border-surface-700 p-4 bg-surface-850">
           <span className="text-xs text-surface-400 font-medium">Flagged for Faculty Review</span>
           <div className="text-2xl font-bold text-amber-400 mt-1">
             {signals.filter(s => s.isFlaggedForReview).length}
           </div>
         </Card>
-        <Card className="border-surface-800 p-4 bg-surface-900/60">
+        <Card className="border-surface-700 p-4 bg-surface-850">
           <span className="text-xs text-surface-400 font-medium">Verified Clean Attempts</span>
           <div className="text-2xl font-bold text-emerald-400 mt-1">
             {signals.filter(s => !s.isFlaggedForReview).length}
@@ -124,24 +124,24 @@ export const AssessmentReviewPage = () => {
         {loading ? (
           <div className="text-surface-400 text-sm">Loading audit records...</div>
         ) : displayedSignals.length === 0 ? (
-          <Card className="border-surface-800 p-8 text-center text-surface-400 text-xs">
+          <Card className="border-surface-700 p-8 text-center text-surface-400 text-xs bg-surface-850">
             No submissions matching filter criteria.
           </Card>
         ) : (
           displayedSignals.map(item => (
             <Card
               key={item.attemptId}
-              className={`border p-5 transition-all bg-surface-900/60 ${
+              className={`border p-5 transition-all bg-surface-850 ${
                 item.isFlaggedForReview
                   ? 'border-amber-500/40 bg-amber-500/5'
-                  : 'border-surface-800 hover:border-surface-700'
+                  : 'border-surface-700 hover:border-surface-600'
               }`}
             >
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <User className="w-4 h-4 text-surface-400" />
-                    <span className="font-semibold text-white text-sm">
+                    <span className="font-semibold text-surface-100 text-sm">
                       {item.userId?.name || 'Anonymous Student'}
                     </span>
                     <span className="text-xs text-surface-400">({item.userId?.email})</span>

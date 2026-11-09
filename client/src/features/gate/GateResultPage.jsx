@@ -53,7 +53,7 @@ export function GateResultPage() {
   if (!attempt) {
     return (
       <div className="max-w-md mx-auto my-16 p-8 text-center rounded-2xl border border-surface-700 bg-surface-850">
-        <h2 className="text-lg font-bold text-white mb-2">Result not found</h2>
+        <h2 className="text-lg font-bold text-surface-100 mb-2">Result not found</h2>
         <p className="text-xs text-surface-400 mb-6">
           The requested exam attempt could not be retrieved.
         </p>
@@ -72,12 +72,12 @@ export function GateResultPage() {
           <button
             type="button"
             onClick={() => navigate('/gate')}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-surface-400 hover:text-white transition-colors mb-2"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-surface-400 hover:text-surface-100 transition-colors mb-2"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to GATE Hub</span>
           </button>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-surface-100 tracking-tight">
             {attempt.testId?.title || 'GATE CS Mock Exam'} — Result Analysis
           </h1>
           <span className="text-xs font-mono text-surface-400 mt-1 block">
@@ -158,7 +158,7 @@ export function GateResultPage() {
       {/* Detailed Question Review & Solutions */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+          <h2 className="text-lg font-bold text-surface-100 tracking-tight flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-brand-500" />
             <span>Question & Solution Review</span>
           </h2>
@@ -183,7 +183,7 @@ export function GateResultPage() {
               >
                 <div className="flex items-center justify-between gap-3 mb-3">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-bold text-white font-mono">
+                    <span className="text-sm font-bold text-surface-100 font-mono">
                       Q{idx + 1}.
                     </span>
                     <Badge variant="cyan" size="sm" className="font-mono text-[10px]">
