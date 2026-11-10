@@ -368,7 +368,7 @@ export const AssessmentTakePage = () => {
           </div>
           <button
             onClick={() => setIntegrityWarning(null)}
-            className="text-amber-400 hover:text-white text-[11px] font-semibold underline ml-4"
+            className="text-amber-400 hover:text-surface-100 text-[11px] font-semibold underline ml-4"
           >
             Dismiss
           </button>
@@ -534,13 +534,13 @@ export const AssessmentTakePage = () => {
         <div className="space-y-4 text-xs text-surface-300">
           <p>
             You are about to complete and finalize your assessment for{' '}
-            <strong className="text-white">{assessment.title}</strong>.
+            <strong className="text-surface-100">{assessment.title}</strong>.
           </p>
 
           <div className="bg-surface-950 p-4 rounded-xl border border-surface-800 space-y-2">
             <div className="flex justify-between">
               <span className="text-surface-400">Total Questions:</span>
-              <span className="font-semibold text-white">{assessment.questions.length}</span>
+              <span className="font-semibold text-surface-100">{assessment.questions.length}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-surface-400">Answered:</span>

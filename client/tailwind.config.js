@@ -102,6 +102,7 @@ export default {
       },
       animation: {
         'fade-in': 'fade-in 0.15s ease-out',
+        'fadeIn': 'fade-in 0.15s ease-out',
         'fade-in-up': 'fade-in-up 0.2s ease-out',
         'pulse-subtle': 'pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },

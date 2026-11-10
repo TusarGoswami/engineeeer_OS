@@ -216,11 +216,11 @@ export function AiAssistantPage() {
         </div>
 
         {/* Message Stream */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div className="flex-1 overflow-y-auto p-6 space-y-5">
           {messages.length === 0 && !isStreaming ? (
             <div className="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto space-y-4 my-auto">
-              <div className="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center">
-                <Sparkles className="w-7 h-7" />
+              <div className="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center">
+                <Sparkles className="w-8 h-8" />
               </div>
               <div>
                 <h3 className="text-base font-bold text-surface-100">
@@ -256,15 +256,15 @@ export function AiAssistantPage() {
               {messages.map((m, idx) => (
                 <div
                   key={idx}
-                  className={`flex flex-col max-w-[85%] space-y-1.5 ${
+                  className={`flex flex-col max-w-[80%] space-y-1.5 ${
                     m.role === 'user' ? 'ml-auto items-end' : 'mr-auto items-start'
                   }`}
                 >
                   <div
                     className={`p-4 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-wrap ${
                       m.role === 'user'
-                        ? 'bg-brand-600 text-white rounded-br-sm shadow-md'
-                        : 'bg-surface-950/90 text-surface-100 border border-surface-800 rounded-bl-sm shadow-sm'
+                        ? 'bg-brand-500 text-white rounded-br-sm shadow-md'
+                        : 'bg-surface-900/80 text-surface-100 border border-surface-800 rounded-bl-sm shadow-sm'
                     }`}
                   >
                     {m.content}
@@ -292,10 +292,10 @@ export function AiAssistantPage() {
 
               {/* Streaming Bubble */}
               {isStreaming && (
-                <div className="flex flex-col max-w-[85%] space-y-1.5 mr-auto items-start">
-                  <div className="p-4 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-wrap bg-surface-950/90 text-surface-100 border border-surface-800 rounded-bl-sm shadow-sm">
+                <div className="flex flex-col max-w-[80%] space-y-1.5 mr-auto items-start">
+                  <div className="p-4 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-wrap bg-surface-900/80 text-surface-100 border border-surface-800 rounded-bl-sm shadow-sm">
                     {streamingText || 'Synthesizing verified engineering explanation...'}
-                    <span className="inline-block w-1.5 h-4 bg-brand-400 ml-1 animate-pulse align-middle" />
+                    <span className="inline-block w-1 h-5 bg-brand-400 ml-1 animate-pulse align-middle" />
                   </div>
 
                   {currentCitations.length > 0 && (
@@ -335,7 +335,7 @@ export function AiAssistantPage() {
               value={inputQuery}
               onChange={e => setInputQuery(e.target.value)}
               disabled={isStreaming}
-              className="flex-1 px-4 py-2.5 rounded-xl bg-surface-900 border border-surface-700 text-xs sm:text-sm text-surface-100 placeholder-surface-500 focus:outline-none focus:border-brand-500"
+              className="flex-1 px-4 py-3 rounded-xl bg-surface-900 border border-surface-700 text-xs sm:text-sm text-surface-100 placeholder-surface-500 focus:outline-none focus:border-brand-500 ring-0 ring-brand-500/0 focus:ring-2 focus:ring-brand-500/20"
             />
             <Button
               type="submit"

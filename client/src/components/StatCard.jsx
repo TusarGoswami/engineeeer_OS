@@ -36,18 +36,18 @@ export const StatCard = ({
     <div
       onClick={onClick}
       className={cn(
-        'rounded-2xl border bg-surface-850 p-5 shadow-sm dark:shadow-lg transition-all duration-200',
+        'rounded-2xl border bg-surface-850 p-5 shadow-sm dark:shadow-lg transition-all duration-200 hover:-translate-y-0.5',
         borderVariants[variant] || borderVariants.default,
-        onClick && 'cursor-pointer hover:-translate-y-0.5 active:scale-[0.99]',
+        onClick && 'cursor-pointer active:scale-[0.99]',
         className
       )}
       {...props}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
-          <p className="text-xs font-medium text-surface-400 uppercase tracking-wider">{title}</p>
+          <p className="text-xs font-semibold text-surface-400 uppercase tracking-wider">{title}</p>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono tracking-tight text-surface-100">{value}</span>
+            <span className="text-[28px] font-bold font-mono tracking-tight leading-tight text-surface-100">{value}</span>
             {trend && (
               <span
                 className={cn(

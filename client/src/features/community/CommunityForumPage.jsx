@@ -176,7 +176,7 @@ export const CommunityForumPage = () => {
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all border ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all duration-200 border ${
                 selectedCategory === cat
                   ? 'bg-brand-600 text-white border-brand-500 shadow-sm'
                   : 'bg-surface-900 border-surface-800 text-surface-400 hover:text-surface-100 hover:border-surface-700'
@@ -215,13 +215,13 @@ export const CommunityForumPage = () => {
             <Card
               key={post._id}
               onClick={() => navigate(`/community/${post._id}`)}
-              className="p-5 cursor-pointer group"
+              className="p-5 cursor-pointer group hover:-translate-y-0.5 transition-all duration-200"
             >
               <div className="flex items-start gap-4">
                 {/* Upvote Counter */}
                 <button
                   onClick={e => handleUpvote(e, post._id)}
-                  className="flex flex-col items-center justify-center w-12 py-2 rounded-xl bg-surface-950 border border-surface-800 text-surface-400 hover:text-brand-400 hover:border-brand-500/50 transition-colors shrink-0"
+                  className="flex flex-col items-center justify-center w-12 py-2 rounded-xl bg-surface-950 border border-surface-800 text-surface-400 hover:text-brand-400 hover:border-brand-500/50 transition-all duration-200 hover:-translate-y-0.5 shrink-0"
                 >
                   <ThumbsUp className="w-4 h-4" />
                   <span className="text-xs font-bold mt-1 text-surface-200">{post.upvotes}</span>
@@ -246,7 +246,7 @@ export const CommunityForumPage = () => {
                     )}
                   </div>
 
-                  <h3 className="text-base font-semibold text-surface-100 group-hover:text-brand-500 transition-colors line-clamp-2">
+                  <h3 className="text-[15px] font-semibold text-surface-100 group-hover:text-brand-500 transition-colors line-clamp-2">
                     {post.title}
                   </h3>
                   <p className="text-xs text-surface-400 line-clamp-2 leading-relaxed">

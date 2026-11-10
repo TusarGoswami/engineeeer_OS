@@ -42,7 +42,7 @@ export function GateCataloguePage() {
   return (
     <div className="space-y-8 max-w-6xl mx-auto pb-12 animate-fade-in">
       {/* Header section */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-surface-700/80 pb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-surface-700/80 pb-8">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <BookOpen className="w-6 h-6 text-brand-500" />
@@ -90,12 +90,12 @@ export function GateCataloguePage() {
             No mock tests available at the moment. Check back soon!
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {tests.map((test) => (
               <Card
                 key={test._id}
                 hover
-                className="flex flex-col justify-between p-5 border-surface-700 bg-surface-850 shadow-md group"
+                className="flex flex-col justify-between min-h-[240px] p-5 border-surface-700 bg-surface-850 shadow-md group"
               >
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-2">
@@ -116,7 +116,7 @@ export function GateCataloguePage() {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-3 pt-2 text-xs font-mono text-surface-400 border-t border-surface-700/60">
+                  <div className="flex items-center gap-4 pt-2 text-xs font-mono text-surface-400 border-t border-surface-700/60">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3.5 h-3.5 text-surface-500" />
                       {test.durationMinutes}m
@@ -152,7 +152,7 @@ export function GateCataloguePage() {
       </div>
 
       {/* Recent Attempts History */}
-      <div className="space-y-4 pt-4">
+      <div className="space-y-4 pt-6">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-surface-100 tracking-tight flex items-center gap-2">
             <span>My Test Attempts & Diagnostics</span>
@@ -166,7 +166,7 @@ export function GateCataloguePage() {
             your readiness!
           </Card>
         ) : (
-          <Table containerClassName="border-surface-700 bg-surface-850">
+          <Table containerClassName="border-surface-700 bg-surface-850 rounded-xl overflow-hidden">
             <TableHeader className="bg-surface-900 border-surface-700">
               <TableRow hover={false}>
                 <TableHead>Test Title</TableHead>

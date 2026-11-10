@@ -116,7 +116,7 @@ export function InterviewHubPage() {
       </div>
 
       {/* Modes Grid Overview */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {MODES.map(m => {
           const Icon = m.icon;
           return (
@@ -127,7 +127,7 @@ export function InterviewHubPage() {
                 setMode(m.id);
                 setIsModalOpen(true);
               }}
-              className="p-5 cursor-pointer flex flex-col justify-between"
+              className="p-5 cursor-pointer flex flex-col justify-between min-h-[180px]"
             >
               <div>
                 <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-3">
@@ -150,7 +150,7 @@ export function InterviewHubPage() {
       {/* Interview Sessions History */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-surface-100 tracking-tight">
+          <h2 className="text-lg font-bold text-surface-100 tracking-tight">
             Interview Session History
           </h2>
           <span className="text-xs text-surface-400 font-mono">
@@ -178,7 +178,7 @@ export function InterviewHubPage() {
                 <div
                   key={s._id}
                   onClick={() => navigate(`/interviews/${s._id}`)}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-surface-700 bg-surface-850 hover:bg-surface-800 hover:border-surface-600 transition-all cursor-pointer shadow-sm"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-surface-700 bg-surface-850 hover:bg-surface-800 hover:border-surface-600 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer shadow-sm"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
@@ -214,10 +214,10 @@ export function InterviewHubPage() {
                   <div className="flex items-center gap-4">
                     {score !== undefined && score !== null && (
                       <div className="text-right">
-                        <div className="text-lg font-bold font-mono text-emerald-400">
+                        <div className="text-xl font-bold font-mono text-emerald-400">
                           {score}/100
                         </div>
-                        <div className="text-[10px] text-surface-500 uppercase font-mono">
+                        <div className="text-[10px] text-surface-500 uppercase font-mono tracking-wider">
                           Readiness Score
                         </div>
                       </div>
@@ -261,13 +261,13 @@ export function InterviewHubPage() {
                   key={m.id}
                   type="button"
                   onClick={() => setMode(m.id)}
-                  className={`p-3 rounded-xl border text-left transition-all ${
+                  className={`p-3 rounded-xl border text-left transition-all duration-200 ${
                     mode === m.id
                       ? 'border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/50'
                       : 'border-surface-800 bg-surface-950/60 hover:border-surface-700'
                   }`}
                 >
-                  <div className="text-xs font-semibold text-white">{m.title}</div>
+                  <div className="text-xs font-semibold text-surface-100">{m.title}</div>
                   <div className="text-[10px] text-surface-400 mt-0.5 line-clamp-2">
                     {m.desc}
                   </div>

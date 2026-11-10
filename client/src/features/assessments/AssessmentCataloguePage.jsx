@@ -105,7 +105,7 @@ export const AssessmentCataloguePage = () => {
       </Card>
 
       {/* Catalogue Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {loading ? (
           <div className="text-surface-400 text-sm">Loading available assessments...</div>
         ) : assessments.length === 0 ? (
@@ -116,7 +116,7 @@ export const AssessmentCataloguePage = () => {
           assessments.map(item => (
             <Card
               key={item._id}
-              className="flex flex-col justify-between border-surface-800 hover:border-surface-700 transition-all p-6 bg-surface-900/60"
+              className="group flex flex-col justify-between border-surface-800 hover:border-surface-700 hover:-translate-y-0.5 transition-all duration-200 p-5 sm:p-6 bg-surface-900/60"
             >
               <div className="space-y-4">
                 <div className="flex items-start justify-between gap-2">
@@ -141,11 +141,11 @@ export const AssessmentCataloguePage = () => {
                 <div className="flex flex-wrap items-center gap-4 text-xs text-surface-400 pt-2 border-t border-surface-800/60">
                   <span className="flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-surface-500" />
-                    {item.durationMinutes} Minutes
+                    <span className="font-mono">{item.durationMinutes}</span> Minutes
                   </span>
                   <span className="flex items-center gap-1.5">
                     <FileText className="w-3.5 h-3.5 text-surface-500" />
-                    {item.totalMarks} Marks
+                    <span className="font-mono">{item.totalMarks}</span> Marks
                   </span>
                 </div>
               </div>

@@ -73,7 +73,7 @@ export const AcademicsPage = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-surface-800">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-surface-100 flex items-center gap-2.5">
+          <h1 className="text-[26px] font-bold tracking-tight text-surface-100 flex items-center gap-2.5">
             <GraduationCap className="w-6 h-6 text-brand-400" />
             <span>Academic Curriculum Hub</span>
           </h1>
@@ -104,7 +104,7 @@ export const AcademicsPage = () => {
           <button
             key={sem}
             onClick={() => setSelectedSemester(sem)}
-            className={`px-4 py-2 rounded-xl text-xs font-medium transition-all select-none whitespace-nowrap ${
+            className={`px-4 py-2 rounded-xl text-xs font-medium transition-all select-none whitespace-nowrap min-w-[100px] text-center justify-center ${
               selectedSemester === sem
                 ? 'bg-brand-600 text-white shadow-md shadow-brand-600/30'
                 : 'bg-surface-900/60 text-surface-400 hover:text-surface-100 hover:bg-surface-800'
@@ -134,7 +134,7 @@ export const AcademicsPage = () => {
 
       {/* Subjects Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {[1, 2, 3, 4, 5, 6].map(i => (
             <Skeleton key={i} className="h-48 w-full" />
           ))}
@@ -146,7 +146,7 @@ export const AcademicsPage = () => {
           description={`No curriculum entries recorded for Semester ${selectedSemester} in ${selectedBranch}.`}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {subjects.map(subject => {
             const topicCount = subject.topics?.length || 0;
 
@@ -154,7 +154,7 @@ export const AcademicsPage = () => {
               <Card
                 key={subject._id}
                 hover
-                className="flex flex-col justify-between border-surface-800/80 bg-surface-900/50 cursor-pointer"
+                className="flex flex-col justify-between border-surface-800/80 bg-surface-900/50 cursor-pointer min-h-[200px] group"
                 onClick={() => {
                   setActiveSubject(subject);
                   setActiveTab('topics');
@@ -182,7 +182,7 @@ export const AcademicsPage = () => {
                       <BookOpen className="w-3.5 h-3.5 text-brand-400" />
                       {topicCount} Topics
                     </span>
-                    <span className="text-brand-400 font-medium">Syllabus & Notes &rarr;</span>
+                    <span className="text-brand-400 font-medium group-hover:text-brand-500 transition-colors">Syllabus & Notes &rarr;</span>
                   </div>
                 </div>
               </Card>
@@ -210,11 +210,11 @@ export const AcademicsPage = () => {
             <div className="p-4 rounded-xl bg-surface-950 border border-surface-800">
               <div className="flex items-center justify-between text-xs mb-1.5">
                 <span className="text-surface-300 font-medium">Topic Completion Progress</span>
-                <span className="text-brand-400 font-bold">
+                <span className="text-brand-400 font-bold text-sm">
                   {subjectDetails?.completionPercentage || 0}% Complete
                 </span>
               </div>
-              <div className="w-full h-2 rounded-full bg-surface-800 overflow-hidden">
+              <div className="w-full h-2.5 rounded-full bg-surface-800 overflow-hidden">
                 <div
                   className="h-full bg-brand-500 rounded-full transition-all duration-300"
                   style={{ width: `${subjectDetails?.completionPercentage || 0}%` }}

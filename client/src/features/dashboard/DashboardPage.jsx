@@ -182,7 +182,7 @@ export const DashboardPage = () => {
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-surface-100 tracking-tight">
+              <h2 className="text-[20px] font-semibold text-surface-100 tracking-tight">
                 What Should I Do Today?
               </h2>
               <p className="text-xs text-surface-400">
@@ -202,7 +202,7 @@ export const DashboardPage = () => {
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
-            <span className="text-xs font-mono text-surface-400">{progressPercent}%</span>
+            <span className="text-sm font-bold font-mono text-surface-400">{progressPercent}%</span>
           </div>
         </div>
 
@@ -226,12 +226,12 @@ export const DashboardPage = () => {
               return (
                 <div
                   key={task._id || task.taskId}
-                  className={`flex flex-col justify-between p-4 rounded-2xl border transition-all ${
+                  className={`flex flex-col justify-between p-4 rounded-2xl border transition-all duration-200 ${
                     isCompleted
                       ? 'bg-surface-900/30 border-surface-800/50 opacity-60'
                       : isSnoozed
                       ? 'bg-surface-950/40 border-surface-800/50 opacity-70'
-                      : 'bg-surface-850 border-surface-700 hover:border-surface-600 shadow-sm dark:shadow-md'
+                      : 'bg-surface-850 border-surface-700 hover:border-surface-600 hover:-translate-y-0.5 shadow-sm dark:shadow-md'
                   }`}
                 >
                   <div className="space-y-2.5">
@@ -308,7 +308,7 @@ export const DashboardPage = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Flame className="w-5 h-5 text-amber-500" />
-            <h2 className="text-lg font-bold text-surface-100 tracking-tight">
+            <h2 className="text-[20px] font-semibold text-surface-100 tracking-tight">
               Annual Consistency Stream
             </h2>
           </div>
@@ -337,17 +337,17 @@ export const DashboardPage = () => {
       {/* 4. Module Telemetry Strip: 6 Focused Workspaces */}
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-          <h2 className="text-lg font-bold text-surface-100 tracking-tight">
+          <h2 className="text-[20px] font-semibold text-surface-100 tracking-tight">
             Academic & Skill Workspaces
           </h2>
-          <span className="text-xs text-surface-400">
+          <span className="text-xs text-surface-400 mt-0.5">
             Dedicated execution environments for each engineering pillar
           </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Tile 1: Coding & DSA */}
-          <Card hover className="p-5 flex flex-col justify-between">
+          <Card hover className="p-5 flex flex-col justify-between min-h-[200px]">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400 font-mono">
@@ -357,18 +357,18 @@ export const DashboardPage = () => {
                   <Code2 className="w-4 h-4" />
                 </div>
               </div>
-              <div className="mt-3">
-                <div className="text-2xl font-bold font-mono text-surface-100">
-                  {stats?.coding?.solvedCount || 0} Solved
+              <div className="mt-4">
+                <div className="text-[28px] font-bold font-mono tracking-tight text-surface-100 leading-tight">
+                  {stats?.coding?.solvedCount || 0} <span className="text-base font-normal text-surface-400">Solved</span>
                 </div>
-                <div className="text-xs text-surface-400 mt-1 flex items-center gap-1.5">
-                  <span className="text-emerald-400">{stats?.coding?.easyCount || 0}E</span>
-                  <span>/</span>
-                  <span className="text-amber-400">{stats?.coding?.mediumCount || 0}M</span>
-                  <span>/</span>
-                  <span className="text-rose-400">{stats?.coding?.hardCount || 0}H</span>
-                  <span>•</span>
-                  <span>{stats?.coding?.accuracyRate || 0}% Accuracy</span>
+                <div className="text-xs text-surface-400 mt-1.5 flex items-center gap-1.5 flex-wrap">
+                  <span className="text-emerald-400 font-medium">{stats?.coding?.easyCount || 0}E</span>
+                  <span className="text-surface-600">/</span>
+                  <span className="text-amber-400 font-medium">{stats?.coding?.mediumCount || 0}M</span>
+                  <span className="text-surface-600">/</span>
+                  <span className="text-rose-400 font-medium">{stats?.coding?.hardCount || 0}H</span>
+                  <span className="text-surface-600">•</span>
+                  <span className="font-mono">{stats?.coding?.accuracyRate || 0}% Accuracy</span>
                 </div>
               </div>
             </div>
@@ -382,7 +382,7 @@ export const DashboardPage = () => {
           </Card>
 
           {/* Tile 2: GATE Examination */}
-          <Card hover className="p-5 flex flex-col justify-between">
+          <Card hover className="p-5 flex flex-col justify-between min-h-[200px]">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-cyan-400 font-mono">
@@ -392,13 +392,16 @@ export const DashboardPage = () => {
                   <Compass className="w-4 h-4" />
                 </div>
               </div>
-              <div className="mt-3">
-                <div className="text-2xl font-bold font-mono text-surface-100">
-                  {stats?.gate?.averageScore ? `${stats.gate.averageScore}/100` : `${stats?.gate?.testsAttempted || 0} Mocks`}
+              <div className="mt-4">
+                <div className="text-[28px] font-bold font-mono tracking-tight text-surface-100 leading-tight">
+                  {stats?.gate?.averageScore ? `${stats.gate.averageScore}` : `${stats?.gate?.testsAttempted || 0}`}
+                  <span className="text-base font-normal text-surface-400 ml-1">
+                    {stats?.gate?.averageScore ? '/100' : ' Mocks'}
+                  </span>
                 </div>
-                <div className="text-xs text-surface-400 mt-1 truncate">
+                <div className="text-xs text-surface-400 mt-1.5 truncate">
                   {stats?.gate?.weakTopics?.length > 0 ? (
-                    <span className="text-amber-400">Weak Area: {stats.gate.weakTopics[0]}</span>
+                    <span className="text-amber-400 font-medium">Weak Area: {stats.gate.weakTopics[0]}</span>
                   ) : (
                     'Diagnostic & Full Mock Tests'
                   )}
@@ -415,7 +418,7 @@ export const DashboardPage = () => {
           </Card>
 
           {/* Tile 3: Academics & Syllabus */}
-          <Card hover className="p-5 flex flex-col justify-between">
+          <Card hover className="p-5 flex flex-col justify-between min-h-[200px]">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-brand-400 font-mono">
@@ -425,11 +428,11 @@ export const DashboardPage = () => {
                   <BookOpen className="w-4 h-4" />
                 </div>
               </div>
-              <div className="mt-3">
-                <div className="text-2xl font-bold font-mono text-surface-100">
-                  {stats?.academics?.percentComplete || 0}% Complete
+              <div className="mt-4">
+                <div className="text-[28px] font-bold font-mono tracking-tight text-surface-100 leading-tight">
+                  {stats?.academics?.percentComplete || 0}<span className="text-base font-normal text-surface-400">% Complete</span>
                 </div>
-                <div className="text-xs text-surface-400 mt-1">
+                <div className="text-xs text-surface-400 mt-1.5">
                   {stats?.academics?.completedTopics || 0} of {stats?.academics?.totalTopics || 0} Topics Mastered
                 </div>
               </div>
@@ -444,7 +447,7 @@ export const DashboardPage = () => {
           </Card>
 
           {/* Tile 4: AI Learning Copilot */}
-          <Card hover className="p-5 flex flex-col justify-between">
+          <Card hover className="p-5 flex flex-col justify-between min-h-[200px]">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-purple-400 font-mono">
@@ -454,11 +457,11 @@ export const DashboardPage = () => {
                   <Sparkles className="w-4 h-4" />
                 </div>
               </div>
-              <div className="mt-3">
-                <div className="text-xl font-bold text-surface-100">
-                  Contextual AI Copilot
+              <div className="mt-4">
+                <div className="text-[22px] font-bold font-mono tracking-tight text-surface-100 leading-tight">
+                  Contextual AI
                 </div>
-                <div className="text-xs text-surface-400 mt-1">
+                <div className="text-xs text-surface-400 mt-1.5 leading-relaxed">
                   Instant step-by-step breakdown & code debugging
                 </div>
               </div>
@@ -473,7 +476,7 @@ export const DashboardPage = () => {
           </Card>
 
           {/* Tile 5: AI Mock Interviews */}
-          <Card hover className="p-5 flex flex-col justify-between">
+          <Card hover className="p-5 flex flex-col justify-between min-h-[200px]">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-amber-400 font-mono">
@@ -483,11 +486,11 @@ export const DashboardPage = () => {
                   <Video className="w-4 h-4" />
                 </div>
               </div>
-              <div className="mt-3">
-                <div className="text-2xl font-bold font-mono text-surface-100">
-                  {stats?.interviews?.averageReadinessScore || 75}/100
+              <div className="mt-4">
+                <div className="text-[28px] font-bold font-mono tracking-tight text-surface-100 leading-tight">
+                  {stats?.interviews?.averageReadinessScore || 75}<span className="text-base font-normal text-surface-400">/100</span>
                 </div>
-                <div className="text-xs text-surface-400 mt-1">
+                <div className="text-xs text-surface-400 mt-1.5">
                   {stats?.interviews?.sessionsCompleted || 0} Sessions Evaluated
                 </div>
               </div>
@@ -502,7 +505,7 @@ export const DashboardPage = () => {
           </Card>
 
           {/* Tile 6: Senior Mentorship & Community */}
-          <Card hover className="p-5 flex flex-col justify-between">
+          <Card hover className="p-5 flex flex-col justify-between min-h-[200px]">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-rose-400 font-mono">
@@ -512,11 +515,11 @@ export const DashboardPage = () => {
                   <Users className="w-4 h-4" />
                 </div>
               </div>
-              <div className="mt-3">
-                <div className="text-xl font-bold text-surface-100">
+              <div className="mt-4">
+                <div className="text-[22px] font-bold font-mono tracking-tight text-surface-100 leading-tight">
                   Ask a Senior
                 </div>
-                <div className="text-xs text-surface-400 mt-1">
+                <div className="text-xs text-surface-400 mt-1.5 leading-relaxed">
                   Peer discussions, career guidance & alumni advice
                 </div>
               </div>

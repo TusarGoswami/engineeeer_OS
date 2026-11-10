@@ -367,7 +367,7 @@ export const ProfilePage = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-1">
-                          <h4 className="text-sm font-semibold text-white truncate">
+                          <h4 className="text-sm font-semibold text-surface-100 truncate">
                             {b.name}
                           </h4>
                           <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-surface-800 text-surface-300 font-bold">

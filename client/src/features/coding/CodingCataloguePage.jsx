@@ -164,7 +164,7 @@ export function CodingCataloguePage() {
               key={tag}
               type="button"
               onClick={() => setSelectedTag(selectedTag === tag ? '' : tag)}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-colors ${
+              className={`px-3 py-1.5 rounded-md text-[11px] font-mono transition-colors ${
                 selectedTag === tag
                   ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold'
                   : 'bg-surface-950/60 text-surface-400 border border-surface-800 hover:border-surface-700 hover:text-surface-200'
@@ -193,7 +193,7 @@ export function CodingCataloguePage() {
             <div
               key={prob._id}
               onClick={() => navigate(`/coding/solve/${prob.slug}`)}
-              className="flex items-center justify-between p-4 rounded-xl border border-surface-700 bg-surface-850 hover:bg-surface-800 hover:border-surface-600 transition-all cursor-pointer group shadow-sm"
+              className="flex items-center justify-between p-4 sm:p-5 rounded-xl border border-surface-700 bg-surface-850 hover:bg-surface-800 hover:border-surface-600 transition-all duration-200 cursor-pointer group shadow-sm hover:-translate-y-px"
             >
               <div className="flex items-center gap-3.5 min-w-0">
                 <span className="text-xs font-mono text-surface-500 w-6 shrink-0">

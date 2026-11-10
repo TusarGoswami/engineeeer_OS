@@ -130,40 +130,60 @@ export const DashboardLayout = () => {
     });
   }
 
-  const renderNavLinks = () => (
-    <div className="space-y-1">
-      {navItems.map(item => {
-        const Icon = item.icon;
-        return (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            onClick={() => setIsMobileMenuOpen(false)}
-            className={({ isActive }) =>
-              cn(
-                'group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
-                isActive
-                  ? 'bg-brand-500/15 text-brand-400 font-semibold border border-brand-500/25 shadow-sm shadow-brand-500/10'
-                  : 'text-surface-400 hover:text-surface-100 hover:bg-surface-800/60'
-              )
-            }
-          >
-            <div className="flex items-center gap-3">
-              <Icon className="w-4 h-4 transition-transform group-hover:scale-110" />
-              <span>{item.name}</span>
-            </div>
-            {item.badge ? (
-              <Badge variant="purple" size="sm">
-                {item.badge}
-              </Badge>
-            ) : (
-              <ChevronRight className="w-3.5 h-3.5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-surface-500" />
-            )}
-          </NavLink>
-        );
-      })}
-    </div>
-  );
+  const renderNavLinks = () => {
+    // Split nav items into groups
+    const mainNav = navItems.slice(0, 4);      // Dashboard, Academic Hub, Coding, GATE
+    const toolsNav = navItems.slice(4, 8);     // AI Assistant, Assessments, Community, Mock Interviews
+    const settingsNav = navItems.slice(8);     // Profile & Settings, Admin Console
+
+    const renderGroup = (items, label) => (
+      <div className="space-y-1.5">
+        {label && (
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-surface-500 px-4 pb-1 block">
+            {label}
+          </span>
+        )}
+        {items.map(item => {
+          const Icon = item.icon;
+          return (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                cn(
+                  'group flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200',
+                  isActive
+                    ? 'bg-brand-500/10 text-brand-400 font-semibold border-l-[3px] border-l-brand-500 border border-brand-500/20 rounded-r-xl rounded-l-none'
+                    : 'text-surface-400 hover:text-surface-100 hover:bg-surface-800/60 rounded-xl'
+                )
+              }
+            >
+              <div className="flex items-center gap-3">
+                <Icon className="w-4 h-4 transition-transform group-hover:scale-110" />
+                <span>{item.name}</span>
+              </div>
+              {item.badge ? (
+                <Badge variant="purple" size="sm">
+                  {item.badge}
+                </Badge>
+              ) : (
+                <ChevronRight className="w-3.5 h-3.5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-surface-500" />
+              )}
+            </NavLink>
+          );
+        })}
+      </div>
+    );
+
+    return (
+      <div className="space-y-6">
+        {renderGroup(mainNav, 'Main')}
+        {renderGroup(toolsNav, 'Tools')}
+        {settingsNav.length > 0 && renderGroup(settingsNav, 'Account')}
+      </div>
+    );
+  };
 
   return (
     <div className="flex min-h-screen bg-surface-950 text-surface-100 font-sans">
@@ -256,7 +276,7 @@ export const DashboardLayout = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden p-2 rounded-xl text-surface-400 hover:text-white hover:bg-surface-800"
+              className="lg:hidden p-2 rounded-xl text-surface-400 hover:text-surface-100 hover:bg-surface-800"
             >
               <Menu className="w-5 h-5" />
             </button>
