@@ -1,8 +1,13 @@
 import { z } from 'zod';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Load .env in non-production environments
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Load .env reliably whether run from root or server workspace
 if (process.env.NODE_ENV !== 'production') {
+  dotenv.config({ path: path.resolve(__dirname, '../../.env') });
   dotenv.config();
 }
 
