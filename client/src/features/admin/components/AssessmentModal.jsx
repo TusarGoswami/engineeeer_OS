@@ -242,7 +242,7 @@ export const AssessmentModal = ({ isOpen, onClose, assessment, subjects = [], on
         {/* Questions Builder */}
         <div className="space-y-4 pt-3 border-t border-surface-800">
           <div className="flex items-center justify-between">
-            <span className="font-semibold text-surface-200">Exam Questions ({questions.length})</span>
+            <span className="font-semibold text-surface-200">Exam Questions ({questions.length}) • Proctored Assessment</span>
             <Button type="button" variant="outline" size="sm" onClick={handleAddQuestion} className="gap-1 text-[11px]">
               <Plus className="w-3 h-3" /> Add Question
             </Button>
