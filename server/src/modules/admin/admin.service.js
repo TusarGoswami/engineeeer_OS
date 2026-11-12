@@ -75,6 +75,7 @@ export class AdminService {
     const skip = (Number(page) - 1) * Number(limit);
     const [problems, total] = await Promise.all([
       CodingProblem.find(filter)
+        // Sort newest problems first for faculty oversight
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(Number(limit))
