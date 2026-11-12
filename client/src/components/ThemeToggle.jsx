@@ -8,7 +8,7 @@ const cn = (...inputs) => twMerge(clsx(inputs));
 export const ThemeToggle = ({ className = '', showLabel = false, size = 'md' }) => {
   const { isDark, toggleTheme } = useTheme();
 
-  const label = isDark ? 'Switch to light theme' : 'Switch to dark theme';
+  const label = isDark ? 'Switch to light theme (Day Mode)' : 'Switch to dark theme (Night Mode)';
 
   const sizeClasses = {
     sm: 'p-1.5 rounded-lg text-xs',
