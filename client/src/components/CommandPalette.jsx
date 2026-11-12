@@ -24,6 +24,7 @@ export const CommandPalette = ({ isOpen, onClose }) => {
       { id: 'community', title: 'Senior & Alumni Network', category: 'Navigation', icon: Users, path: '/community' },
       { id: 'profile', title: 'My Profile & Engineer Card', category: 'Settings', icon: User, path: '/profile' },
       { id: 'settings', title: 'Account Settings', category: 'Settings', icon: Settings, path: '/settings' },
+      { id: 'admin', title: 'Admin & Faculty Studio', category: 'Admin', icon: ShieldAlert, path: '/admin' },
     ],
     []
   );
