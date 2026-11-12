@@ -247,7 +247,7 @@ export function InterviewHubPage() {
             label="Target Position / Level"
             value={targetRole}
             onChange={e => setTargetRole(e.target.value)}
-            placeholder="e.g. SDE-1, Backend Engineer, Cloud Infrastructure Intern"
+            placeholder="e.g. SDE-1, Backend Engineer, Systems Engineer, Cloud Infrastructure Intern"
             required
           />
 
