@@ -144,6 +144,14 @@ describe('Admin & Faculty Console Integration Tests (Phase 6)', () => {
       expect(res.status).toBe(200);
       expect(res.body.data.testCases).toHaveLength(1);
     });
+
+    it('filters algorithm problems by difficulty in admin query', async () => {
+      const res = await request(app)
+        .get('/api/v1/admin/problems?difficulty=easy')
+        .set('Authorization', `Bearer ${adminToken}`);
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data.problems)).toBe(true);
+    });
   });
 
   describe('Assessment Creator & Scheduler', () => {
