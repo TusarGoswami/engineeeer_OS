@@ -65,6 +65,7 @@ export const createApp = () => {
       service: 'engineeros-api',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
+      memoryUsageMb: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
     });
   });
 
