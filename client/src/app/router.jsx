@@ -23,21 +23,7 @@ import { AssessmentTakePage } from '../features/assessments/AssessmentTakePage.j
 import { AssessmentReviewPage } from '../features/assessments/AssessmentReviewPage.jsx';
 import { CommunityForumPage } from '../features/community/CommunityForumPage.jsx';
 import { PostDetailPage } from '../features/community/PostDetailPage.jsx';
-import { Card, CardHeader, CardTitle, CardDescription } from '../components/Card.jsx';
-
-const ModulePlaceholder = ({ title, description, phase }) => (
-  <Card className="max-w-xl mx-auto text-center py-12">
-    <CardHeader>
-      <CardTitle className="text-xl">{title}</CardTitle>
-      <CardDescription className="max-w-md mx-auto mt-2">{description}</CardDescription>
-      <div className="mt-4">
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-brand-500/10 text-brand-400 border border-brand-500/20">
-          Targeted in {phase}
-        </span>
-      </div>
-    </CardHeader>
-  </Card>
-);
+import { AdminStudioPage } from '../features/admin/AdminStudioPage.jsx';
 
 export const router = createBrowserRouter([
   // Public Routes
@@ -89,11 +75,7 @@ export const router = createBrowserRouter([
         path: '/admin',
         element: (
           <ProtectedRoute allowedRoles={['contentAdmin', 'platformAdmin']}>
-            <ModulePlaceholder
-              title="Admin Console"
-              description="Platform governance, problem authoring, flag review, and audit logs."
-              phase="Phase 6"
-            />
+            <AdminStudioPage />
           </ProtectedRoute>
         ),
       },
