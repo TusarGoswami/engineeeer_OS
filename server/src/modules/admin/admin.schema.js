@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const createProblemSchema = z.object({
   title: z.string().min(3).max(120),
-  slug: z.string().min(3).max(100).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric with hyphens'),
+  slug: z.string().min(3).max(100).trim().toLowerCase().regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric with hyphens'),
   statementMarkdown: z.string().min(10),
   difficulty: z.enum(['easy', 'medium', 'hard']),
   tags: z.array(z.string()).default([]),
