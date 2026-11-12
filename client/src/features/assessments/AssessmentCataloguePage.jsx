@@ -36,7 +36,7 @@ export const AssessmentCataloguePage = () => {
           _id: 'sample-os-midterm',
           title: 'Operating Systems & Concurrency Midterm',
           description:
-            'Comprehensive assessment covering CPU scheduling, virtual memory paging, semaphore synchronization, and deadlock prevention.',
+            'Comprehensive assessment covering CPU scheduling, virtual memory paging, semaphore synchronization, deadlock prevention, and race condition analysis.',
           durationMinutes: 45,
           totalMarks: 40,
           questionsCount: 20,
