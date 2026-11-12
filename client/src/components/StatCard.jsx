@@ -21,6 +21,7 @@ export const StatCard = ({
     signal: 'border-amber-500/30 hover:border-amber-500/50',
     fault: 'border-rose-500/30 hover:border-rose-500/50',
     cyan: 'border-sky-500/30 hover:border-sky-500/50',
+    purple: 'border-purple-500/30 hover:border-purple-500/50',
   };
 
   const iconVariants = {
@@ -30,6 +31,7 @@ export const StatCard = ({
     signal: 'text-amber-500 bg-amber-500/10 border border-amber-500/20',
     fault: 'text-rose-500 bg-rose-500/10 border border-rose-500/20',
     cyan: 'text-sky-500 bg-sky-500/10 border border-sky-500/20',
+    purple: 'text-purple-400 bg-purple-500/10 border border-purple-500/20',
   };
 
   return (
