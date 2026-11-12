@@ -121,6 +121,17 @@ export const BADGE_CATALOGUE = [
     category: 'academics',
     check: (stats) => (stats.academics?.completionPercentage || 0) >= 100,
   },
+
+  // Alumni & Faculty Verification
+  {
+    badgeId: 'alumni_verified',
+    name: 'Verified Alumni Mentor',
+    description: 'Officially verified alumni engineer offering mentorship and guidance',
+    icon: '🎖️',
+    tier: 'gold',
+    category: 'community',
+    check: (_stats, user) => Boolean(user?.isAlumni),
+  },
 ];
 
 export default BADGE_CATALOGUE;

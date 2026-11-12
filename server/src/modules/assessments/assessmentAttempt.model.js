@@ -72,6 +72,30 @@ const assessmentAttemptSchema = new mongoose.Schema(
       default: false,
       index: true,
     },
+    facultyReview: {
+      verdict: {
+        type: String,
+        enum: ['pending', 'approve', 'approved', 'penalize', 'penalized', 'void', 'voided'],
+        default: 'pending',
+      },
+      reviewedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null,
+      },
+      reviewedAt: {
+        type: Date,
+        default: null,
+      },
+      penaltyMarks: {
+        type: Number,
+        default: 0,
+      },
+      notes: {
+        type: String,
+        default: '',
+      },
+    },
   },
   {
     timestamps: true,
