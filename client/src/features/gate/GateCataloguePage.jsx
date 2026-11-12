@@ -55,7 +55,7 @@ export function GateCataloguePage() {
           </h1>
           <p className="text-sm text-surface-400 mt-1 max-w-2xl leading-relaxed">
             High-yield mock exams matching standard IIT GATE patterns with precise MCQ, MSQ, and NAT
-            negative scoring algorithms.
+            negative scoring algorithms and virtual scientific calculator.
           </p>
         </div>
 
