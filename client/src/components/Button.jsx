@@ -30,6 +30,8 @@ export const Button = ({
       'bg-transparent hover:bg-surface-800 text-surface-400 hover:text-surface-100 focus:ring-surface-600',
     danger:
       'bg-rose-600 hover:bg-rose-500 text-white shadow-sm focus:ring-rose-500/50',
+    success:
+      'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm focus:ring-emerald-500/50',
   };
 
   const sizes = {
