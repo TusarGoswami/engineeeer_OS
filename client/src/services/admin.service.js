@@ -1,3 +1,7 @@
+/**
+ * Admin and Faculty Studio API Client Service
+ * Handles problem authoring, exam scheduling, integrity moderation, and alumni governance
+ */
 import { api } from './api';
 
 export const adminService = {
