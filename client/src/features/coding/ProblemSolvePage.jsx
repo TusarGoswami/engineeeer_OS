@@ -229,7 +229,7 @@ export function ProblemSolvePage() {
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2" title="Sandboxed Execution Environment">
             <h1 className="text-base sm:text-lg font-bold text-surface-100 tracking-tight">
               {problem?.title}
             </h1>
