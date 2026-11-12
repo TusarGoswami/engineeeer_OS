@@ -437,3 +437,41 @@ Prior to Phase 7 polish, several modules had inconsistent styling (mix of raw in
 
 - **Positive**: Developer-grade coding ergonomics matching LeetCode and HackerRank standards.
 - **Positive**: Fully responsive mobile-friendly layouts with quick bottom navigation.
+
+---
+
+## ADR-020: Phase 6 Admin & Faculty Studio Implementation
+
+### Context
+
+Up through Phase 5 and Phase 7, the `/admin` route displayed a placeholder (`ModulePlaceholder: Targeted in Phase 6`). Faculty, content administrators, and platform admins required production workflows to author LeetCode-style algorithm problems, configure proctored examinations with anti-cheat controls, review student integrity telemetry flags (`tab_hidden`, `window_blur`), and govern user mentorship roles (issuing verified alumni badges).
+
+### Decision
+
+Implement the complete Phase 6 Admin & Faculty Studio:
+1. **Backend Admin Module (`server/src/modules/admin/`)**:
+   - Protected with RBAC requiring `contentAdmin` or `platformAdmin`.
+   - `admin.service.js` provides:
+     - High-level platform analytics (`getDashboardStats`).
+     - Coding problem authoring (`createProblem`, `updateProblem`, `deleteProblem`, `addTestCase`, `deleteTestCase`).
+     - Assessment scheduling with anti-cheat rules (`createAssessment`, `updateAssessment`, `deleteAssessment`).
+     - Student integrity review queue & verdicts (`getIntegritySignals`, `resolveIntegrityVerdict` for approval, mark penalty, or void).
+     - User governance & verified alumni badge issuance (`getUsers`, `updateUserRole`, `verifyAlumniStatus`).
+2. **Deterministic Alumni Verification Badge**:
+   - Added `alumni_verified` to `BADGE_CATALOGUE` with automatic snapshot rebuild.
+3. **Frontend Studio (`client/src/features/admin/`)**:
+   - Replaced placeholder at `/admin` with `AdminStudioPage.jsx` featuring 5 dedicated tabs:
+     - 📊 Platform Overview & Quick Actions
+     - 💻 Problem Authoring Studio (with starter code & test case manager)
+     - 🛡️ Exam & Assessment Scheduler (with anti-cheat rules and question builder)
+     - 🚨 Student Integrity Moderation Queue (with telemetry logs and 1-click verdict)
+     - 🎓 User & Alumni Governance (with role selector and alumni stamp modal)
+4. **Sidebar Navigation Integration**:
+   - Rendered in `DashboardLayout.jsx` with an "Admin" badge when the user is logged in as `platformAdmin` or `contentAdmin`.
+
+### Consequences
+
+- **Positive**: Eliminates the last placeholder in the platform. Delivers institutional controls for faculty.
+- **Positive**: Strict RBAC ensures students receive 403 Forbidden on both backend API and frontend protected routes.
+- **Positive**: Verified with 12/12 integration tests in `admin.test.js` and clean production build.
+
