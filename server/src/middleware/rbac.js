@@ -38,7 +38,7 @@ export const requireRole = (...allowedRoles) => {
     }
 
     return next(
-      new ForbiddenError(`Access denied. Requires one of roles: [${allowedRoles.join(', ')}]`)
+      new ForbiddenError(`Access denied. Institutional access required: [${allowedRoles.join(', ')}]`)
     );
   };
 };
