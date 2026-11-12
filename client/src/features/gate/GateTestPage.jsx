@@ -544,7 +544,7 @@ export function GateTestPage() {
       <Modal
         isOpen={showCalcModal}
         onClose={() => setShowCalcModal(false)}
-        title="GATE Virtual Scientific Calculator"
+        title="Official GATE Virtual Scientific Calculator"
         description="Official-style numeric evaluation keypad"
         size="sm"
       >
