@@ -11,6 +11,7 @@ import { communityService } from '../../services/community.service.js';
 const CATEGORIES = [
   'All',
   'Ask a Senior',
+  'Verified Alumni',
   'Placements',
   'GATE Prep',
   'System Design',
