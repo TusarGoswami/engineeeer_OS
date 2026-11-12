@@ -28,7 +28,7 @@ export function ProblemSolvePage() {
   const [problem, setProblem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('description'); // 'description' | 'submissions'
-  const [language, setLanguage] = useState('python');
+  const [language, setLanguage] = useState(() => localStorage.getItem('engineeros_code_lang') || 'python');
   const [sourceCode, setSourceCode] = useState('');
   const [submissions, setSubmissions] = useState([]);
   const [lastSavedTime, setLastSavedTime] = useState(null);
@@ -86,6 +86,7 @@ export function ProblemSolvePage() {
 
   const handleLanguageChange = newLang => {
     setLanguage(newLang);
+    localStorage.setItem('engineeros_code_lang', newLang);
     const draftKey = `code_draft_${slug}_${newLang}`;
     const savedDraft = localStorage.getItem(draftKey);
 
