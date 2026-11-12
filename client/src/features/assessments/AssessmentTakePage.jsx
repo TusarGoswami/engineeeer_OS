@@ -118,8 +118,8 @@ export const AssessmentTakePage = () => {
 
   const handleIntegrityViolation = useCallback((eventType, metadata = {}) => {
     setIntegrityWarning({
-      title: 'Integrity Audit Notice',
-      message: `Event recorded: ${eventType.replace('_', ' ')}. Please keep your focus on the test window.`,
+      title: 'Integrity Proctoring Notice',
+      message: `Security event logged: ${eventType.replace('_', ' ')}. Maintain active focus within the exam window.`,
       timestamp: new Date().toLocaleTimeString(),
     });
 
