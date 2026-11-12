@@ -16,6 +16,7 @@ export const Badge = ({ children, variant = 'surface', size = 'sm', className = 
     alumni: 'bg-violet-500/15 text-violet-600 dark:text-violet-300 border-violet-500/30',
     cyan: 'bg-sky-500/15 text-sky-600 dark:text-sky-400 border-sky-500/30',
     logic: 'bg-sky-500/15 text-sky-600 dark:text-sky-400 border-sky-500/30',
+    gold: 'bg-amber-500/15 text-amber-300 border-amber-500/30 shadow-sm shadow-amber-500/10',
     surface: 'bg-surface-800 text-surface-200 border-surface-700',
     outline: 'bg-transparent text-surface-300 border-surface-700',
   };
