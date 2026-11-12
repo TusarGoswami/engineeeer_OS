@@ -260,6 +260,14 @@ export const ProfileCard = forwardRef(
                   )}
                 </div>
 
+                {/* Verified Alumni Badge Pill */}
+                {identity.isAlumni && (
+                  <div className="mt-1">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-300 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-full">
+                      🎖️ Verified Alumni Mentor
+                    </span>
+                  </div>
+                )}
                 {identity.headline && (
                   <p className={`text-sm mt-0.5 line-clamp-2 ${style.subtext}`}>
                     {identity.headline}
