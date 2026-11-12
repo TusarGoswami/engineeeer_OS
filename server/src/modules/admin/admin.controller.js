@@ -3,6 +3,7 @@ import { AdminService } from './admin.service.js';
 export class AdminController {
   static async getStats(req, res, next) {
     try {
+      res.set('Cache-Control', 'no-store');
       const data = await AdminService.getDashboardStats();
       res.json({ success: true, data });
     } catch (err) {
