@@ -8,6 +8,7 @@ export const Tooltip = ({
   content,
   children,
   position = 'top',
+  delay = 150,
   className = '',
 }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -16,7 +17,7 @@ export const Tooltip = ({
   const showTooltip = () => {
     timeoutRef.current = setTimeout(() => {
       setIsVisible(true);
-    }, 150);
+    }, delay);
   };
 
   const hideTooltip = () => {
