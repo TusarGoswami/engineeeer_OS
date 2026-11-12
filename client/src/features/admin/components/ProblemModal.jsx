@@ -166,7 +166,7 @@ export const ProblemModal = ({ isOpen, onClose, problem, onSave }) => {
           />
 
           <Input
-            label="Time Limit (ms)"
+            label="Time Limit (ms) • Recommended 2000ms"
             type="number"
             value={timeLimitMs}
             onChange={(e) => setTimeLimitMs(e.target.value)}
