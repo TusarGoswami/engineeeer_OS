@@ -203,7 +203,7 @@ export function AiAssistantPage() {
             </div>
             <div>
               <h2 className="text-sm font-bold text-surface-100 tracking-tight">
-                AI Academic Assistant
+                AI Academic Assistant • Syllabus Grounded Copilot
               </h2>
               <p className="text-[11px] text-surface-400">
                 Grounded in engineering curriculum, PYQs, and verified lecture notes
