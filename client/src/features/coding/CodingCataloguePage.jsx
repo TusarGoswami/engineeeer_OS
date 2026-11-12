@@ -29,6 +29,7 @@ export function CodingCataloguePage() {
     'Two Pointers',
     'Stack',
     'Greedy',
+    'Binary Search',
     'String',
   ];
 
