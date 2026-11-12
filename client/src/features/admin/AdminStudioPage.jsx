@@ -434,7 +434,7 @@ export const AdminStudioPage = () => {
               </TableHeader>
               <TableBody>
                 {problems.map((p) => (
-                  <TableRow key={p._id}>
+                  <TableRow key={p._id} className="hover:bg-surface-850/50 transition-colors">
                     <TableCell className="font-semibold text-white">
                       <div>{p.title}</div>
                       <span className="text-[11px] font-mono text-surface-500">/{p.slug}</span>
