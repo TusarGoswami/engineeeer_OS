@@ -429,7 +429,7 @@ export function InterviewSessionPage() {
                 onClick={handleToggleSpeech}
                 title="Dictate with Microphone"
                 leftIcon={isListening ? MicOff : Mic}
-                className="shrink-0"
+                className={`shrink-0 ${isListening ? 'animate-pulse' : ''}`}
               >
                 {isListening ? 'Listening' : 'Mic'}
               </Button>
