@@ -151,7 +151,7 @@ export const IntegrityVerdictModal = ({ isOpen, onClose, attempt, onResolve }) =
             rows={2}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="e.g. Cleared: student reported accidental pop-up, verified genuine answer..."
+            placeholder="e.g. Cleared: verified genuine answer or penalty applied per exam guidelines..."
             className="w-full p-2.5 rounded-xl bg-surface-950 border border-surface-800 text-surface-200 text-xs focus:outline-none focus:border-brand-500"
           />
         </div>
