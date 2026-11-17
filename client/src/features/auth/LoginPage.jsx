@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuth } from './AuthContext.jsx';
+import { OAuthButtons } from './OAuthButtons.jsx';
 
 // ─── Validation schema (100% UNTOUCHED) ───────────────────────────────────────
 const loginSchema = z.object({
@@ -140,6 +141,18 @@ export const LoginPage = () => {
             <span className="leading-snug">{serverError}</span>
           </div>
         )}
+
+        {/* 1-Click Social Logins */}
+        <OAuthButtons onError={setServerError} />
+
+        <div className="relative my-5 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-surface-700" />
+          </div>
+          <div className="relative bg-surface-850 px-3 text-[11px] font-medium uppercase tracking-wider text-surface-400">
+            Or continue with credentials
+          </div>
+        </div>
 
         {/* ── Form — original onSubmit handler preserved ───────────────── */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>

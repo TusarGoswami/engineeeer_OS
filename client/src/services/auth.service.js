@@ -42,6 +42,22 @@ export const authService = {
     const response = await api.post('/auth/reset-password', { token, newPassword });
     return response.data.data;
   },
+
+  async googleOAuth(code, redirectUri) {
+    const response = await api.post('/auth/oauth/google', { code, redirectUri });
+    if (response.data.data.accessToken) {
+      setAccessToken(response.data.data.accessToken);
+    }
+    return response.data.data;
+  },
+
+  async githubOAuth(code, redirectUri) {
+    const response = await api.post('/auth/oauth/github', { code, redirectUri });
+    if (response.data.data.accessToken) {
+      setAccessToken(response.data.data.accessToken);
+    }
+    return response.data.data;
+  },
 };
 
 export default authService;

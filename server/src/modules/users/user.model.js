@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
     },
     passwordHash: {
       type: String,
-      required: true,
+      required: function() { return this.oauthProvider === 'local'; },
       select: false, // Never return in default queries
     },
     role: {
@@ -133,6 +133,17 @@ const userSchema = new mongoose.Schema(
     lockoutUntil: {
       type: Date,
       default: null,
+    },
+    oauthProvider: {
+      type: String,
+      enum: ['local', 'google', 'github'],
+      default: 'local',
+      index: true,
+    },
+    oauthId: {
+      type: String,
+      sparse: true,
+      index: true,
     },
     isEmailVerified: {
       type: Boolean,

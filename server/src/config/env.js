@@ -36,6 +36,12 @@ const envSchema = z.object({
 
   // External Integration Providers
   CODE_EXEC_PROVIDER: z.enum(['mock', 'judge0']).default('mock'),
+
+  // OAuth Providers
+  GOOGLE_CLIENT_ID: z.string().optional().default(''),
+  GOOGLE_CLIENT_SECRET: z.string().optional().default(''),
+  GITHUB_CLIENT_ID: z.string().optional().default(''),
+  GITHUB_CLIENT_SECRET: z.string().optional().default(''),
   JUDGE0_API_URL: z.string().default('http://localhost:2358'),
   JUDGE0_API_KEY: z.string().optional().default(''),
 

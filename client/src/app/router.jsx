@@ -6,6 +6,7 @@ import { ProtectedRoute } from '../components/ProtectedRoute.jsx';
 // Pages
 import { LoginPage } from '../features/auth/LoginPage.jsx';
 import { RegisterPage } from '../features/auth/RegisterPage.jsx';
+import { OAuthCallbackPage } from '../features/auth/OAuthCallbackPage.jsx';
 import { DashboardPage } from '../features/dashboard/DashboardPage.jsx';
 import { ProfilePage } from '../features/profile/ProfilePage.jsx';
 import { PublicProfilePage } from '../features/profile/PublicProfilePage.jsx';
@@ -33,6 +34,7 @@ export const router = createBrowserRouter([
       { path: '/', element: <Navigate to="/dashboard" replace /> },
       { path: '/login', element: <LoginPage /> },
       { path: '/register', element: <RegisterPage /> },
+      { path: '/auth/callback', element: <OAuthCallbackPage /> },
     ],
   },
   {

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { AuthController } from './auth.controller.js';
+import { OAuthController } from './oauth.controller.js';
 import { validate } from '../../middleware/validate.js';
 import { authLimiter } from '../../middleware/rateLimit.js';
 import {
@@ -16,6 +17,10 @@ router.post('/register', authLimiter, validate({ body: registerSchema }), AuthCo
 router.post('/login', authLimiter, validate({ body: loginSchema }), AuthController.login);
 router.post('/refresh', authLimiter, AuthController.refresh);
 router.post('/logout', AuthController.logout);
+
+// OAuth routes
+router.post('/oauth/google', authLimiter, OAuthController.google);
+router.post('/oauth/github', authLimiter, OAuthController.github);
 
 router.post(
   '/forgot-password',

@@ -67,6 +67,44 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  const loginWithGoogle = useCallback(async (code, redirectUri) => {
+    setError(null);
+    setIsLoading(true);
+    try {
+      const data = await authService.googleOAuth(code, redirectUri);
+      setUser(data.user);
+      return data;
+    } catch (err) {
+      const message =
+        err.response?.data?.error?.message ||
+        err.response?.data?.message ||
+        'Google login failed.';
+      setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const loginWithGitHub = useCallback(async (code, redirectUri) => {
+    setError(null);
+    setIsLoading(true);
+    try {
+      const data = await authService.githubOAuth(code, redirectUri);
+      setUser(data.user);
+      return data;
+    } catch (err) {
+      const message =
+        err.response?.data?.error?.message ||
+        err.response?.data?.message ||
+        'GitHub login failed.';
+      setError(message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await authService.logout();
@@ -87,6 +125,8 @@ export const AuthProvider = ({ children }) => {
     isLoading,
     error,
     login,
+    loginWithGoogle,
+    loginWithGitHub,
     register,
     logout,
     updateUser,

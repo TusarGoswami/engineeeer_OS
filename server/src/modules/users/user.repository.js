@@ -13,6 +13,10 @@ export class UserRepository {
     return User.findOne({ email: email.toLowerCase() }).lean();
   }
 
+  static async findByOAuth(provider, oauthId) {
+    return User.findOne({ oauthProvider: provider, oauthId }).lean();
+  }
+
   static async findByEmailWithPassword(email) {
     return User.findOne({ email: email.toLowerCase() }).select('+passwordHash');
   }
