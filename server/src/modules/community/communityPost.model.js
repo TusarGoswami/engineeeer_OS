@@ -19,7 +19,6 @@ const communityPostSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ['academics', 'career', 'mentorship', 'gate', 'projects'],
       default: 'academics',
       index: true,
     },

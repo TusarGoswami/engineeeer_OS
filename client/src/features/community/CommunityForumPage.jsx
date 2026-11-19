@@ -51,7 +51,8 @@ export const CommunityForumPage = () => {
       }
       const res = await communityService.getPosts(params);
       if (res && res.data) {
-        setPosts(res.data.posts || []);
+        const postsList = Array.isArray(res.data) ? res.data : (res.data.posts || []);
+        setPosts(postsList);
       }
     } catch {
       // Fallback preview data

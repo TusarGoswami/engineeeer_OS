@@ -8,6 +8,7 @@ import { DailyActivity } from '../modules/progress/dailyActivity.model.js';
 import { ProfileSnapshotService } from '../modules/profile/profileSnapshot.service.js';
 import { seedProblems } from './seedProblems.js';
 import { seedGate } from './seedGate.js';
+import { seedAssessmentsAndCommunity } from './seedAssessmentsAndCommunity.js';
 import { logger } from '../config/logger.js';
 
 const UNIVERSITIES = ['MIT', 'IIT'];
@@ -639,6 +640,9 @@ export const runSeed = async () => {
     // 5. Seed GATE Mock Exams
     logger.info('[Seed] Seeding GATE mock tests...');
     const gateTestsCount = await seedGate();
+
+    // 6. Seed Proctored Assessments, Integrity Moderation Queue & Community Posts
+    await seedAssessmentsAndCommunity();
 
     logger.info(
       {
