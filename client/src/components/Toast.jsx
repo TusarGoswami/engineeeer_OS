@@ -29,8 +29,31 @@ export const ToastProvider = ({ children }) => {
     [removeToast]
   );
 
+  const showToast = useCallback(
+    (messageOrOptions, type = 'info', title) => {
+      if (typeof messageOrOptions === 'object' && messageOrOptions !== null) {
+        return addToast(messageOrOptions);
+      }
+      const defaultTitle =
+        type === 'success'
+          ? 'Success'
+          : type === 'error'
+          ? 'Error'
+          : type === 'warning'
+          ? 'Warning'
+          : 'Info';
+      return addToast({
+        message: String(messageOrOptions || ''),
+        type: type || 'info',
+        title: title !== undefined ? title : defaultTitle,
+      });
+    },
+    [addToast]
+  );
+
   const toastMethods = {
     toast: addToast,
+    showToast,
     success: (message, title = 'Success') => addToast({ title, message, type: 'success' }),
     error: (message, title = 'Error') => addToast({ title, message, type: 'error' }),
     info: (message, title = 'Info') => addToast({ title, message, type: 'info' }),
@@ -100,6 +123,7 @@ export const useToast = () => {
     // Graceful fallback if used outside Provider
     return {
       toast: console.log,
+      showToast: (msg, type) => console.log(`[Toast ${type || 'info'}]`, msg),
       success: console.log,
       error: console.error,
       info: console.info,

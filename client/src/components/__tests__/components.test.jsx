@@ -25,6 +25,7 @@ import {
   CommandPalette,
   ThemeToggle,
 } from '../index.js';
+import { ToastProvider, useToast } from '../Toast.jsx';
 import { ThemeProvider } from '../../context/ThemeContext.jsx';
 import { Code2 } from 'lucide-react';
 
@@ -212,6 +213,31 @@ describe('Shared Component Library (Phase 7 Design System)', () => {
     fireEvent.click(toggleBtn);
     expect(document.documentElement.classList.contains('dark')).toBe(false);
     expect(localStorage.getItem('engineeros_theme')).toBe('light');
+  });
+
+  it('renders ToastProvider and correctly triggers showToast messages', () => {
+    const TestConsumer = () => {
+      const { showToast } = useToast();
+      return (
+        <button
+          type="button"
+          onClick={() => showToast('All sample test cases passed!', 'success')}
+        >
+          Run Code
+        </button>
+      );
+    };
+
+    render(
+      <ToastProvider>
+        <TestConsumer />
+      </ToastProvider>
+    );
+
+    const triggerBtn = screen.getByRole('button', { name: /Run Code/i });
+    fireEvent.click(triggerBtn);
+
+    expect(screen.getByText('All sample test cases passed!')).toBeInTheDocument();
   });
 });
 
