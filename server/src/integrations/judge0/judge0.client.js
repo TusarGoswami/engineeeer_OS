@@ -52,6 +52,13 @@ export class Judge0Client extends IJudge0Adapter {
     if (this.apiKey) {
       headers['X-RapidAPI-Key'] = this.apiKey;
       headers['X-Auth-Token'] = this.apiKey;
+      if (this.apiUrl.includes('rapidapi.com')) {
+        try {
+          headers['X-RapidAPI-Host'] = new URL(this.apiUrl).host;
+        } catch {
+          headers['X-RapidAPI-Host'] = 'judge0-ce.p.rapidapi.com';
+        }
+      }
     }
 
     const response = await axios.post(
