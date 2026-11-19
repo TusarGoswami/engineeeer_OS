@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import {
@@ -11,6 +11,12 @@ import {
   XCircle,
   ArrowLeft,
   Save,
+  Terminal,
+  ChevronDown,
+  ChevronUp,
+  AlertCircle,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react';
 import { codingService } from '../../services/coding.service.js';
 import Card from '../../components/Card.jsx';
@@ -33,11 +39,16 @@ export function ProblemSolvePage() {
   const [submissions, setSubmissions] = useState([]);
   const [lastSavedTime, setLastSavedTime] = useState(null);
 
-  // Execution states
+  // Execution & Console states
   const [isRunning, setIsRunning] = useState(false);
   const [runResults, setRunResults] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitVerdict, setSubmitVerdict] = useState(null);
+  const [consoleOpen, setConsoleOpen] = useState(false);
+  const [consoleTab, setConsoleTab] = useState('result'); // 'testcase' | 'result'
+  const [selectedCaseIdx, setSelectedCaseIdx] = useState(0);
+
+  const editorRef = useRef(null);
 
   const fetchSubmissions = async problemId => {
     try {
@@ -122,6 +133,9 @@ export function ProblemSolvePage() {
   const handleRunSampleTests = async () => {
     if (!problem) return;
     try {
+      setConsoleOpen(true);
+      setConsoleTab('result');
+      setSelectedCaseIdx(0);
       setIsRunning(true);
       setRunResults(null);
       setSubmitVerdict(null);
@@ -153,6 +167,9 @@ export function ProblemSolvePage() {
   const handleSubmitSolution = async () => {
     if (!problem) return;
     try {
+      setConsoleOpen(true);
+      setConsoleTab('result');
+      setSelectedCaseIdx(0);
       setIsSubmitting(true);
       setRunResults(null);
       setSubmitVerdict(null);
@@ -208,6 +225,26 @@ export function ProblemSolvePage() {
       setIsSubmitting(false);
     }
   };
+
+  // Keyboard shortcut listener (Ctrl+Enter to Run, Ctrl+Shift+Enter to Submit, Ctrl+' to Toggle Console)
+  useEffect(() => {
+    const handleGlobalKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleRunSampleTests();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && e.shiftKey) {
+        e.preventDefault();
+        handleSubmitSolution();
+      }
+      if ((e.ctrlKey || e.metaKey) && (e.key === '`' || e.key === "'")) {
+        e.preventDefault();
+        setConsoleOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [problem, sourceCode, language]);
 
   const getMonacoLang = lang => {
     if (lang === 'cpp') return 'cpp';
@@ -432,9 +469,13 @@ export function ProblemSolvePage() {
         </div>
 
         {/* Right Column: Monaco Code Editor & Execution Results Drawer */}
-        <div className="lg:col-span-7 flex flex-col h-full min-h-0 space-y-2">
+        <div className="lg:col-span-7 flex flex-col h-full min-h-0 gap-3">
           {/* Editor Container */}
-          <div className="flex-1 flex flex-col min-h-0 rounded-2xl border border-surface-700 bg-surface-850 overflow-hidden shadow-lg">
+          <div
+            className={`flex flex-col min-h-0 rounded-2xl border border-surface-700 bg-surface-850 overflow-hidden shadow-lg transition-all duration-200 ${
+              consoleOpen ? 'h-[50%]' : 'flex-1'
+            }`}
+          >
             {/* Editor Action Bar */}
             <div className="flex items-center justify-between px-3 py-2 border-b border-surface-700 bg-surface-900">
               <div className="flex items-center gap-2">
@@ -451,15 +492,31 @@ export function ProblemSolvePage() {
                 </select>
               </div>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleResetStarterCode}
-                leftIcon={RotateCcw}
-                className="text-xs text-surface-400 hover:text-surface-200"
-              >
-                Reset Starter
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleResetStarterCode}
+                  leftIcon={RotateCcw}
+                  className="text-xs text-surface-400 hover:text-surface-200"
+                >
+                  Reset Starter
+                </Button>
+                {!consoleOpen && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setConsoleOpen(true);
+                      setConsoleTab(submitVerdict || runResults ? 'result' : 'testcase');
+                    }}
+                    leftIcon={Terminal}
+                    className="text-xs text-surface-400 hover:text-surface-200"
+                  >
+                    Console
+                  </Button>
+                )}
+              </div>
             </div>
 
             {/* Monaco Editor Mount */}
@@ -470,6 +527,18 @@ export function ProblemSolvePage() {
                 value={sourceCode}
                 theme={isDark ? 'vs-dark' : 'light'}
                 onChange={handleCodeChange}
+                onMount={(editor, monaco) => {
+                  editorRef.current = editor;
+                  editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+                    handleRunSampleTests();
+                  });
+                  editor.addCommand(
+                    monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Enter,
+                    () => {
+                      handleSubmitSolution();
+                    }
+                  );
+                }}
                 options={{
                   minimap: { enabled: false },
                   fontSize: 13,
@@ -483,20 +552,49 @@ export function ProblemSolvePage() {
             </div>
           </div>
 
-          {/* Execution Drawer (Sample Runs, Submitting State, or Submission Verdict) */}
-          {(isRunning || isSubmitting || runResults || submitVerdict) && (
-            <Card className="max-h-60 overflow-y-auto p-4 border-surface-700 bg-surface-850 shadow-xl space-y-3">
-              <div className="flex items-center justify-between">
+          {/* Bottom Half: Console & Proper Test Cases Viewer */}
+          {consoleOpen && (
+            <div className="h-[50%] flex flex-col min-h-0 rounded-2xl border border-surface-700 bg-surface-850 overflow-hidden shadow-xl animate-fade-in">
+              {/* Console Header Bar */}
+              <div className="flex items-center justify-between px-3.5 py-2 border-b border-surface-700 bg-surface-900">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <div className="flex items-center gap-1.5 mr-2 text-xs font-bold text-surface-300">
+                    <Terminal className="w-3.5 h-3.5 text-brand-400" />
+                    <span className="hidden sm:inline">Console</span>
+                  </div>
+
+                  {/* Tabs */}
+                  <div className="flex items-center gap-1 bg-surface-800/80 p-0.5 rounded-lg border border-surface-700/60">
+                    <button
+                      type="button"
+                      onClick={() => setConsoleTab('testcase')}
+                      className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
+                        consoleTab === 'testcase'
+                          ? 'bg-surface-700 text-surface-100 shadow-sm'
+                          : 'text-surface-400 hover:text-surface-200'
+                      }`}
+                    >
+                      Testcase
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConsoleTab('result')}
+                      className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all flex items-center gap-1.5 ${
+                        consoleTab === 'result'
+                          ? 'bg-surface-700 text-surface-100 shadow-sm'
+                          : 'text-surface-400 hover:text-surface-200'
+                      }`}
+                    >
+                      <span>Test Result</span>
+                      {(isRunning || isSubmitting) && (
+                        <div className="w-2 h-2 rounded-full bg-brand-400 animate-ping" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-surface-300">
-                    {isSubmitting
-                      ? 'Submitting & Evaluating...'
-                      : isRunning
-                      ? 'Running Sample Tests...'
-                      : submitVerdict
-                      ? 'Submission Verdict'
-                      : 'Sample Run Results'}
-                  </span>
+                  {/* Verdict Badge in Header */}
                   {submitVerdict && (
                     <Badge
                       variant={
@@ -507,110 +605,399 @@ export function ProblemSolvePage() {
                           : 'warning'
                       }
                       size="sm"
-                      className="font-mono text-xs"
+                      className="font-mono text-xs uppercase"
                     >
-                      {submitVerdict.status.toUpperCase()}
+                      {submitVerdict.status.replace('_', ' ')}
                     </Badge>
                   )}
-                  {runResults && (
-                    <span className="text-xs font-mono text-surface-400">
+                  {runResults && !submitVerdict && (
+                    <Badge
+                      variant={
+                        runResults.passedSamples === runResults.totalSamples
+                          ? 'success'
+                          : 'warning'
+                      }
+                      size="sm"
+                      className="font-mono text-xs"
+                    >
                       {runResults.passedSamples}/{runResults.totalSamples} Passed
-                    </span>
+                    </Badge>
                   )}
-                </div>
 
-                {!isSubmitting && !isRunning && (
                   <button
                     type="button"
-                    onClick={() => {
-                      setRunResults(null);
-                      setSubmitVerdict(null);
-                    }}
-                    className="text-xs text-surface-500 hover:text-surface-300"
+                    onClick={() => setConsoleOpen(false)}
+                    title="Minimize Console"
+                    className="p-1 rounded-lg text-surface-400 hover:text-surface-200 hover:bg-surface-800 transition-colors"
                   >
-                    Dismiss
+                    <ChevronDown className="w-4 h-4" />
                   </button>
-                )}
+                </div>
               </div>
 
-              {/* Submitting Progress Indicator */}
-              {isSubmitting && (
-                <div className="flex items-center gap-3 p-3 rounded-xl border border-brand-500/30 bg-brand-500/10 text-xs font-mono text-brand-300">
-                  <div className="w-4 h-4 rounded-full border-2 border-brand-400 border-t-transparent animate-spin flex-shrink-0" />
-                  <span>Evaluating code against test matrix via Judge0 sandboxed workers...</span>
-                </div>
-              )}
-
-              {/* Sample Test Results List */}
-              {runResults?.sampleResults && (
-                <div className="space-y-2">
-                  {runResults.sampleResults.map((sr, idx) => (
-                    <div
-                      key={idx}
-                      className={`p-2.5 rounded-xl border text-xs font-mono space-y-1 ${
-                        sr.passed
-                          ? 'border-emerald-500/30 bg-emerald-500/10'
-                          : 'border-rose-500/30 bg-rose-500/10'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-semibold flex items-center gap-1.5">
-                          {sr.passed ? (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                          ) : (
-                            <XCircle className="w-3.5 h-3.5 text-rose-400" />
-                          )}
-                          Case {sr.sampleIndex || idx + 1}
-                        </span>
-                        <span className="text-[11px] opacity-70">
-                          {sr.runtimeMs ? `${sr.runtimeMs}ms` : ''}
-                        </span>
-                      </div>
-                      {!sr.passed && sr.actualOutput && (
-                        <div className="pt-1 text-[11px] text-rose-300">
-                          <strong>Output:</strong> {sr.actualOutput}
-                        </div>
-                      )}
+              {/* Console Body */}
+              <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
+                {/* 1. TESTCASE TAB (Sample inputs defined for problem) */}
+                {consoleTab === 'testcase' && (
+                  <div className="space-y-3">
+                    {/* Case selector chips */}
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                      {problem?.sampleTestCases?.map((tc, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setSelectedCaseIdx(idx)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium font-mono transition-all border ${
+                            selectedCaseIdx === idx
+                              ? 'bg-brand-500/20 border-brand-500/50 text-brand-300 shadow-sm'
+                              : 'bg-surface-800/80 border-surface-700/80 text-surface-400 hover:text-surface-200'
+                          }`}
+                        >
+                          Case {idx + 1}
+                        </button>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              )}
 
-              {/* Submission Verdict Details */}
-              {submitVerdict && (
-                <div className="text-xs space-y-2 font-mono">
-                  <div className="flex items-center gap-4 text-surface-300">
-                    <span>
-                      Passed:{' '}
-                      <strong className="text-surface-100">
-                        {submitVerdict.testCasesPassed ?? submitVerdict.passedCount ?? 0} /{' '}
-                        {submitVerdict.totalTestCases || 0}
-                      </strong>
-                    </span>
-                    {submitVerdict.runtimeMs !== undefined && (
-                      <span className="inline-flex items-center gap-1">
-                        <Clock className="w-3 h-3" /> {submitVerdict.runtimeMs}ms
-                      </span>
-                    )}
-                    {submitVerdict.memoryKb !== undefined && submitVerdict.memoryKb > 0 && (
-                      <span className="inline-flex items-center gap-1">
-                        {Math.round(submitVerdict.memoryKb / 1024)}MB
-                      </span>
+                    {/* Selected Sample Case Input & Output */}
+                    {problem?.sampleTestCases?.[selectedCaseIdx] && (
+                      <div className="space-y-2.5 font-mono text-xs">
+                        <div>
+                          <span className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider block mb-1">
+                            Input
+                          </span>
+                          <pre className="p-3 rounded-xl bg-surface-900 border border-surface-750 text-surface-200 whitespace-pre-wrap selection:bg-brand-500/30">
+                            {problem.sampleTestCases[selectedCaseIdx].input}
+                          </pre>
+                        </div>
+                        <div>
+                          <span className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider block mb-1">
+                            Expected Output
+                          </span>
+                          <pre className="p-3 rounded-xl bg-surface-900 border border-surface-750 text-surface-200 whitespace-pre-wrap selection:bg-brand-500/30">
+                            {problem.sampleTestCases[selectedCaseIdx].output}
+                          </pre>
+                        </div>
+                        {problem.sampleTestCases[selectedCaseIdx].explanation && (
+                          <div>
+                            <span className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider block mb-1">
+                              Explanation
+                            </span>
+                            <div className="p-2.5 rounded-xl bg-surface-800/40 border border-surface-750 text-surface-300 font-sans text-xs">
+                              {problem.sampleTestCases[selectedCaseIdx].explanation}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
-                  {submitVerdict.compileError && (
-                    <div className="p-2 rounded bg-surface-900 border border-surface-700 text-rose-400 font-mono text-[11px] whitespace-pre-wrap">
-                      {submitVerdict.compileError}
-                    </div>
-                  )}
-                  {submitVerdict.compileOutput && (
-                    <div className="p-2 rounded bg-surface-900 border border-surface-700 text-rose-400 font-mono text-[11px] whitespace-pre-wrap">
-                      {submitVerdict.compileOutput}
-                    </div>
-                  )}
-                </div>
-              )}
-            </Card>
+                )}
+
+                {/* 2. TEST RESULT TAB (Active runs, sample run results, or submission verdict) */}
+                {consoleTab === 'result' && (
+                  <div className="space-y-3">
+                    {/* Running / Submitting In-Progress Banner */}
+                    {(isRunning || isSubmitting) && (
+                      <div className="flex items-center gap-3 p-4 rounded-xl border border-brand-500/30 bg-brand-500/10 text-xs font-mono text-brand-300 animate-pulse">
+                        <div className="w-4 h-4 rounded-full border-2 border-brand-400 border-t-transparent animate-spin flex-shrink-0" />
+                        <div>
+                          <div className="font-semibold text-brand-200">
+                            {isSubmitting
+                              ? 'Evaluating Submission...'
+                              : 'Executing Sample Test Cases...'}
+                          </div>
+                          <div className="text-[11px] text-brand-400/80 mt-0.5">
+                            {isSubmitting
+                              ? 'Evaluating code against complete test matrix & hidden edge cases via sandboxed Judge0...'
+                              : 'Compiling source code and executing against sample test cases...'}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SUBMISSION VERDICT VIEW */}
+                    {submitVerdict && !isSubmitting && (
+                      <div className="space-y-3">
+                        {/* Verdict Header Card */}
+                        <div
+                          className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                            submitVerdict.status === 'accepted'
+                              ? 'border-emerald-500/30 bg-emerald-500/10'
+                              : submitVerdict.status === 'compile_error'
+                              ? 'border-rose-500/30 bg-rose-500/10'
+                              : 'border-amber-500/30 bg-amber-500/10'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            {submitVerdict.status === 'accepted' ? (
+                              <CheckCircle2 className="w-7 h-7 text-emerald-400 flex-shrink-0" />
+                            ) : submitVerdict.status === 'compile_error' ? (
+                              <AlertCircle className="w-7 h-7 text-rose-400 flex-shrink-0" />
+                            ) : (
+                              <XCircle className="w-7 h-7 text-rose-400 flex-shrink-0" />
+                            )}
+                            <div>
+                              <div
+                                className={`text-base font-bold font-mono tracking-tight ${
+                                  submitVerdict.status === 'accepted'
+                                    ? 'text-emerald-400'
+                                    : 'text-rose-400'
+                                }`}
+                              >
+                                {submitVerdict.status === 'accepted'
+                                  ? 'Accepted'
+                                  : submitVerdict.status === 'compile_error'
+                                  ? 'Compile Error'
+                                  : submitVerdict.status === 'wrong_answer'
+                                  ? 'Wrong Answer'
+                                  : submitVerdict.status === 'tle'
+                                  ? 'Time Limit Exceeded'
+                                  : 'Runtime Error'}
+                              </div>
+                              <div className="text-xs text-surface-300 font-mono mt-0.5">
+                                Passed:{' '}
+                                <strong className="text-surface-100">
+                                  {submitVerdict.testCasesPassed ?? submitVerdict.passedCount ?? 0}
+                                </strong>{' '}
+                                / {submitVerdict.totalTestCases || 0} Test Cases
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Metrics (Runtime & Memory) */}
+                          <div className="flex items-center gap-3 text-xs font-mono text-surface-300">
+                            {submitVerdict.runtimeMs !== undefined && (
+                              <div className="flex items-center gap-1.5 bg-surface-900/60 px-3 py-1.5 rounded-lg border border-surface-700/60">
+                                <Clock className="w-3.5 h-3.5 text-brand-400" />
+                                <span>{submitVerdict.runtimeMs} ms</span>
+                              </div>
+                            )}
+                            {submitVerdict.memoryKb !== undefined && submitVerdict.memoryKb > 0 && (
+                              <div className="flex items-center gap-1.5 bg-surface-900/60 px-3 py-1.5 rounded-lg border border-surface-700/60">
+                                <span>{Math.round(submitVerdict.memoryKb / 1024)} MB</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Compile Error Output if present */}
+                        {(submitVerdict.compileError || submitVerdict.compileOutput) && (
+                          <div>
+                            <span className="text-[11px] font-semibold text-rose-400 uppercase tracking-wider block mb-1">
+                              Compiler Diagnostic
+                            </span>
+                            <pre className="p-3 rounded-xl bg-surface-900 border border-rose-500/30 text-rose-300 font-mono text-xs whitespace-pre-wrap">
+                              {submitVerdict.compileError || submitVerdict.compileOutput}
+                            </pre>
+                          </div>
+                        )}
+
+                        {/* Test Case Traces (if available) */}
+                        {submitVerdict.executionTrace?.length > 0 && (
+                          <div className="space-y-2">
+                            <span className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider block">
+                              Test Cases Evaluation Breakdown
+                            </span>
+
+                            {/* Case selector pills */}
+                            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                              {submitVerdict.executionTrace.map((tc, idx) => (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  onClick={() => setSelectedCaseIdx(idx)}
+                                  className={`px-3 py-1.5 rounded-lg text-xs font-medium font-mono transition-all flex items-center gap-1.5 border ${
+                                    selectedCaseIdx === idx
+                                      ? 'bg-surface-700 border-surface-500 text-surface-100 shadow-sm'
+                                      : 'bg-surface-850 border-surface-700/70 text-surface-400 hover:text-surface-200'
+                                  }`}
+                                >
+                                  {tc.statusId === 3 || tc.statusDescription === 'Accepted' ? (
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                                  ) : (
+                                    <XCircle className="w-3.5 h-3.5 text-rose-400" />
+                                  )}
+                                  <span>Case {tc.testCaseIndex || idx + 1}</span>
+                                  {tc.isHidden && (
+                                    <span className="text-[10px] text-surface-500">(Hidden)</span>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+
+                            {/* Selected Trace Details */}
+                            {submitVerdict.executionTrace[selectedCaseIdx] && (
+                              <div className="p-3.5 rounded-xl border border-surface-700 bg-surface-900 space-y-2.5 font-mono text-xs">
+                                {submitVerdict.executionTrace[selectedCaseIdx].isHidden ? (
+                                  <div className="text-surface-400 text-xs italic py-2">
+                                    🔒 Hidden system test case used for validation. Inputs and outputs are redacted to prevent hardcoding.
+                                  </div>
+                                ) : (
+                                  <>
+                                    {submitVerdict.executionTrace[selectedCaseIdx].input && (
+                                      <div>
+                                        <span className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider block mb-1">
+                                          Input
+                                        </span>
+                                        <pre className="p-2.5 rounded-lg bg-surface-950 border border-surface-800 text-surface-200 whitespace-pre-wrap">
+                                          {submitVerdict.executionTrace[selectedCaseIdx].input}
+                                        </pre>
+                                      </div>
+                                    )}
+                                    <div>
+                                      <span className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider block mb-1">
+                                        Your Output
+                                      </span>
+                                      <pre className="p-2.5 rounded-lg bg-surface-950 border border-surface-800 text-surface-200 whitespace-pre-wrap">
+                                        {submitVerdict.executionTrace[selectedCaseIdx].stdout || '(Empty stdout)'}
+                                      </pre>
+                                    </div>
+                                    {submitVerdict.executionTrace[selectedCaseIdx].expectedOutput && (
+                                      <div>
+                                        <span className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider block mb-1">
+                                          Expected Output
+                                        </span>
+                                        <pre className="p-2.5 rounded-lg bg-surface-950 border border-surface-800 text-surface-200 whitespace-pre-wrap">
+                                          {submitVerdict.executionTrace[selectedCaseIdx].expectedOutput}
+                                        </pre>
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* SAMPLE RUN RESULTS VIEW */}
+                    {runResults && !submitVerdict && !isRunning && (
+                      <div className="space-y-3">
+                        {/* Sample Run Header */}
+                        <div
+                          className={`p-3.5 rounded-xl border flex items-center justify-between ${
+                            runResults.passedSamples === runResults.totalSamples
+                              ? 'border-emerald-500/30 bg-emerald-500/10'
+                              : 'border-rose-500/30 bg-rose-500/10'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            {runResults.passedSamples === runResults.totalSamples ? (
+                              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-rose-400" />
+                            )}
+                            <span
+                              className={`text-sm font-bold font-mono ${
+                                runResults.passedSamples === runResults.totalSamples
+                                  ? 'text-emerald-400'
+                                  : 'text-rose-400'
+                              }`}
+                            >
+                              {runResults.passedSamples === runResults.totalSamples
+                                ? 'All Sample Test Cases Passed!'
+                                : `${runResults.passedSamples}/${runResults.totalSamples} Passed`}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Horizontal Case Selector Pills */}
+                        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                          {runResults.sampleResults?.map((sr, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => setSelectedCaseIdx(idx)}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-medium font-mono transition-all flex items-center gap-1.5 border ${
+                                selectedCaseIdx === idx
+                                  ? 'bg-surface-700 border-surface-500 text-surface-100 shadow-sm'
+                                  : 'bg-surface-850 border-surface-700/70 text-surface-400 hover:text-surface-200'
+                              }`}
+                            >
+                              {sr.passed ? (
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                              ) : (
+                                <XCircle className="w-3.5 h-3.5 text-rose-400" />
+                              )}
+                              <span>Case {sr.sampleIndex || idx + 1}</span>
+                              {sr.runtime ? (
+                                <span className="text-[10px] text-surface-400">
+                                  {Math.round(sr.runtime * 1000)}ms
+                                </span>
+                              ) : null}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Selected Sample Case Details */}
+                        {runResults.sampleResults?.[selectedCaseIdx] && (
+                          <div className="p-3.5 rounded-xl border border-surface-700 bg-surface-900 space-y-2.5 font-mono text-xs">
+                            {runResults.sampleResults[selectedCaseIdx].input && (
+                              <div>
+                                <span className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider block mb-1">
+                                  Input
+                                </span>
+                                <pre className="p-2.5 rounded-lg bg-surface-950 border border-surface-800 text-surface-200 whitespace-pre-wrap">
+                                  {runResults.sampleResults[selectedCaseIdx].input}
+                                </pre>
+                              </div>
+                            )}
+
+                            <div>
+                              <span className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider block mb-1">
+                                Your Output
+                              </span>
+                              <pre
+                                className={`p-2.5 rounded-lg bg-surface-950 border whitespace-pre-wrap ${
+                                  runResults.sampleResults[selectedCaseIdx].passed
+                                    ? 'border-emerald-500/30 text-emerald-300'
+                                    : 'border-rose-500/30 text-rose-300'
+                                }`}
+                              >
+                                {runResults.sampleResults[selectedCaseIdx].actualOutput || '(Empty stdout)'}
+                              </pre>
+                            </div>
+
+                            {runResults.sampleResults[selectedCaseIdx].expectedOutput && (
+                              <div>
+                                <span className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider block mb-1">
+                                  Expected Output
+                                </span>
+                                <pre className="p-2.5 rounded-lg bg-surface-950 border border-surface-800 text-surface-200 whitespace-pre-wrap">
+                                  {runResults.sampleResults[selectedCaseIdx].expectedOutput}
+                                </pre>
+                              </div>
+                            )}
+
+                            {runResults.sampleResults[selectedCaseIdx].compileError && (
+                              <div>
+                                <span className="text-[11px] font-semibold text-rose-400 uppercase tracking-wider block mb-1">
+                                  Compiler Output
+                                </span>
+                                <pre className="p-2.5 rounded-lg bg-surface-950 border border-rose-500/30 text-rose-300 whitespace-pre-wrap">
+                                  {runResults.sampleResults[selectedCaseIdx].compileError}
+                                </pre>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* EMPTY STATE */}
+                    {!runResults && !submitVerdict && !isRunning && !isSubmitting && (
+                      <div className="py-8 text-center text-surface-400 space-y-2">
+                        <Terminal className="w-8 h-8 mx-auto text-surface-500 opacity-60" />
+                        <div className="text-xs font-mono">
+                          Press <strong className="text-surface-200">Run</strong> or{' '}
+                          <strong className="text-surface-200">Submit</strong> (or Ctrl+Enter) to evaluate your code.
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
           )}
         </div>
       </div>

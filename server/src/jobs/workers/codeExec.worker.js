@@ -82,6 +82,7 @@ export class CodeExecWorkerService {
           memory: result.memory,
           isHidden: tc.isHidden,
           // Only show actual vs expected if NOT hidden
+          input: tc.isHidden ? null : tc.input,
           stdout: tc.isHidden ? null : result.stdout,
           expectedOutput: tc.isHidden ? null : tc.expectedOutput,
         });
