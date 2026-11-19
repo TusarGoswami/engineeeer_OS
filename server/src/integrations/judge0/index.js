@@ -9,7 +9,9 @@ export const getJudge0Adapter = () => {
     return instance;
   }
 
-  if (env.CODE_EXEC_PROVIDER === 'judge0') {
+  if (env.NODE_ENV === 'test') {
+    instance = new MockJudge0Adapter();
+  } else if (env.CODE_EXEC_PROVIDER === 'judge0') {
     instance = new Judge0Client();
   } else {
     instance = new MockJudge0Adapter();

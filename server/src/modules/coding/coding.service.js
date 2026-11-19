@@ -4,9 +4,10 @@ import { SubmissionPayload } from './submissionPayload.model.js';
 import { codeExecQueue } from '../../jobs/queues.js';
 import { getJudge0Adapter } from '../../integrations/judge0/index.js';
 import { CodeExecWorkerService } from '../../jobs/workers/codeExec.worker.js';
-import { getRedisClient } from '../../config/redis.js';
+import { getRedisClient, isRedisMock } from '../../config/redis.js';
 import { NotFoundError, BadRequestError } from '../../middleware/error.js';
 import { env } from '../../config/env.js';
+import { logger } from '../../config/logger.js';
 
 const ALLOWED_LANGUAGES = ['cpp', 'java', 'python', 'javascript'];
 const MAX_SOURCE_CODE_BYTES = 64 * 1024; // 64 KB
@@ -160,6 +161,20 @@ export class CodingService {
     if (env.NODE_ENV === 'test') {
       await CodeExecWorkerService.processCodeSubmission({
         data: { submissionId: submission._id.toString() },
+      });
+    } else if (env.REDIS_URL === 'mock' || isRedisMock()) {
+      // In development/offline mode without standalone Redis service, evaluate asynchronously
+      setImmediate(async () => {
+        try {
+          await CodeExecWorkerService.processCodeSubmission({
+            data: { submissionId: submission._id.toString() },
+          });
+        } catch (workerErr) {
+          logger.error(
+            { err: workerErr.message, submissionId: submission._id },
+            '[CodingService] Offline execution error'
+          );
+        }
       });
     }
 

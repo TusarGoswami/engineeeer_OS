@@ -32,6 +32,11 @@ export const codingService = {
     return res.data.data;
   },
 
+  async getSubmissionById(submissionId) {
+    const res = await api.get(`/coding/submissions/${submissionId}`);
+    return res.data.data;
+  },
+
   async getMySubmissions(problemId = null) {
     const params = problemId ? { problemId } : {};
     const res = await api.get('/coding/submissions', { params });

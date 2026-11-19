@@ -161,6 +161,8 @@ export function ProblemSolvePage() {
 
       if (res.verdict) {
         setSubmitVerdict(res.verdict);
+        setIsSubmitting(false);
+        fetchSubmissions(problem._id);
         if (res.verdict.status === 'accepted') {
           showToast('Accepted! Problem solved successfully.', 'success');
         } else {
@@ -173,7 +175,10 @@ export function ProblemSolvePage() {
           attempts++;
           try {
             const sub = await codingService.getSubmissionById(res.submissionId);
-            if (sub.status !== 'pending' && sub.status !== 'running') {
+            const isEvaluating =
+              sub.status === 'queued' || sub.status === 'pending' || sub.status === 'running';
+
+            if (!isEvaluating) {
               clearInterval(interval);
               setSubmitVerdict(sub);
               setIsSubmitting(false);
@@ -183,16 +188,20 @@ export function ProblemSolvePage() {
               } else {
                 showToast(`Verdict: ${sub.status.toUpperCase()}`, 'error');
               }
-            } else if (attempts > 15) {
+            } else if (attempts >= 30) {
               clearInterval(interval);
               setIsSubmitting(false);
-              showToast('Evaluation timed out. Check Submissions tab.', 'info');
+              showToast('Evaluation is taking longer than expected. Check the Submissions tab.', 'info');
+              fetchSubmissions(problem._id);
             }
-          } catch {
+          } catch (err) {
             clearInterval(interval);
             setIsSubmitting(false);
+            showToast(err.response?.data?.message || 'Failed to check submission status', 'error');
           }
-        }, 1000);
+        }, 1200);
+      } else {
+        setIsSubmitting(false);
       }
     } catch (err) {
       showToast(err.response?.data?.message || 'Failed to submit solution', 'error');
@@ -474,13 +483,19 @@ export function ProblemSolvePage() {
             </div>
           </div>
 
-          {/* Execution Drawer (Sample Runs or Submission Verdict) */}
-          {(runResults || submitVerdict) && (
+          {/* Execution Drawer (Sample Runs, Submitting State, or Submission Verdict) */}
+          {(isRunning || isSubmitting || runResults || submitVerdict) && (
             <Card className="max-h-60 overflow-y-auto p-4 border-surface-700 bg-surface-850 shadow-xl space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold uppercase tracking-wider text-surface-300">
-                    {submitVerdict ? 'Submission Verdict' : 'Sample Run Results'}
+                    {isSubmitting
+                      ? 'Submitting & Evaluating...'
+                      : isRunning
+                      ? 'Running Sample Tests...'
+                      : submitVerdict
+                      ? 'Submission Verdict'
+                      : 'Sample Run Results'}
                   </span>
                   {submitVerdict && (
                     <Badge
@@ -504,17 +519,27 @@ export function ProblemSolvePage() {
                   )}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setRunResults(null);
-                    setSubmitVerdict(null);
-                  }}
-                  className="text-xs text-surface-500 hover:text-surface-300"
-                >
-                  Dismiss
-                </button>
+                {!isSubmitting && !isRunning && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRunResults(null);
+                      setSubmitVerdict(null);
+                    }}
+                    className="text-xs text-surface-500 hover:text-surface-300"
+                  >
+                    Dismiss
+                  </button>
+                )}
               </div>
+
+              {/* Submitting Progress Indicator */}
+              {isSubmitting && (
+                <div className="flex items-center gap-3 p-3 rounded-xl border border-brand-500/30 bg-brand-500/10 text-xs font-mono text-brand-300">
+                  <div className="w-4 h-4 rounded-full border-2 border-brand-400 border-t-transparent animate-spin flex-shrink-0" />
+                  <span>Evaluating code against test matrix via Judge0 sandboxed workers...</span>
+                </div>
+              )}
 
               {/* Sample Test Results List */}
               {runResults?.sampleResults && (
@@ -553,20 +578,31 @@ export function ProblemSolvePage() {
 
               {/* Submission Verdict Details */}
               {submitVerdict && (
-                <div className="text-xs space-y-1.5 font-mono">
+                <div className="text-xs space-y-2 font-mono">
                   <div className="flex items-center gap-4 text-surface-300">
                     <span>
                       Passed:{' '}
                       <strong className="text-surface-100">
-                        {submitVerdict.passedCount || 0} / {submitVerdict.totalTestCases || 0}
+                        {submitVerdict.testCasesPassed ?? submitVerdict.passedCount ?? 0} /{' '}
+                        {submitVerdict.totalTestCases || 0}
                       </strong>
                     </span>
-                    {submitVerdict.runtimeMs && (
+                    {submitVerdict.runtimeMs !== undefined && (
                       <span className="inline-flex items-center gap-1">
                         <Clock className="w-3 h-3" /> {submitVerdict.runtimeMs}ms
                       </span>
                     )}
+                    {submitVerdict.memoryKb !== undefined && submitVerdict.memoryKb > 0 && (
+                      <span className="inline-flex items-center gap-1">
+                        {Math.round(submitVerdict.memoryKb / 1024)}MB
+                      </span>
+                    )}
                   </div>
+                  {submitVerdict.compileError && (
+                    <div className="p-2 rounded bg-surface-900 border border-surface-700 text-rose-400 font-mono text-[11px] whitespace-pre-wrap">
+                      {submitVerdict.compileError}
+                    </div>
+                  )}
                   {submitVerdict.compileOutput && (
                     <div className="p-2 rounded bg-surface-900 border border-surface-700 text-rose-400 font-mono text-[11px] whitespace-pre-wrap">
                       {submitVerdict.compileOutput}

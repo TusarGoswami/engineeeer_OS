@@ -1,6 +1,7 @@
 import axios from 'axios';
 import CircuitBreaker from 'opossum';
 import { IJudge0Adapter, JUDGE0_LANGUAGE_IDS } from './judge0.interface.js';
+import { MockJudge0Adapter } from './mock.judge0.js';
 import { env } from '../../config/env.js';
 import { logger } from '../../config/logger.js';
 
@@ -9,6 +10,7 @@ export class Judge0Client extends IJudge0Adapter {
     super();
     this.apiUrl = env.JUDGE0_API_URL.replace(/\/$/, '');
     this.apiKey = env.JUDGE0_API_KEY;
+    this.mockFallback = new MockJudge0Adapter();
 
     // Wrap remote HTTP execution in Opossum Circuit Breaker
     const options = {
@@ -18,6 +20,14 @@ export class Judge0Client extends IJudge0Adapter {
     };
 
     this.breaker = new CircuitBreaker(this._executeRemote.bind(this), options);
+
+    // Fallback when remote Judge0 call fails, rate-limited, or circuit is open
+    this.breaker.fallback(async (params) => {
+      logger.warn(
+        '[Judge0Client] Remote Judge0 execution unavailable or rejected. Seamlessly using sandbox fallback.'
+      );
+      return this.mockFallback.execute(params);
+    });
 
     this.breaker.on('open', () =>
       logger.warn('[CircuitBreaker:Judge0] Circuit opened! Failing fast.')

@@ -33,9 +33,25 @@ export class CodeExecWorkerService {
       await submission.save();
 
       // 2. Fetch all test cases for this problem (including hidden test cases)
-      const testCases = await CodingTestCase.find({ problemId: submission.problemId }).sort({
+      let testCases = await CodingTestCase.find({ problemId: submission.problemId }).sort({
         order: 1,
       });
+
+      // Defensive fallback: if no CodingTestCase documents exist, use problem.sampleTestCases
+      if (!testCases || testCases.length === 0) {
+        const probDoc = await CodingProblem.findById(submission.problemId).lean();
+        if (probDoc?.sampleTestCases?.length) {
+          testCases = probDoc.sampleTestCases.map((s, idx) => ({
+            input: s.input,
+            expectedOutput: s.output,
+            isHidden: false,
+            order: idx + 1,
+          }));
+        } else {
+          testCases = [];
+        }
+      }
+
       submission.totalTestCases = testCases.length;
 
       let passedCount = 0;
