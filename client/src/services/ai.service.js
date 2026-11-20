@@ -90,6 +90,10 @@ export const aiService = {
     return res.data.data;
   },
 
+  async submitTurn(sessionId, candidateMessage) {
+    return this.submitInterviewTurn(sessionId, candidateMessage);
+  },
+
   async finishInterview(sessionId) {
     const res = await api.post(`/ai/interviews/${sessionId}/finish`);
     return res.data.data;

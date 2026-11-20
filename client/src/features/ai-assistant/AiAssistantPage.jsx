@@ -81,6 +81,7 @@ export function AiAssistantPage() {
 
     let metaConversationId = activeConversationId;
     let metaCitations = [];
+    let accumulatedContent = '';
 
     await aiService.streamAssistant({
       query: q,
@@ -94,6 +95,7 @@ export function AiAssistantPage() {
         }
       },
       onToken: token => {
+        accumulatedContent += token;
         setStreamingText(prev => prev + token);
       },
       onDone: () => {
@@ -103,7 +105,7 @@ export function AiAssistantPage() {
           ...prev,
           {
             role: 'assistant',
-            content: streamingText,
+            content: accumulatedContent,
             citations: metaCitations,
             timestamp: new Date(),
           },
