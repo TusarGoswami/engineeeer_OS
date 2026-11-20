@@ -9,6 +9,11 @@ import {
   Send,
   ArrowLeft,
   ArrowRight,
+  Maximize2,
+  Minimize2,
+  Shield,
+  ShieldAlert,
+  AlertTriangle,
 } from 'lucide-react';
 import { gateService } from '../../services/gate.service.js';
 import Badge from '../../components/Badge.jsx';
@@ -33,6 +38,12 @@ export function GateTestPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showCalcModal, setShowCalcModal] = useState(false);
+
+  // Fullscreen & Anti-Cheat Proctoring states
+  const [isFullscreen, setIsFullscreen] = useState(Boolean(document.fullscreenElement));
+  const [showFullscreenPrompt, setShowFullscreenPrompt] = useState(true);
+  const [violations, setViolations] = useState(0);
+  const [violationNotice, setViolationNotice] = useState(null);
 
   // Simple Scientific Calculator state
   const [calcInput, setCalcInput] = useState('');
@@ -66,6 +77,85 @@ export function GateTestPage() {
   useEffect(() => {
     fetchTest();
   }, [id]);
+
+  // Request fullscreen
+  const enterFullscreen = async () => {
+    try {
+      const el = document.documentElement;
+      if (el.requestFullscreen) {
+        await el.requestFullscreen();
+      } else if (el.webkitRequestFullscreen) {
+        await el.webkitRequestFullscreen();
+      }
+      setIsFullscreen(true);
+      setShowFullscreenPrompt(false);
+      showToast('CBT Fullscreen Mode Activated', 'success');
+    } catch {
+      showToast('Please allow fullscreen mode for exam integrity', 'warning');
+      setShowFullscreenPrompt(false);
+    }
+  };
+
+  const exitFullscreen = async () => {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      }
+      setIsFullscreen(false);
+    } catch {
+      // Ignore
+    }
+  };
+
+  // Anti-cheat proctoring event listeners
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const active = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+      setIsFullscreen(active);
+      if (!active && !isSubmitting && test) {
+        setViolations(v => v + 1);
+        setViolationNotice({
+          type: 'fullscreen_exit',
+          message: 'Fullscreen exit detected. Please return to fullscreen mode immediately to avoid integrity penalties.',
+          time: new Date().toLocaleTimeString(),
+        });
+        showToast('Integrity Alert: Exited Fullscreen Mode', 'warning');
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden && !isSubmitting && test) {
+        setViolations(v => v + 1);
+        setViolationNotice({
+          type: 'tab_switch',
+          message: 'Tab switch / backgrounding detected. Focus must remain strictly on the examination window.',
+          time: new Date().toLocaleTimeString(),
+        });
+        showToast('Integrity Alert: Tab Switch Detected', 'warning');
+      }
+    };
+
+    const handleWindowBlur = () => {
+      if (!isSubmitting && test) {
+        setViolations(v => v + 1);
+        setViolationNotice({
+          type: 'window_blur',
+          message: 'Window focus lost. Focus outside examination window detected.',
+          time: new Date().toLocaleTimeString(),
+        });
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('blur', handleWindowBlur);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleWindowBlur);
+    };
+  }, [test, isSubmitting]);
 
   // Countdown timer
   useEffect(() => {
@@ -163,6 +253,9 @@ export function GateTestPage() {
 
       const attempt = await gateService.submitAttempt(test._id, formattedAnswers, timeTaken);
       localStorage.removeItem(`gate_attempt_${id}`);
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
       showToast('Examination submitted successfully!', 'success');
       navigate(`/gate/results/${attempt._id}`);
     } catch {
@@ -246,20 +339,51 @@ export function GateTestPage() {
           </span>
         </div>
 
-        {/* Timer, Calculator, Submit */}
-        <div className="flex items-center gap-3">
+        {/* Controls: Fullscreen, Integrity, Timer, Calculator, Submit */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Anti-cheat status badge */}
+          <Badge
+            variant={violations === 0 ? 'compiler' : 'signal'}
+            size="sm"
+            className="font-mono text-[11px] hidden md:flex items-center gap-1.5"
+          >
+            {violations === 0 ? (
+              <>
+                <Shield className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Proctored</span>
+              </>
+            ) : (
+              <>
+                <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
+                <span>{violations} Violation{violations > 1 ? 's' : ''}</span>
+              </>
+            )}
+          </Badge>
+
+          {/* Fullscreen CBT button */}
+          <Button
+            size="sm"
+            variant={isFullscreen ? 'secondary' : 'warning'}
+            onClick={isFullscreen ? exitFullscreen : enterFullscreen}
+            leftIcon={isFullscreen ? Minimize2 : Maximize2}
+            className="text-xs font-mono"
+            title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen (Simulate CBT & Prevent Tab Switch)'}
+          >
+            <span className="hidden sm:inline">{isFullscreen ? 'Fullscreen' : 'Go Fullscreen'}</span>
+          </Button>
+
           <Button
             size="sm"
             variant="secondary"
             onClick={() => setShowCalcModal(true)}
             leftIcon={Calculator}
-            className="text-xs"
+            className="text-xs hidden sm:flex"
           >
-            Virtual Calculator
+            Calculator
           </Button>
 
           <div
-            className={`font-mono text-sm sm:text-base font-bold px-3 py-1.5 rounded-xl border flex items-center gap-1.5 ${
+            className={`font-mono text-xs sm:text-sm font-bold px-3 py-1.5 rounded-xl border flex items-center gap-1.5 ${
               timeRemaining < 300
                 ? 'bg-rose-500/10 text-rose-400 border-rose-500/30 animate-pulse'
                 : 'bg-surface-850 text-cyan-600 dark:text-cyan-300 border-surface-700'
@@ -274,11 +398,39 @@ export function GateTestPage() {
             size="sm"
             onClick={() => setShowConfirmModal(true)}
             leftIcon={Send}
+            className="text-xs"
           >
-            Submit Exam
+            Submit
           </Button>
         </div>
       </div>
+
+      {/* Anti-Cheat Violation Banner */}
+      {violationNotice && (
+        <div className="flex items-center justify-between p-3 rounded-xl border border-rose-500/40 bg-rose-500/10 text-rose-300 text-xs font-mono animate-fade-in shadow-md">
+          <div className="flex items-center gap-2.5">
+            <AlertTriangle className="w-4 h-4 text-rose-400 flex-shrink-0 animate-pulse" />
+            <div>
+              <strong className="text-rose-200">Security Warning ({violations} incident{violations > 1 ? 's' : ''} logged):</strong>{' '}
+              <span>{violationNotice.message}</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {!isFullscreen && (
+              <Button size="sm" variant="danger" onClick={enterFullscreen} className="text-xs h-7">
+                Return to Fullscreen
+              </Button>
+            )}
+            <button
+              type="button"
+              onClick={() => setViolationNotice(null)}
+              className="text-rose-400 hover:text-rose-200 p-1 font-bold"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Examination Split Screen */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0">
@@ -572,6 +724,50 @@ export function GateTestPage() {
                 </button>
               )
             )}
+          </div>
+        </div>
+      </Modal>
+
+      {/* Fullscreen Entry Prompt Modal */}
+      <Modal
+        isOpen={showFullscreenPrompt && !isFullscreen}
+        onClose={() => setShowFullscreenPrompt(false)}
+        title="Official GATE CBT Mode & Anti-Cheat"
+        size="md"
+      >
+        <div className="space-y-4">
+          <div className="p-3.5 rounded-xl border border-brand-500/30 bg-brand-500/10 text-surface-200 text-xs leading-relaxed space-y-2">
+            <div className="flex items-center gap-2 font-bold text-brand-300">
+              <Shield className="w-4 h-4 text-brand-400" />
+              <span>Standard IIT GATE Examination Integrity Rules</span>
+            </div>
+            <p>
+              To simulate the authentic national Computer Based Test (CBT) environment and prevent
+              unauthorized tab navigation or cheating, this mock exam operates in full-screen mode.
+            </p>
+            <ul className="list-disc pl-4 space-y-1 text-surface-300">
+              <li>Exiting fullscreen or switching browser tabs logs a security violation.</li>
+              <li>Virtual scientific calculator is accessible in the top control bar.</li>
+              <li>You may submit your exam at any time using the Submit Exam button.</li>
+            </ul>
+          </div>
+
+          <div className="flex items-center justify-end gap-2.5 pt-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowFullscreenPrompt(false)}
+            >
+              Stay Windowed
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              leftIcon={Maximize2}
+              onClick={enterFullscreen}
+            >
+              Enter Fullscreen CBT Mode
+            </Button>
           </div>
         </div>
       </Modal>
