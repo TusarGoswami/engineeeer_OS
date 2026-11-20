@@ -11,7 +11,6 @@ import {
   SlidersHorizontal,
   ExternalLink,
   Flame,
-  Award,
 } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { userService } from '../../services/user.service.js';
@@ -33,6 +32,7 @@ import ProfileCard from './components/ProfileCard.jsx';
 import CardCustomizerDrawer from './components/CardCustomizerDrawer.jsx';
 import AvatarCropperModal from './components/AvatarCropperModal.jsx';
 import CardExportModal from './components/CardExportModal.jsx';
+import { AchievementGallery } from './components/AchievementGallery.jsx';
 
 export const ProfilePage = () => {
   const { user, updateUser } = useAuth();
@@ -323,7 +323,7 @@ export const ProfilePage = () => {
                     rows={2}
                     maxLength={120}
                     className="w-full rounded-xl bg-surface-950/80 border border-surface-800 text-surface-100 text-sm p-3 focus:outline-none focus:border-brand-500 placeholder-surface-500"
-                    placeholder="Distributed Systems Enthusiast • 300+ LeetCode Solved"
+                    placeholder="Distributed Systems Enthusiast â€¢ 300+ LeetCode Solved"
                     {...register('bio')}
                   />
                 </div>
@@ -353,57 +353,9 @@ export const ProfilePage = () => {
           </Card>
         </TabsContent>
 
-        {/* Tab 2: Badges Gallery */}
+        {/* Tab 2: Badges Gallery — Hexagonal Achievement System */}
         <TabsContent value="badges" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Award className="w-5 h-5 text-amber-400" />
-                <span>Earned Credentials & Milestones</span>
-              </CardTitle>
-              <CardDescription>
-                Deterministic badges unlocked as you solve problems, maintain streaks, and take assessments
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {badges.length === 0 ? (
-                <div className="text-center py-8 text-surface-400 text-sm">
-                  No badges unlocked yet. Start your daily streak or solve coding problems to earn credentials!
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                  {badges.map(b => (
-                    <div
-                      key={b.badgeId || b.name}
-                      className="flex items-start gap-3 p-3.5 rounded-xl border border-surface-800 bg-surface-900/40 hover:border-surface-700 transition-colors"
-                    >
-                      <div className="text-2xl p-2 rounded-xl bg-surface-800 shrink-0">
-                        {b.icon || '🎖️'}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-1">
-                          <h4 className="text-sm font-semibold text-surface-100 truncate">
-                            {b.name}
-                          </h4>
-                          <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-surface-800 text-surface-300 font-bold">
-                            {b.tier}
-                          </span>
-                        </div>
-                        <p className="text-xs text-surface-400 mt-1 line-clamp-2">
-                          {b.description}
-                        </p>
-                        {b.earnedAt && (
-                          <p className="text-[10px] text-surface-500 font-mono mt-2">
-                            Earned on {new Date(b.earnedAt).toLocaleDateString()}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <AchievementGallery earnedBadges={badges} />
         </TabsContent>
 
         {/* Tab 3: Heatmap & Telemetry */}

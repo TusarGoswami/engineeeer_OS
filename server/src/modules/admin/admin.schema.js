@@ -41,6 +41,8 @@ export const createAssessmentSchema = z.object({
   subjectId: z.string().optional().nullable(),
   durationMinutes: z.number().int().min(5).max(300).default(60),
   totalMarks: z.number().int().min(1).default(100),
+  scheduledStartTime: z.coerce.date().optional().nullable(),
+  scheduledEndTime: z.coerce.date().optional().nullable(),
   rules: z.object({
     fullScreenRequired: z.boolean().default(true),
     trackTabSwitches: z.boolean().default(true),
