@@ -71,17 +71,55 @@ export const ProfileCard = forwardRef(
       showBadges: true,
     };
 
-    const identity = profile.identity || {
-      name: profile.name,
-      username: profile.username,
-      headline: profile.headline,
-      university: profile.university,
-      branch: profile.branch,
-      semester: profile.semester,
-      graduationYear: profile.graduationYear || profile.profile?.graduationYear,
-      avatarUrl: profile.avatarUrl,
-      githubHandle: profile.githubHandle || profile.profile?.githubHandle,
-      isAlumni: profile.isAlumni ?? profile.identity?.isAlumni ?? false,
+    // Resolve avatar key and URL with robust fallbacks and version cache-busting
+    const resolvedAvatarKey =
+      profile.identity?.avatarKey ||
+      profile.avatarKey ||
+      profile.user?.avatarKey ||
+      '';
+
+    const rawAvatarUrl =
+      profile.identity?.avatarUrl ||
+      profile.avatarUrl ||
+      profile.profile?.avatarUrl ||
+      profile.user?.profile?.avatarUrl ||
+      (resolvedAvatarKey ? `/api/v1/users/avatar/${encodeURIComponent(resolvedAvatarKey)}` : '');
+
+    const avatarVersion =
+      profile.identity?.avatarVersion ||
+      profile.avatarVersion ||
+      profile.user?.avatarVersion ||
+      1;
+
+    const avatarUrl = rawAvatarUrl
+      ? (rawAvatarUrl.includes('?') ? `${rawAvatarUrl}&v=${avatarVersion}` : `${rawAvatarUrl}?v=${avatarVersion}`)
+      : '';
+
+    const identity = {
+      name: profile.identity?.name || profile.name || profile.user?.name || '',
+      username: profile.identity?.username || profile.username || profile.user?.username || '',
+      headline: profile.identity?.headline || profile.headline || '',
+      university: profile.identity?.university || profile.university || profile.user?.university || '',
+      branch: profile.identity?.branch || profile.branch || profile.user?.branch || '',
+      semester: profile.identity?.semester || profile.semester || profile.user?.semester || 1,
+      graduationYear:
+        profile.identity?.graduationYear ||
+        profile.graduationYear ||
+        profile.profile?.graduationYear ||
+        profile.user?.profile?.graduationYear,
+      avatarUrl,
+      avatarKey: resolvedAvatarKey,
+      githubHandle:
+        profile.identity?.githubHandle ||
+        profile.githubHandle ||
+        profile.profile?.githubHandle ||
+        profile.user?.profile?.githubHandle ||
+        '',
+      isAlumni:
+        profile.isAlumni ??
+        profile.identity?.isAlumni ??
+        profile.user?.isAlumni ??
+        false,
     };
 
     const stats = profile.stats || {

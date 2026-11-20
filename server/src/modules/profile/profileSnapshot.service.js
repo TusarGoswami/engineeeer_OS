@@ -238,6 +238,9 @@ export class ProfileSnapshotService {
         role: user.role || 'student',
         company: user.profile?.currentCompany || '',
         avatarKey: user.avatarKey || '',
+        avatarUrl:
+          user.profile?.avatarUrl ||
+          (user.avatarKey ? `/api/v1/users/avatar/${encodeURIComponent(user.avatarKey)}` : ''),
         avatarVersion: user.avatarVersion || 1,
       },
       stats: statsPayload,

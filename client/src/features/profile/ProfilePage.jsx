@@ -156,7 +156,22 @@ export const ProfilePage = () => {
     }
   };
 
-  const handleAvatarUpdated = () => {
+  const handleAvatarUpdated = (result) => {
+    if (result?.avatarUrl) {
+      setProfileData(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          identity: {
+            ...(prev.identity || {}),
+            avatarUrl: result.avatarUrl,
+            avatarKey: result.avatarKey,
+            avatarVersion: result.avatarVersion,
+          },
+          avatarUrl: result.avatarUrl,
+        };
+      });
+    }
     loadProfile();
   };
 

@@ -17,7 +17,7 @@ export class ProfileService {
     }
 
     let snapshot = await ProfileRepository.findSnapshotByUserId(userId);
-    if (!snapshot) {
+    if (!snapshot || (user.avatarKey && snapshot.identity?.avatarKey !== user.avatarKey)) {
       snapshot = await ProfileSnapshotService.rebuildSnapshot(userId);
     }
 

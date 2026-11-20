@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -15,6 +15,10 @@ export const Avatar = ({
   ...props
 }) => {
   const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setHasError(false);
+  }, [src]);
 
   // Generate initials (e.g. "Alex Chen" -> "AC", "Tusar" -> "TU")
   const getInitials = (str) => {

@@ -24,6 +24,7 @@ const profileSnapshotSchema = new mongoose.Schema(
       role: { type: String, default: 'student' },
       company: { type: String, default: '' },
       avatarKey: { type: String, default: '' },
+      avatarUrl: { type: String, default: '' },
       avatarVersion: { type: Number, default: 1 },
     },
     stats: {

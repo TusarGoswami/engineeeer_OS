@@ -4,6 +4,7 @@ import { NotFoundError, ValidationError, ConflictError } from '../../middleware/
 import { storageAdapter } from '../../integrations/storage/index.js';
 import { validateImageMagicBytes } from '../../utils/magicBytes.js';
 import { RESERVED_USERNAMES } from './user.schema.js';
+import { ProfileSnapshotService } from '../profile/profileSnapshot.service.js';
 
 export class UserService {
   /**
@@ -110,6 +111,12 @@ export class UserService {
       'profile.avatarUrl': avatarUrl,
     });
 
+    try {
+      await ProfileSnapshotService.aggregateForUser(userId);
+    } catch {
+      // Non-fatal if snapshot background aggregation experiences brief contention
+    }
+
     return {
       avatarKey,
       avatarUrl,
@@ -141,6 +148,12 @@ export class UserService {
       avatarVersion: (user.avatarVersion || 1) + 1,
       'profile.avatarUrl': '',
     });
+
+    try {
+      await ProfileSnapshotService.aggregateForUser(userId);
+    } catch {
+      // Non-fatal
+    }
 
     return { success: true, user: updatedUser };
   }
