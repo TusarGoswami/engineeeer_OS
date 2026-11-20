@@ -186,7 +186,7 @@ export const DashboardLayout = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-surface-950 text-surface-100 font-sans">
+    <div className="flex min-h-screen bg-surface-950 text-surface-100 font-sans bg-grid-cyber">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex w-64 flex-col fixed inset-y-0 border-r border-surface-700/80 bg-surface-900/90 backdrop-blur-2xl z-30">
         {/* Brand Header */}

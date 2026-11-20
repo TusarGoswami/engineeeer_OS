@@ -185,7 +185,7 @@ export const ProfileCard = forwardRef(
       <div
         ref={ref}
         id="engineeros-profile-card"
-        className={`${style.container} w-full max-w-2xl transition-all duration-300 ${className}`}
+        className={`${style.container} w-full max-w-2xl transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${className}`}
       >
         {/* Terminal Title Bar / Card Header */}
         <div className={`flex items-center justify-between ${style.header}`}>

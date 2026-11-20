@@ -26,6 +26,18 @@ export const PostDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [replyContent, setReplyContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [composerTab, setComposerTab] = useState('write');
+  const [reactionCounts, setReactionCounts] = useState({});
+
+  const handleToggleReaction = (replyId, emoji) => {
+    setReactionCounts(prev => {
+      const key = `${replyId}_${emoji}`;
+      return {
+        ...prev,
+        [key]: (prev[key] || 0) + 1,
+      };
+    });
+  };
 
   useEffect(() => {
     fetchPostAndReplies();
@@ -320,6 +332,28 @@ I have completed DSA (graphs, trees, DP), but I'm looking for structured senior 
                       Accept as Solution
                     </Button>
                   )}
+                  {/* Emoji Reactions */}
+                  <div className="flex items-center gap-1.5">
+                    {['💡', '🚀', '❤️'].map(emoji => {
+                      const count = reactionCounts[`${reply._id}_${emoji}`] || 0;
+                      return (
+                        <button
+                          key={emoji}
+                          type="button"
+                          onClick={() => handleToggleReaction(reply._id, emoji)}
+                          className={`flex items-center gap-1 px-2 py-0.5 rounded-lg border text-[11px] transition-all ${
+                            count > 0
+                              ? 'bg-brand-500/15 border-brand-500/40 text-brand-300'
+                              : 'bg-surface-950 border-surface-800 text-surface-400 hover:text-surface-200'
+                          }`}
+                        >
+                          <span>{emoji}</span>
+                          {count > 0 && <span className="font-mono text-[10px] font-bold">{count}</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+
                   <button
                     onClick={() => handleUpvoteReply(reply._id)}
                     className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-950 border border-surface-800 text-[11px] font-semibold text-surface-300 hover:text-brand-400 transition-colors"
@@ -340,24 +374,63 @@ I have completed DSA (graphs, trees, DP), but I'm looking for structured senior 
         {/* Reply Composer */}
         <Card className="p-5">
           <form onSubmit={handleAddReply} className="space-y-3">
-            <label htmlFor="reply-composer" className="block text-xs font-semibold text-surface-100">
-              Write a Mentorship / Peer Response
-            </label>
-            <textarea
-              id="reply-composer"
-              rows={4}
-              placeholder="Share your structured insights, code references, or interview guidance..."
-              value={replyContent}
-              onChange={e => setReplyContent(e.target.value)}
-              required
-              className="w-full bg-surface-950 border border-surface-800 rounded-xl p-3 text-xs text-surface-200 focus:outline-none focus:border-brand-500 font-mono leading-relaxed resize-none"
-            />
-            <div className="flex justify-end">
+            <div className="flex items-center justify-between">
+              <label htmlFor="reply-composer" className="block text-xs font-semibold text-surface-100">
+                Write a Mentorship / Peer Response
+              </label>
+              <div className="flex items-center gap-1 bg-surface-950 p-0.5 rounded-lg border border-surface-800 text-[11px]">
+                <button
+                  type="button"
+                  onClick={() => setComposerTab('write')}
+                  className={`px-2.5 py-0.5 rounded-md font-medium transition-all ${
+                    composerTab === 'write'
+                      ? 'bg-surface-800 text-surface-100'
+                      : 'text-surface-400 hover:text-surface-200'
+                  }`}
+                >
+                  Write
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setComposerTab('preview')}
+                  className={`px-2.5 py-0.5 rounded-md font-medium transition-all ${
+                    composerTab === 'preview'
+                      ? 'bg-surface-800 text-surface-100'
+                      : 'text-surface-400 hover:text-surface-200'
+                  }`}
+                >
+                  Live Preview
+                </button>
+              </div>
+            </div>
+
+            {composerTab === 'write' ? (
+              <textarea
+                id="reply-composer"
+                rows={4}
+                placeholder="Share your structured insights, code references (use ```code```), or interview guidance..."
+                value={replyContent}
+                onChange={e => setReplyContent(e.target.value)}
+                required
+                className="w-full bg-surface-950 border border-surface-800 rounded-xl p-3 text-xs text-surface-200 focus:outline-none focus:border-brand-500 font-mono leading-relaxed resize-none selection:bg-brand-500/30"
+              />
+            ) : (
+              <div className="w-full min-h-[100px] p-3 rounded-xl bg-surface-950 border border-surface-800 text-xs text-surface-200 font-sans leading-relaxed whitespace-pre-wrap">
+                {replyContent ? (
+                  replyContent
+                ) : (
+                  <span className="text-surface-500 italic">Type your response in the Write tab to see live preview...</span>
+                )}
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-[10px] text-surface-500 font-mono">Supports Markdown & Code formatting</span>
               <Button
                 type="submit"
                 variant="primary"
                 size="sm"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !replyContent.trim()}
                 className="gap-1.5 text-xs"
               >
                 <Send className="w-3.5 h-3.5" />

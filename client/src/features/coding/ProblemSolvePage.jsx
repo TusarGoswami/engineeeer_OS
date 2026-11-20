@@ -47,6 +47,8 @@ export function ProblemSolvePage() {
   const [consoleOpen, setConsoleOpen] = useState(false);
   const [consoleTab, setConsoleTab] = useState('result'); // 'testcase' | 'result'
   const [selectedCaseIdx, setSelectedCaseIdx] = useState(0);
+  const [customInput, setCustomInput] = useState('');
+  const [editorTheme, setEditorTheme] = useState(() => localStorage.getItem('engineeros_editor_theme') || 'vs-dark');
 
   const editorRef = useRef(null);
 
@@ -135,11 +137,14 @@ export function ProblemSolvePage() {
     try {
       setConsoleOpen(true);
       setConsoleTab('result');
-      setSelectedCaseIdx(0);
+      if (selectedCaseIdx !== 'custom') {
+        setSelectedCaseIdx(0);
+      }
       setIsRunning(true);
       setRunResults(null);
       setSubmitVerdict(null);
-      const res = await codingService.runSampleTest(problem._id, sourceCode, language);
+      const passedCustom = selectedCaseIdx === 'custom' && customInput.trim() ? customInput.trim() : null;
+      const res = await codingService.runSampleTest(problem._id, sourceCode, language, passedCustom);
       setRunResults(res);
       if (res.passedSamples === res.totalSamples) {
         showToast('All sample test cases passed!', 'success');
@@ -490,6 +495,19 @@ export function ProblemSolvePage() {
                   <option value="java">Java (OpenJDK)</option>
                   <option value="javascript">JavaScript (Node)</option>
                 </select>
+
+                <select
+                  value={editorTheme}
+                  onChange={e => {
+                    setEditorTheme(e.target.value);
+                    localStorage.setItem('engineeros_editor_theme', e.target.value);
+                  }}
+                  className="rounded-lg bg-surface-850 border border-surface-700 text-xs text-surface-300 px-2 py-1 focus:outline-none focus:border-brand-500 font-mono hidden sm:inline-block"
+                >
+                  <option value="vs-dark">Dark Theme</option>
+                  <option value="hc-black">High Contrast</option>
+                  <option value="vs">Light Theme</option>
+                </select>
               </div>
 
               <div className="flex items-center gap-2">
@@ -525,7 +543,7 @@ export function ProblemSolvePage() {
                 height="100%"
                 language={getMonacoLang(language)}
                 value={sourceCode}
-                theme={isDark ? 'vs-dark' : 'light'}
+                theme={editorTheme || (isDark ? 'vs-dark' : 'light')}
                 onChange={handleCodeChange}
                 onMount={(editor, monaco) => {
                   editorRef.current = editor;
@@ -549,6 +567,20 @@ export function ProblemSolvePage() {
                   fontFamily: 'JetBrains Mono, Menlo, Monaco, monospace',
                 }}
               />
+            </div>
+
+            {/* Editor Bottom Status & Shortcuts Bar */}
+            <div className="px-3.5 py-1.5 border-t border-surface-700/60 bg-surface-900/95 flex items-center justify-between text-[11px] text-surface-400 font-mono">
+              <div className="flex items-center gap-2.5">
+                <span className="flex items-center gap-1">
+                  <kbd className="px-1.5 py-0.5 rounded bg-surface-800 border border-surface-700 text-surface-300 text-[10px]">Ctrl</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-surface-800 border border-surface-700 text-surface-300 text-[10px]">Enter</kbd> Run
+                </span>
+                <span className="text-surface-600">•</span>
+                <span className="flex items-center gap-1">
+                  <kbd className="px-1.5 py-0.5 rounded bg-surface-800 border border-surface-700 text-surface-300 text-[10px]">Ctrl</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-surface-800 border border-surface-700 text-surface-300 text-[10px]">Shift</kbd> + <kbd className="px-1.5 py-0.5 rounded bg-surface-800 border border-surface-700 text-surface-300 text-[10px]">Enter</kbd> Submit
+                </span>
+              </div>
+              <span className="hidden sm:inline text-surface-500">Sandboxed Runtime</span>
             </div>
           </div>
 
@@ -637,7 +669,7 @@ export function ProblemSolvePage() {
 
               {/* Console Body */}
               <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
-                {/* 1. TESTCASE TAB (Sample inputs defined for problem) */}
+                {/* 1. TESTCASE TAB (Sample inputs & Custom input) */}
                 {consoleTab === 'testcase' && (
                   <div className="space-y-3">
                     {/* Case selector chips */}
@@ -656,38 +688,70 @@ export function ProblemSolvePage() {
                           Case {idx + 1}
                         </button>
                       ))}
+
+                      {/* Custom Input Chip */}
+                      <button
+                        type="button"
+                        onClick={() => setSelectedCaseIdx('custom')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium font-mono transition-all border ${
+                          selectedCaseIdx === 'custom'
+                            ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 shadow-sm'
+                            : 'bg-surface-800/80 border-surface-700/80 text-surface-400 hover:text-surface-200'
+                        }`}
+                      >
+                        + Custom Input
+                      </button>
                     </div>
 
-                    {/* Selected Sample Case Input & Output */}
-                    {problem?.sampleTestCases?.[selectedCaseIdx] && (
-                      <div className="space-y-2.5 font-mono text-xs">
-                        <div>
-                          <span className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider block mb-1">
-                            Input
+                    {/* Custom Input Editor */}
+                    {selectedCaseIdx === 'custom' ? (
+                      <div className="space-y-2 font-mono text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider">
+                            Custom Standard Input (stdin)
                           </span>
-                          <pre className="p-3 rounded-xl bg-surface-900 border border-surface-750 text-surface-200 whitespace-pre-wrap selection:bg-brand-500/30">
-                            {problem.sampleTestCases[selectedCaseIdx].input}
-                          </pre>
+                          <span className="text-[10px] text-surface-500">Passed directly to your program</span>
                         </div>
-                        <div>
-                          <span className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider block mb-1">
-                            Expected Output
-                          </span>
-                          <pre className="p-3 rounded-xl bg-surface-900 border border-surface-750 text-surface-200 whitespace-pre-wrap selection:bg-brand-500/30">
-                            {problem.sampleTestCases[selectedCaseIdx].output}
-                          </pre>
-                        </div>
-                        {problem.sampleTestCases[selectedCaseIdx].explanation && (
+                        <textarea
+                          value={customInput}
+                          onChange={e => setCustomInput(e.target.value)}
+                          rows={4}
+                          placeholder="Type or paste custom input values here..."
+                          className="w-full p-3 rounded-xl bg-surface-900 border border-surface-750 text-surface-100 font-mono text-xs focus:outline-none focus:border-brand-500 resize-none selection:bg-brand-500/30"
+                        />
+                      </div>
+                    ) : (
+                      /* Selected Sample Case Input & Output */
+                      problem?.sampleTestCases?.[selectedCaseIdx] && (
+                        <div className="space-y-2.5 font-mono text-xs">
                           <div>
                             <span className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider block mb-1">
-                              Explanation
+                              Input
                             </span>
-                            <div className="p-2.5 rounded-xl bg-surface-800/40 border border-surface-750 text-surface-300 font-sans text-xs">
-                              {problem.sampleTestCases[selectedCaseIdx].explanation}
-                            </div>
+                            <pre className="p-3 rounded-xl bg-surface-900 border border-surface-750 text-surface-200 whitespace-pre-wrap selection:bg-brand-500/30">
+                              {problem.sampleTestCases[selectedCaseIdx].input}
+                            </pre>
                           </div>
-                        )}
-                      </div>
+                          <div>
+                            <span className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider block mb-1">
+                              Expected Output
+                            </span>
+                            <pre className="p-3 rounded-xl bg-surface-900 border border-surface-750 text-surface-200 whitespace-pre-wrap selection:bg-brand-500/30">
+                              {problem.sampleTestCases[selectedCaseIdx].output}
+                            </pre>
+                          </div>
+                          {problem.sampleTestCases[selectedCaseIdx].explanation && (
+                            <div>
+                              <span className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider block mb-1">
+                                Explanation
+                              </span>
+                              <div className="p-2.5 rounded-xl bg-surface-800/40 border border-surface-750 text-surface-300 font-sans text-xs">
+                                {problem.sampleTestCases[selectedCaseIdx].explanation}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )
                     )}
                   </div>
                 )}

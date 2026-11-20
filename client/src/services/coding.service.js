@@ -11,10 +11,11 @@ export const codingService = {
     return res.data.data;
   },
 
-  async runSampleTest(problemId, sourceCode, language) {
+  async runSampleTest(problemId, sourceCode, language, customInput = null) {
     const res = await api.post(`/coding/problems/${problemId}/run`, {
       sourceCode,
       language,
+      ...(customInput ? { customInput } : {}),
     });
     return res.data.data;
   },

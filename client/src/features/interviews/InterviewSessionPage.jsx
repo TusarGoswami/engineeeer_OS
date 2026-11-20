@@ -9,6 +9,10 @@ import {
   CheckCircle2,
   AlertTriangle,
   RotateCw,
+  Volume2,
+  VolumeX,
+  Radio,
+  Sparkles,
 } from 'lucide-react';
 import { aiService } from '../../services/ai.service.js';
 import { Card } from '../../components/Card.jsx';
@@ -28,8 +32,35 @@ export function InterviewSessionPage() {
   const [isFinishing, setIsFinishing] = useState(false);
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const turnsEndRef = useRef(null);
+
+  // Native Speech Synthesis (Text-to-Speech)
+  const speakPrompt = (text) => {
+    if (!window?.speechSynthesis) return;
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+    const cleanText = (text || '').replace(/[*#`_]/g, '');
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    window.speechSynthesis.speak(utterance);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (window?.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     fetchSession();
@@ -426,6 +457,48 @@ export function InterviewSessionPage() {
           {/* Turns message area */}
           <div className="flex-1 overflow-y-auto p-5 space-y-4">
             {(session.turns || []).map((turn, idx) => {
+              // Handle both object shapes (turn.role/turn.message OR turn.interviewerPrompt/turn.candidateResponse)
+              const hasPromptResponse = Boolean(turn.interviewerPrompt || turn.candidateResponse);
+
+              if (hasPromptResponse) {
+                return (
+                  <div key={idx} className="space-y-4">
+                    {turn.interviewerPrompt && (
+                      <div className="flex flex-col max-w-[85%] sm:max-w-[75%] space-y-1 mr-auto items-start">
+                        <div className="flex items-center justify-between w-full px-1">
+                          <span className="text-[11px] font-mono text-brand-400 font-semibold flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-brand-400" />
+                            Lead Technical Interviewer
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => speakPrompt(turn.interviewerPrompt)}
+                            className="text-[10px] text-surface-400 hover:text-surface-100 flex items-center gap-1 transition-colors"
+                          >
+                            <Volume2 className="w-3 h-3 text-brand-400" />
+                            <span>{isSpeaking ? 'Mute' : 'Listen'}</span>
+                          </button>
+                        </div>
+                        <div className="p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-line shadow-sm bg-surface-800 text-surface-100 border border-surface-700 rounded-tl-none">
+                          {turn.interviewerPrompt}
+                        </div>
+                      </div>
+                    )}
+
+                    {turn.candidateResponse && (
+                      <div className="flex flex-col max-w-[85%] sm:max-w-[75%] space-y-1 ml-auto items-end">
+                        <span className="text-[11px] font-mono text-surface-500 px-1">
+                          You (Candidate)
+                        </span>
+                        <div className="p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-line shadow-sm bg-brand-500 text-white font-medium rounded-tr-none">
+                          {turn.candidateResponse}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
               const isCandidate = turn.role === 'candidate';
               return (
                 <div
@@ -434,9 +507,21 @@ export function InterviewSessionPage() {
                     isCandidate ? 'ml-auto items-end' : 'mr-auto items-start'
                   }`}
                 >
-                  <span className="text-[11px] font-mono text-surface-500 px-1">
-                    {isCandidate ? 'You (Candidate)' : 'Lead Technical Interviewer'}
-                  </span>
+                  <div className="flex items-center justify-between w-full px-1">
+                    <span className="text-[11px] font-mono text-surface-500">
+                      {isCandidate ? 'You (Candidate)' : 'Lead Technical Interviewer'}
+                    </span>
+                    {!isCandidate && (
+                      <button
+                        type="button"
+                        onClick={() => speakPrompt(turn.message)}
+                        className="text-[10px] text-surface-400 hover:text-surface-100 flex items-center gap-1 transition-colors"
+                      >
+                        <Volume2 className="w-3 h-3 text-brand-400" />
+                        <span>Listen</span>
+                      </button>
+                    )}
+                  </div>
                   <div
                     className={`p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-line shadow-sm ${
                       isCandidate
@@ -465,7 +550,26 @@ export function InterviewSessionPage() {
           </div>
 
           {/* Turn Input Form */}
-          <div className="p-4 border-t border-surface-700 bg-surface-900/80">
+          <div className="p-4 border-t border-surface-700 bg-surface-900/80 space-y-2">
+            {/* Live Audio Waveform Speaking Visualizer */}
+            {(isListening || isSpeaking) && (
+              <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-surface-950/80 border border-emerald-500/30 text-emerald-300 text-xs animate-fadeIn">
+                <div className="flex items-center gap-2">
+                  <Radio className="w-4 h-4 text-emerald-400 animate-pulse" />
+                  <span className="font-mono text-[11px] font-bold">
+                    {isListening ? 'Candidate Voice Streaming...' : 'Interviewer Audio Synthesis...'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 h-4">
+                  <span className="w-1 bg-emerald-400 rounded-full animate-pulse h-2" />
+                  <span className="w-1 bg-emerald-400 rounded-full animate-bounce h-4" />
+                  <span className="w-1 bg-emerald-400 rounded-full animate-pulse h-3" />
+                  <span className="w-1 bg-emerald-400 rounded-full animate-bounce h-4" />
+                  <span className="w-1 bg-emerald-400 rounded-full animate-pulse h-2" />
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleSendTurn} className="flex gap-2.5 items-end">
               <textarea
                 placeholder="Type your technical response... (Press Enter to submit)"

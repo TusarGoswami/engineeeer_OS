@@ -7,12 +7,83 @@ import {
   Sparkles,
   AlertCircle,
   MessageSquare,
+  Copy,
+  Check,
+  Terminal,
+  Mic,
+  MicOff,
 } from 'lucide-react';
 import { aiService } from '../../services/ai.service.js';
 import { academicsService } from '../../services/academics.service.js';
 import Card from '../../components/Card.jsx';
 import Button from '../../components/Button.jsx';
 import Badge from '../../components/Badge.jsx';
+
+// High-tech Code Block with Copy Feedback
+const CodeBlock = ({ language, code }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="my-3 rounded-xl overflow-hidden border border-surface-700 bg-surface-950 font-mono text-xs shadow-lg">
+      <div className="flex items-center justify-between px-3.5 py-1.5 bg-surface-900 border-b border-surface-800 text-[11px] text-surface-400">
+        <span className="flex items-center gap-1.5 font-bold uppercase text-brand-400 font-mono tracking-wider">
+          <Terminal className="w-3.5 h-3.5 text-brand-400" />
+          {language || 'code'}
+        </span>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-800 hover:bg-surface-750 text-surface-300 hover:text-surface-100 transition-colors border border-surface-700/60"
+        >
+          {copied ? (
+            <>
+              <Check className="w-3 h-3 text-emerald-400" />
+              <span className="text-emerald-400 text-[10px] font-semibold">Copied!</span>
+            </>
+          ) : (
+            <>
+              <Copy className="w-3 h-3 text-surface-400" />
+              <span className="text-[10px]">Copy Code</span>
+            </>
+          )}
+        </button>
+      </div>
+      <div className="p-4 overflow-x-auto text-surface-200 leading-relaxed font-mono text-[12px] selection:bg-brand-500/30">
+        <pre>{code}</pre>
+      </div>
+    </div>
+  );
+};
+
+// Rich Message Content Formatter
+const FormattedMessageContent = ({ content }) => {
+  if (!content) return null;
+  const parts = content.split(/(```[\s\S]*?```)/g);
+
+  return (
+    <div className="space-y-1">
+      {parts.map((part, i) => {
+        if (part.startsWith('```') && part.endsWith('```')) {
+          const match = part.match(/^```(\w+)?\n?([\s\S]*?)```$/);
+          const language = match ? match[1] || '' : '';
+          const code = match ? match[2] : part.slice(3, -3);
+          return <CodeBlock key={i} language={language} code={code.trim()} />;
+        }
+        return (
+          <span key={i} className="whitespace-pre-wrap leading-relaxed">
+            {part}
+          </span>
+        );
+      })}
+    </div>
+  );
+};
 
 export function AiAssistantPage() {
   const [conversations, setConversations] = useState([]);
@@ -25,6 +96,7 @@ export function AiAssistantPage() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingText, setStreamingText] = useState('');
   const [currentCitations, setCurrentCitations] = useState([]);
+  const [isListening, setIsListening] = useState(false);
 
   const messagesEndRef = useRef(null);
 
@@ -65,6 +137,38 @@ export function AiAssistantPage() {
     setMessages([]);
     setStreamingText('');
     setCurrentCitations([]);
+  };
+
+  const handleToggleSpeech = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Speech recognition is not supported in this browser. Please type your response.');
+      return;
+    }
+
+    if (isListening) {
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => setIsListening(true);
+      recognition.onend = () => setIsListening(false);
+      recognition.onerror = () => setIsListening(false);
+      recognition.onresult = event => {
+        const transcript = event.results[0][0].transcript;
+        setInputQuery(prev => (prev ? prev + ' ' + transcript : transcript));
+      };
+
+      recognition.start();
+    } catch {
+      setIsListening(false);
+    }
   };
 
   const handleSendQuery = async (queryToSend = inputQuery) => {
@@ -181,10 +285,10 @@ export function AiAssistantPage() {
                 key={c._id}
                 type="button"
                 onClick={() => handleSelectConversation(c._id)}
-                className={`w-full text-left p-2.5 rounded-xl text-xs transition-colors truncate flex items-center gap-2 ${
+                className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-left text-xs transition-colors ${
                   activeConversationId === c._id
-                    ? 'bg-brand-600/20 text-brand-300 border border-brand-500/30 font-semibold'
-                    : 'text-surface-400 hover:text-surface-200 hover:bg-surface-800/60'
+                    ? 'bg-purple-500/15 text-purple-300 font-medium border border-purple-500/30'
+                    : 'text-surface-400 hover:text-surface-200 hover:bg-surface-800/40 border border-transparent'
                 }`}
               >
                 <MessageSquare className="w-3.5 h-3.5 shrink-0 opacity-70" />
@@ -258,18 +362,22 @@ export function AiAssistantPage() {
               {messages.map((m, idx) => (
                 <div
                   key={idx}
-                  className={`flex flex-col max-w-[80%] space-y-1.5 ${
+                  className={`flex flex-col max-w-[85%] space-y-1.5 ${
                     m.role === 'user' ? 'ml-auto items-end' : 'mr-auto items-start'
                   }`}
                 >
                   <div
-                    className={`p-4 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-wrap ${
+                    className={`p-4 rounded-2xl text-xs sm:text-sm leading-relaxed ${
                       m.role === 'user'
-                        ? 'bg-brand-500 text-white rounded-br-sm shadow-md'
-                        : 'bg-surface-900/80 text-surface-100 border border-surface-800 rounded-bl-sm shadow-sm'
+                        ? 'bg-brand-500 text-white rounded-br-sm shadow-md whitespace-pre-wrap'
+                        : 'bg-surface-900/90 text-surface-100 border border-surface-800 rounded-bl-sm shadow-md'
                     }`}
                   >
-                    {m.content}
+                    {m.role === 'user' ? (
+                      m.content
+                    ) : (
+                      <FormattedMessageContent content={m.content} />
+                    )}
                   </div>
 
                   {/* Grounded Citations */}
@@ -294,10 +402,14 @@ export function AiAssistantPage() {
 
               {/* Streaming Bubble */}
               {isStreaming && (
-                <div className="flex flex-col max-w-[80%] space-y-1.5 mr-auto items-start">
-                  <div className="p-4 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-wrap bg-surface-900/80 text-surface-100 border border-surface-800 rounded-bl-sm shadow-sm">
-                    {streamingText || 'Synthesizing verified engineering explanation...'}
-                    <span className="inline-block w-1 h-5 bg-brand-400 ml-1 animate-pulse align-middle" />
+                <div className="flex flex-col max-w-[85%] space-y-1.5 mr-auto items-start">
+                  <div className="p-4 rounded-2xl text-xs sm:text-sm leading-relaxed bg-surface-900/90 text-surface-100 border border-surface-800 rounded-bl-sm shadow-sm">
+                    {streamingText ? (
+                      <FormattedMessageContent content={streamingText} />
+                    ) : (
+                      'Synthesizing verified engineering explanation...'
+                    )}
+                    <span className="inline-block w-1.5 h-4 bg-brand-400 ml-1.5 animate-pulse align-middle" />
                   </div>
 
                   {currentCitations.length > 0 && (
@@ -331,9 +443,22 @@ export function AiAssistantPage() {
             }}
             className="flex items-center gap-2"
           >
+            <button
+              type="button"
+              onClick={handleToggleSpeech}
+              title="Voice Dictation"
+              className={`p-2.5 rounded-xl border transition-colors ${
+                isListening
+                  ? 'bg-rose-500/20 text-rose-400 border-rose-500/40 animate-pulse'
+                  : 'bg-surface-900 border-surface-700 text-surface-400 hover:text-surface-100'
+              }`}
+            >
+              {isListening ? <Mic className="w-4 h-4 text-rose-400" /> : <MicOff className="w-4 h-4" />}
+            </button>
+
             <input
               type="text"
-              placeholder="Ask an engineering question or paste code..."
+              placeholder={isListening ? 'Listening to speech...' : 'Ask an engineering question or paste code...'}
               value={inputQuery}
               onChange={e => setInputQuery(e.target.value)}
               disabled={isStreaming}

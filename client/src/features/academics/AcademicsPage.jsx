@@ -7,6 +7,7 @@ import { Badge } from '../../components/Badge.jsx';
 import { Modal } from '../../components/Modal.jsx';
 import { Skeleton } from '../../components/Skeleton.jsx';
 import { EmptyState } from '../../components/EmptyState.jsx';
+import { ProgressRing } from '../../components/ProgressRing.jsx';
 import {
   GraduationCap,
   BookOpen,
@@ -16,6 +17,9 @@ import {
   Search,
   ExternalLink,
   Clock,
+  Eye,
+  Download,
+  Sparkles,
 } from 'lucide-react';
 
 export const AcademicsPage = () => {
@@ -29,6 +33,7 @@ export const AcademicsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSubject, setActiveSubject] = useState(null);
   const [activeTab, setActiveTab] = useState('topics'); // 'topics' | 'resources'
+  const [previewResource, setPreviewResource] = useState(null);
 
   // Query: Fetch subjects
   const { data: subjectsData, isLoading } = useQuery({
@@ -164,9 +169,18 @@ export const AcademicsPage = () => {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <Badge variant="brand">{subject.code}</Badge>
-                    <span className="text-xs text-surface-400 font-medium">
-                      {subject.credits || 4} Credits
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-surface-400 font-medium">
+                        {subject.credits || 4} Credits
+                      </span>
+                      <ProgressRing
+                        progress={subject.completionPercentage || 0}
+                        size={32}
+                        strokeWidth={3}
+                        variant="brand"
+                        showValue={false}
+                      />
+                    </div>
                   </div>
                   <CardTitle className="text-base text-surface-100 line-clamp-1">
                     {subject.name}
@@ -330,21 +344,86 @@ export const AcademicsPage = () => {
                         </div>
                       </div>
 
-                      {res.contentUrl && (
-                        <a
-                          href={res.contentUrl}
-                          target="_blank"
-                          rel="noreferrer"
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setPreviewResource(res)}
+                          title="Quick View Document"
                           className="p-1.5 rounded-lg text-surface-400 hover:text-brand-400 hover:bg-surface-800 transition-colors"
                         >
-                          <ExternalLink className="w-4 h-4" />
-                        </a>
-                      )}
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        {res.contentUrl && (
+                          <a
+                            href={res.contentUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            title="Open in new window"
+                            className="p-1.5 rounded-lg text-surface-400 hover:text-brand-400 hover:bg-surface-800 transition-colors"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                        )}
+                      </div>
                     </div>
                   ))
                 )}
               </div>
             )}
+          </div>
+        )}
+      </Modal>
+
+      {/* In-App Notes & Document Previewer Modal */}
+      <Modal
+        isOpen={!!previewResource}
+        onClose={() => setPreviewResource(null)}
+        title={previewResource ? previewResource.title : ''}
+        description={previewResource ? `${previewResource.type?.toUpperCase()} • Verified Syllabus Resource` : ''}
+        maxWidth="max-w-3xl"
+      >
+        {previewResource && (
+          <div className="space-y-4 text-surface-200">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-surface-950 border border-surface-800 text-xs">
+              <div className="flex items-center gap-2">
+                <Badge variant={previewResource.type === 'pyq' ? 'purple' : 'brand'}>
+                  {previewResource.type?.toUpperCase()}
+                </Badge>
+                {previewResource.year && (
+                  <span className="text-surface-400">Exam Year: {previewResource.year}</span>
+                )}
+              </div>
+              {previewResource.contentUrl && (
+                <a
+                  href={previewResource.contentUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-800 hover:bg-surface-700 text-brand-400 text-xs font-semibold transition-colors"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  Direct Link
+                </a>
+              )}
+            </div>
+
+            <div className="p-5 rounded-2xl bg-surface-950/80 border border-surface-800 max-h-96 overflow-y-auto font-sans leading-relaxed text-xs sm:text-sm text-surface-300 whitespace-pre-wrap">
+              {previewResource.textContent || (
+                <div className="py-12 text-center text-surface-400 space-y-2">
+                  <FileText className="w-8 h-8 mx-auto text-surface-500" />
+                  <p>Document content is indexed from official course repository.</p>
+                  {previewResource.contentUrl && (
+                    <a
+                      href={previewResource.contentUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-brand-400 underline font-semibold block"
+                    >
+                      Open full PDF / Drive document &rarr;
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </Modal>

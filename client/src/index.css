@@ -252,3 +252,17 @@ input:-webkit-autofill {
 :root:not(.dark) .text-\[\#71717A\] {
   color: var(--text-muted);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ATMOSPHERIC CYBER GRID & TERMINAL MESH TEXTURES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.bg-grid-cyber {
+  background-image: radial-gradient(rgba(255, 101, 0, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.dark .bg-grid-cyber {
+  background-image: radial-gradient(rgba(255, 101, 0, 0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
