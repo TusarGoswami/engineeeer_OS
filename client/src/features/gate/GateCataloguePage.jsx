@@ -29,6 +29,7 @@ import { Modal } from '../../components/Modal.jsx';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/Table.jsx';
 import { useToast } from '../../components/Toast.jsx';
 import { GATE_NOTES } from './gateNotesData.js';
+import { GateNotesReader } from './components/GateNotesReader.jsx';
 
 const iconMap = {
   Cpu,
@@ -420,92 +421,15 @@ export function GateCataloguePage() {
         </div>
       )}
 
-      {/* MODAL: Full Subject Cheatsheet & Notes Reader */}
-      <Modal
-        isOpen={Boolean(selectedNote)}
-        onClose={() => setSelectedNote(null)}
-        title={selectedNote ? `${selectedNote.title} (${selectedNote.code})` : 'Subject Notes'}
-        size="lg"
-      >
-        {selectedNote && (
-          <div className="space-y-6 max-h-[75vh] overflow-y-auto pr-1">
-            {/* Header badges */}
-            <div className="flex flex-wrap items-center gap-2 pb-3 border-b border-surface-700">
-              <Badge variant="brand">{selectedNote.weightage}</Badge>
-              <Badge variant="cyan">{selectedNote.topicsCount} Key Topics</Badge>
-              {selectedNote.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-2 py-0.5 rounded-md bg-surface-800 border border-surface-700 text-[11px] font-mono text-surface-300"
-                >
-                  #{tag}
-                </span>
-              ))}
-            </div>
-
-            {/* Formula Quick-Copy Cards */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-surface-300 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-brand-400" />
-                <span>Essential Formula Vault</span>
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {selectedNote.formulas.map((f, idx) => (
-                  <div
-                    key={idx}
-                    className="p-2.5 rounded-xl bg-surface-900 border border-surface-700 flex items-center justify-between gap-2 hover:border-brand-500/50 transition-colors"
-                  >
-                    <div className="min-w-0">
-                      <div className="text-[10px] text-surface-400 font-semibold uppercase">
-                        {f.name}
-                      </div>
-                      <div className="font-mono text-xs text-cyan-300 font-bold truncate mt-0.5">
-                        {f.formula}
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleCopyFormula(f.formula)}
-                      title="Copy Formula"
-                      className="p-1.5 rounded-lg bg-surface-800 hover:bg-brand-500/20 text-surface-400 hover:text-brand-300 transition-colors flex-shrink-0"
-                    >
-                      {copiedFormula === f.formula ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      ) : (
-                        <Copy className="w-4 h-4" />
-                      )}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Structured Sections */}
-            <div className="space-y-5">
-              {selectedNote.sections.map((sec, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 rounded-xl border border-surface-700 bg-surface-900/60 space-y-2.5"
-                >
-                  <h5 className="text-sm font-bold text-surface-100 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-brand-400" />
-                    <span>{sec.heading}</span>
-                  </h5>
-                  <div className="text-xs text-surface-300 leading-relaxed font-sans space-y-2 whitespace-pre-line">
-                    {sec.content.trim()}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="pt-3 border-t border-surface-700 flex justify-end">
-              <Button variant="secondary" onClick={() => setSelectedNote(null)}>
-                Close Cheatsheet
-              </Button>
-            </div>
-          </div>
-        )}
-      </Modal>
+      {/* Full-Screen Immersive Subject Notes & Cheatsheet Reader */}
+      {selectedNote && (
+        <GateNotesReader
+          note={selectedNote}
+          allNotes={GATE_NOTES}
+          onClose={() => setSelectedNote(null)}
+          onSelectNote={setSelectedNote}
+        />
+      )}
     </div>
   );
 }
