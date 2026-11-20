@@ -16,7 +16,15 @@ const monitoringEventSchema = new mongoose.Schema(
     },
     eventType: {
       type: String,
-      enum: ['tab_hidden', 'window_blur', 'fullscreen_exit', 'paste', 'key_violation'],
+      enum: [
+        'tab_hidden',
+        'window_blur',
+        'fullscreen_exit',
+        'paste',
+        'key_violation',
+        'screenshare_stopped',
+        'camera_disconnected',
+      ],
       required: true,
       index: true,
     },
