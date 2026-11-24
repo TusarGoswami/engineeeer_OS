@@ -4,6 +4,18 @@ import { twMerge } from 'tailwind-merge';
 
 const cn = (...inputs) => twMerge(clsx(inputs));
 
+const HEATMAP_LEVELS = [0, 1, 2, 3, 4, 5];
+
+// Deterministic 6-level orange intensity mapper (CSS vars swap automatically between light/dark)
+const getIntensityLevel = (count) => {
+  if (!count || count <= 0) return 0;
+  if (count === 1) return 1;
+  if (count <= 3) return 2;
+  if (count <= 5) return 3;
+  if (count <= 8) return 4;
+  return 5;
+};
+
 export const Heatmap = ({
   data = [],
   weeks = 52,
@@ -56,74 +68,81 @@ export const Heatmap = ({
     return cols;
   }, [countMap, weeks]);
 
-  // Intensity color mapper (light mode: light -> dark green; dark mode preserved)
-  const getIntensityClass = (count) => {
-    if (!count || count === 0) return 'bg-surface-800 border-surface-700 dark:bg-surface-800/70 dark:border-surface-700/30';
-    if (count <= 2) return 'bg-emerald-200 border-emerald-300 text-emerald-900 dark:bg-emerald-900/80 dark:border-emerald-700/40 dark:text-emerald-300';
-    if (count <= 5) return 'bg-emerald-400 border-emerald-500/60 text-emerald-950 dark:bg-emerald-700 dark:border-emerald-600/50 dark:text-emerald-100';
-    if (count <= 8) return 'bg-emerald-500 border-emerald-600 text-white dark:border-emerald-400';
-    return 'bg-emerald-700 border-emerald-800 text-white dark:bg-emerald-400 dark:border-emerald-300 dark:text-black shadow-2xs dark:shadow-sm dark:shadow-emerald-400/30';
-  };
-
   return (
-    <div className={cn('space-y-3', className)}>
+    <div className={cn('hm-scope space-y-3', className)}>
       <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-4 text-surface-400">
+        <div className="flex flex-wrap items-center gap-4 text-[var(--hm-text-secondary)]">
           {totalActiveDays !== undefined && (
             <span>
-              Active Days: <strong className="font-mono text-surface-100">{totalActiveDays}</strong>
+              Active Days:{' '}
+              <strong className="font-mono font-semibold text-[var(--hm-text-primary)]">
+                {totalActiveDays}
+              </strong>
             </span>
           )}
           {currentStreak !== undefined && (
             <span>
-              Current Streak: <strong className="font-mono text-emerald-700 dark:text-emerald-400">{currentStreak}d 🔥</strong>
+              Current Streak:{' '}
+              <strong className="font-mono font-semibold text-[var(--hm-accent-strong)]">
+                {currentStreak}d 🔥
+              </strong>
             </span>
           )}
           {longestStreak !== undefined && (
             <span>
-              Max Streak: <strong className="font-mono text-surface-200">{longestStreak}d</strong>
+              Max Streak:{' '}
+              <strong className="font-mono font-semibold text-[var(--hm-text-primary)]">
+                {longestStreak}d
+              </strong>
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs text-surface-400">
+        <div className="flex items-center gap-1.5 text-xs text-[var(--hm-text-secondary)]">
           <span>Less</span>
-          <div className="w-2.5 h-2.5 rounded-sm bg-surface-800 border border-surface-700 dark:border-surface-700/30" />
-          <div className="w-2.5 h-2.5 rounded-sm bg-emerald-200 border-emerald-300 dark:bg-emerald-900/80 border dark:border-emerald-700/40" />
-          <div className="w-2.5 h-2.5 rounded-sm bg-emerald-400 border-emerald-500/60 dark:bg-emerald-700 border dark:border-emerald-600/50" />
-          <div className="w-2.5 h-2.5 rounded-sm bg-emerald-500 border-emerald-600 border dark:border-emerald-400" />
-          <div className="w-2.5 h-2.5 rounded-sm bg-emerald-700 border-emerald-800 dark:bg-emerald-400 border dark:border-emerald-300" />
+          {HEATMAP_LEVELS.map((level) => (
+            <div
+              key={level}
+              aria-hidden="true"
+              className={cn('w-2.5 h-2.5 rounded-sm hm-cell', `hm-level-${level}`)}
+            />
+          ))}
           <span>More</span>
         </div>
       </div>
 
       {/* Heatmap Grid */}
-      <div className="overflow-x-auto pb-2 relative scrollbar-thin">
+      <div className="hm-inner rounded-xl p-3 sm:p-3.5 overflow-x-auto relative scrollbar-thin">
         <div className="inline-flex gap-1">
           {calendarGrid.map((week, colIdx) => (
             <div key={colIdx} className="flex flex-col gap-1">
-              {week.map((cell) => (
-                <button
-                  key={cell.date}
-                  type="button"
-                  onClick={() => onSelectDay && onSelectDay(cell)}
-                  onMouseEnter={() => setHoveredCell(cell)}
-                  onMouseLeave={() => setHoveredCell(null)}
-                  aria-label={`${cell.date}: ${cell.count} activities`}
-                  className={cn(
-                    'w-3 h-3 rounded-[3px] border transition-transform hover:scale-125 focus:scale-125 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-400',
-                    getIntensityClass(cell.count)
-                  )}
-                />
-              ))}
+              {week.map((cell) => {
+                const level = getIntensityLevel(cell.count);
+                return (
+                  <button
+                    key={cell.date}
+                    type="button"
+                    onClick={() => onSelectDay && onSelectDay(cell)}
+                    onMouseEnter={() => setHoveredCell(cell)}
+                    onMouseLeave={() => setHoveredCell(null)}
+                    aria-label={`${cell.date}: ${cell.count} activities`}
+                    className={cn(
+                      'w-3 h-3 rounded-[3px] hm-cell hm-cell-btn transition-transform hover:scale-125 focus:scale-125 focus:outline-none',
+                      `hm-level-${level}`
+                    )}
+                  />
+                );
+              })}
             </div>
           ))}
         </div>
 
         {/* Floating Tooltip */}
         {hoveredCell && (
-          <div className="absolute top-0 right-0 pointer-events-none bg-surface-100 text-surface-850 border border-surface-200 dark:bg-surface-900/95 dark:border-surface-700 dark:text-surface-200 px-2.5 py-1 rounded-md text-xs font-mono shadow-lg dark:shadow-xl z-20">
-            {hoveredCell.date}: <strong>{hoveredCell.count}</strong> contribution{hoveredCell.count !== 1 ? 's' : ''}
+          <div className="hm-tooltip absolute top-2 right-2 pointer-events-none px-2.5 py-1 rounded-md text-xs font-mono z-20">
+            {hoveredCell.date}:{' '}
+            <strong className="text-[var(--hm-accent-strong)]">{hoveredCell.count}</strong>{' '}
+            contribution{hoveredCell.count !== 1 ? 's' : ''}
           </div>
         )}
       </div>

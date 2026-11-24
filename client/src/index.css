@@ -304,10 +304,10 @@ input:-webkit-autofill {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   PROFILE CARD — 3D GLASSMORPHISM
+   PROFILE CARD — 3D GLASSMORPHISM (Theme-Aware Orange Accent System)
    From Uiverse.io by Smit-Prajapati (MIT License)
    https://uiverse.io/Smit-Prajapati/smart-liger-5
-   Adapted for EngineerOS dark-orange engineering design system.
+   Adapted for EngineerOS — dark charcoal & crisp white surfaces with orange accents.
    All selectors prefixed with .pc- to prevent collisions.
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -316,25 +316,105 @@ input:-webkit-autofill {
   perspective: 1200px;
 }
 
-/* Main 3D card */
+/* Light theme (default) design tokens scoped to Profile Card */
 .pc-card {
+  --pc-bg: linear-gradient(145deg, #FFFFFF 0%, #FFFBF7 100%);
+  --pc-surface: #FFF8F2;
+  --pc-surface-subtle: #FFF3E8;
+  --pc-border: rgba(232, 93, 4, 0.22);
+  --pc-border-subtle: rgba(232, 93, 4, 0.14);
+  --pc-border-hover: rgba(232, 93, 4, 0.45);
+  --pc-text-primary: #202124;
+  --pc-text-secondary: #60646C;
+  --pc-text-muted: #747A84;
+  --pc-accent: #E85D04;
+  --pc-accent-bright: #FF6B35;
+  --pc-accent-soft: #9A3412;
+  --pc-accent-bg: rgba(255, 140, 66, 0.11);
+  --pc-glass: linear-gradient(160deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 248, 242, 0.15) 100%);
+  --pc-glass-border: rgba(255, 179, 107, 0.45);
+  --pc-circle-bg: rgba(255, 140, 66, 0.09);
+  --pc-circle-border: rgba(232, 93, 4, 0.22);
+  --pc-circle-shadow: rgba(232, 93, 4, 0.08) -6px 8px 14px 0px;
+  --pc-shadow: 0 4px 20px -2px rgba(232, 93, 4, 0.08), 0 2px 8px -2px rgba(32, 33, 36, 0.06);
+  --pc-shadow-hover: rgba(255, 140, 66, 0.18) 18px 34px 24px -22px, rgba(32, 33, 36, 0.08) 0px 16px 24px 0px;
+  --pc-bottom-shadow: rgba(232, 93, 4, 0.12) -4px 12px 12px 0px;
+
+  background: var(--pc-bg);
+  color: var(--pc-text-primary);
+  border: 1px solid var(--pc-border);
+  box-shadow: var(--pc-shadow);
   transform-style: preserve-3d;
-  transition: transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+  transition: transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out, background 0.3s ease, border-color 0.3s ease;
   will-change: transform;
 }
 
-/* Hover: tilt the whole card in 3D + deepen the shadow */
+/* Dark theme design tokens scoped to Profile Card */
+.dark .pc-card {
+  --pc-bg: linear-gradient(145deg, #111315 0%, #15181C 65%, #1A1512 100%);
+  --pc-surface: #181B1F;
+  --pc-surface-subtle: #1E2228;
+  --pc-border: rgba(255, 140, 66, 0.22);
+  --pc-border-subtle: rgba(255, 140, 66, 0.14);
+  --pc-border-hover: rgba(255, 140, 66, 0.45);
+  --pc-text-primary: #F5F6F8;
+  --pc-text-secondary: #A1A6B0;
+  --pc-text-muted: #828894;
+  --pc-accent: #FF8C42;
+  --pc-accent-bright: #FFB36B;
+  --pc-accent-soft: #FFD0A8;
+  --pc-accent-bg: rgba(255, 140, 66, 0.12);
+  --pc-glass: linear-gradient(160deg, rgba(255, 140, 66, 0.05) 0%, rgba(255, 140, 66, 0.01) 100%);
+  --pc-glass-border: rgba(255, 140, 66, 0.18);
+  --pc-circle-bg: rgba(255, 140, 66, 0.10);
+  --pc-circle-border: rgba(255, 140, 66, 0.26);
+  --pc-circle-shadow: rgba(0, 0, 0, 0.28) -8px 8px 16px 0px;
+  --pc-shadow: rgba(255, 140, 66, 0.14) 24px 36px 25px -32px, rgba(0, 0, 0, 0.45) 0px 18px 25px -5px;
+  --pc-shadow-hover: rgba(255, 140, 66, 0.18) 28px 44px 26px -30px, rgba(255, 140, 66, 0.10) 0px 20px 26px 0px;
+  --pc-bottom-shadow: rgba(0, 0, 0, 0.35) -4px 16px 12px 0px;
+}
+
+/* Hover: tilt the whole card in 3D + deepen the orange shadow */
 .pc-parent:hover .pc-card {
   transform: rotate3d(0.6, 1, 0, 20deg);
-  box-shadow:
-    rgba(255, 101, 0, 0.18) 28px 48px 24px -36px,
-    rgba(255, 101, 0, 0.08) 0px 24px 28px 0px !important;
+  box-shadow: var(--pc-shadow-hover) !important;
 }
 
 /* Hover: elevate footer action zone */
 .pc-parent:hover .pc-bottom {
   transform: translate3d(0, 0, 36px) !important;
-  box-shadow: rgba(0, 0, 0, 0.3) -4px 16px 10px 0px;
+  box-shadow: var(--pc-bottom-shadow);
+}
+
+.pc-panel {
+  background: var(--pc-surface);
+  border: 1px solid var(--pc-border);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.pc-panel:hover {
+  border-color: var(--pc-border-hover);
+}
+
+.pc-link {
+  background: var(--pc-surface);
+  border: 1px solid var(--pc-border);
+  color: var(--pc-text-primary);
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
+}
+
+.pc-link:hover {
+  border-color: var(--pc-border-hover);
+  background: var(--pc-surface-subtle);
+}
+
+.pc-link:active {
+  transform: scale(0.98);
+}
+
+.pc-link:focus-visible {
+  outline: 2px solid var(--pc-accent);
+  outline-offset: 2px;
 }
 
 /* Hover: progressively deepen the logo circles */
@@ -746,3 +826,110 @@ input:-webkit-autofill {
 /* ============================================================
    END BB-8 TOGGLE
    ============================================================ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ANNUAL CONSISTENCY HEATMAP — ORANGE PALETTE (Theme-Aware Light & Dark)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Light mode tokens (default) */
+.hm-card,
+.hm-scope {
+  --hm-card-bg: #FFFFFF;
+  --hm-inner-bg: #FFF8F2;
+  --hm-inner-border: #F2E3D5;
+  --hm-border: #E5E7EB;
+  --hm-text-primary: #202124;
+  --hm-text-secondary: #60646C;
+  --hm-accent: #EA580C;
+  --hm-accent-strong: #C2410C;
+  --hm-card-shadow: 0 1px 3px 0 rgba(16, 24, 40, 0.06), 0 4px 14px -4px rgba(32, 33, 36, 0.06);
+  --hm-tooltip-bg: #FFFFFF;
+  --hm-tooltip-border: #E5E7EB;
+  --hm-tooltip-shadow: 0 4px 12px -2px rgba(32, 33, 36, 0.12);
+  --hm-focus-ring: #EA580C;
+
+  --hm-level-0-bg: #F1F2F4;
+  --hm-level-0-border: #E2E4E9;
+  --hm-level-1-bg: #FED7AA;
+  --hm-level-1-border: #FDBA74;
+  --hm-level-2-bg: #FDBA74;
+  --hm-level-2-border: #FB923C;
+  --hm-level-3-bg: #FB923C;
+  --hm-level-3-border: #F97316;
+  --hm-level-4-bg: #F97316;
+  --hm-level-4-border: #EA580C;
+  --hm-level-5-bg: #C2410C;
+  --hm-level-5-border: #9A3412;
+}
+
+/* Dark mode tokens */
+.dark .hm-card,
+.dark .hm-scope {
+  --hm-card-bg: #111315;
+  --hm-inner-bg: #181B20;
+  --hm-inner-border: #252932;
+  --hm-border: #292D35;
+  --hm-text-primary: #F5F5F5;
+  --hm-text-secondary: #A1A1AA;
+  --hm-accent: #F97316;
+  --hm-accent-strong: #FB923C;
+  --hm-card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(249, 115, 22, 0.04);
+  --hm-tooltip-bg: #181B20;
+  --hm-tooltip-border: #292D35;
+  --hm-tooltip-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.65);
+  --hm-focus-ring: #FB923C;
+
+  --hm-level-0-bg: #20242C;
+  --hm-level-0-border: #2B303A;
+  --hm-level-1-bg: #783A19;
+  --hm-level-1-border: #8F4821;
+  --hm-level-2-bg: #B45309;
+  --hm-level-2-border: #C76214;
+  --hm-level-3-bg: #EA580C;
+  --hm-level-3-border: #F97316;
+  --hm-level-4-bg: #F97316;
+  --hm-level-4-border: #FB923C;
+  --hm-level-5-bg: #FB923C;
+  --hm-level-5-border: #FDBA74;
+}
+
+.hm-card,
+.dark .hm-card {
+  background-color: var(--hm-card-bg);
+  border-color: var(--hm-border);
+  color: var(--hm-text-primary);
+  box-shadow: var(--hm-card-shadow);
+}
+
+.hm-inner {
+  background-color: var(--hm-inner-bg);
+  border: 1px solid var(--hm-inner-border);
+}
+
+.hm-cell {
+  background-color: var(--hm-cell-bg);
+  border: 1px solid var(--hm-cell-border);
+}
+
+.hm-cell-btn:hover {
+  border-color: var(--hm-accent-strong);
+}
+
+.hm-cell-btn:focus-visible {
+  outline: 1.5px solid var(--hm-focus-ring);
+  outline-offset: 1px;
+}
+
+.hm-level-0 { --hm-cell-bg: var(--hm-level-0-bg); --hm-cell-border: var(--hm-level-0-border); }
+.hm-level-1 { --hm-cell-bg: var(--hm-level-1-bg); --hm-cell-border: var(--hm-level-1-border); }
+.hm-level-2 { --hm-cell-bg: var(--hm-level-2-bg); --hm-cell-border: var(--hm-level-2-border); }
+.hm-level-3 { --hm-cell-bg: var(--hm-level-3-bg); --hm-cell-border: var(--hm-level-3-border); }
+.hm-level-4 { --hm-cell-bg: var(--hm-level-4-bg); --hm-cell-border: var(--hm-level-4-border); }
+.hm-level-5 { --hm-cell-bg: var(--hm-level-5-bg); --hm-cell-border: var(--hm-level-5-border); }
+
+.hm-tooltip {
+  background-color: var(--hm-tooltip-bg);
+  border: 1px solid var(--hm-tooltip-border);
+  color: var(--hm-text-primary);
+  box-shadow: var(--hm-tooltip-shadow);
+}

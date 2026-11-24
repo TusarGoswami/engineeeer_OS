@@ -97,6 +97,51 @@ describe('Shared Component Library (Phase 7 Design System)', () => {
     expect(screen.getByText('12d 🔥')).toBeInTheDocument();
   });
 
+  it('maps activity counts deterministically across all 6 orange intensity levels and shows hover tooltip', () => {
+    const dayStr = (offsetDays) => {
+      const d = new Date();
+      d.setDate(d.getDate() - offsetDays);
+      return d.toISOString().slice(0, 10);
+    };
+
+    const countsByOffset = [
+      [0, 10], // Level 5 (9+)
+      [1, 6],  // Level 4 (6-8)
+      [2, 4],  // Level 3 (4-5)
+      [3, 2],  // Level 2 (2-3)
+      [4, 1],  // Level 1 (1)
+      [5, 0],  // Level 0 (0)
+    ];
+
+    const mockData = countsByOffset.map(([offset, count]) => ({
+      date: dayStr(offset),
+      count,
+    }));
+
+    const { container } = render(<Heatmap data={mockData} weeks={2} currentStreak={5} longestStreak={9} />);
+
+    // All 6 legend squares exist with matching hm-level-0..5 classes
+    [0, 1, 2, 3, 4, 5].forEach((lvl) => {
+      expect(container.querySelector(`.hm-cell.hm-level-${lvl}`)).toBeTruthy();
+    });
+
+    // Zero leftover green/teal/emerald classes
+    expect(container.innerHTML).not.toMatch(/emerald|teal|green/);
+
+    // Verify monotonic mapping on actual cell buttons
+    expect(screen.getByLabelText(`${dayStr(0)}: 10 activities`)).toHaveClass('hm-level-5');
+    expect(screen.getByLabelText(`${dayStr(1)}: 6 activities`)).toHaveClass('hm-level-4');
+    expect(screen.getByLabelText(`${dayStr(2)}: 4 activities`)).toHaveClass('hm-level-3');
+    expect(screen.getByLabelText(`${dayStr(3)}: 2 activities`)).toHaveClass('hm-level-2');
+    expect(screen.getByLabelText(`${dayStr(4)}: 1 activities`)).toHaveClass('hm-level-1');
+    expect(screen.getByLabelText(`${dayStr(5)}: 0 activities`)).toHaveClass('hm-level-0');
+
+    // Hover displays tooltip cleanly
+    const peakCell = screen.getByLabelText(`${dayStr(0)}: 10 activities`);
+    fireEvent.mouseEnter(peakCell);
+    expect(screen.getByText(/contributions/i)).toBeInTheDocument();
+  });
+
   it('renders Avatar with fallback initials when no src provided', () => {
     render(<Avatar name="Tusar Goswami" size="md" status="online" />);
     expect(screen.getByText('TG')).toBeInTheDocument();

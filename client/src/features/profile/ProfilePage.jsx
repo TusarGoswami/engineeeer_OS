@@ -360,23 +360,23 @@ export const ProfilePage = () => {
 
         {/* Tab 3: Heatmap & Telemetry */}
         <TabsContent value="telemetry" className="space-y-4">
-          <Card>
+          <Card className="hm-card">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Flame className="w-5 h-5 text-amber-500" />
+                  <CardTitle className="flex items-center gap-2 text-[var(--hm-text-primary)]">
+                    <Flame className="w-5 h-5 text-[var(--hm-accent)]" />
                     <span>Annual Activity Stream</span>
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-[var(--hm-text-secondary)]">
                     All coding, GATE tests, academic learning, and mock interviews logged across 52 weeks
                   </CardDescription>
                 </div>
                 <div className="text-right">
-                  <div className="text-lg font-bold font-mono text-emerald-700 dark:text-emerald-400">
+                  <div className="text-lg font-bold font-mono text-[var(--hm-accent-strong)]">
                     {profileData?.stats?.streaks?.current || 0} Days
                   </div>
-                  <div className="text-xs text-surface-400">Current Streak</div>
+                  <div className="text-xs text-[var(--hm-text-secondary)]">Current Streak</div>
                 </div>
               </div>
             </CardHeader>

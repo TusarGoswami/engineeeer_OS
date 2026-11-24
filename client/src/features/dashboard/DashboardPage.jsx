@@ -307,22 +307,24 @@ export const DashboardPage = () => {
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Flame className="w-5 h-5 text-amber-500" />
-            <h2 className="text-[20px] font-semibold text-surface-100 tracking-tight">
+            <Flame className="w-5 h-5 text-[#EA580C] dark:text-[#F97316]" />
+            <h2 className="text-[20px] font-semibold text-[#202124] dark:text-[#F5F5F5] tracking-tight">
               Annual Consistency Stream
             </h2>
           </div>
           <div className="flex items-center gap-3 text-xs font-mono">
-            <span className="text-surface-400">
+            <span className="text-[#60646C] dark:text-[#A1A1AA]">
               Active Streak:{' '}
-              <strong className="text-amber-700 dark:text-amber-400">{stats?.overallStreak || stats?.coding?.streak || 0}d</strong>
+              <strong className="text-[#C2410C] dark:text-[#FB923C]">
+                {stats?.overallStreak || stats?.coding?.streak || 0}d
+              </strong>
             </span>
           </div>
         </div>
 
-        <Card className="p-4 sm:p-5">
+        <Card className="hm-card p-4 sm:p-5">
           {isHeatmapLoading ? (
-            <div className="h-32 w-full animate-pulse bg-surface-800/40 rounded-xl" />
+            <div className="h-32 w-full animate-pulse bg-[#F1F2F4] dark:bg-[#181B20] rounded-xl" />
           ) : (
             <Heatmap
               data={heatmapData || []}
