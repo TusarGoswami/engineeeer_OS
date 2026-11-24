@@ -350,3 +350,376 @@ input:-webkit-autofill {
     transition: none !important;
   }
 }
+
+
+/* ============================================================
+   BB-8 ANIMATED THEME TOGGLE
+   Original: https://uiverse.io/Galahhad/silent-robin-40 (MIT)
+   Adapted for EngineerOS — scoped with .bb8- prefix.
+   Theme-aware via .bb8-toggle--dark class (toggled by React).
+   ============================================================ */
+
+/* ── Wrapper button ── */
+.bb8-toggle-btn {
+  --bb8-scale: 0.78;          /* overridden inline per size prop */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+  /* Vertically center in navbar */
+  line-height: 0;
+  /* Focus ring */
+  border-radius: 50px;
+}
+.bb8-toggle-btn:focus-visible {
+  outline: 2px solid #FF6500;
+  outline-offset: 3px;
+}
+
+/* ── Outer track (the pill that slides) ── */
+.bb8-toggle {
+  position: relative;
+  width: 220px;
+  height: 80px;
+  border-radius: 50px;
+  overflow: hidden;
+  cursor: pointer;
+  /* Light theme default */
+  background: linear-gradient(135deg, #87CEEB 0%, #B0E0FF 50%, #E0F4FF 100%);
+  border: 2px solid #CBD5E1;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.4);
+  transition:
+    background 0.6s ease,
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+  /* Scale to fit navbar */
+  transform: scale(var(--bb8-scale));
+  transform-origin: center center;
+  /* So scaling doesn't affect layout flow — keep button tight */
+  margin: calc((1 - var(--bb8-scale)) * -40px) calc((1 - var(--bb8-scale)) * -110px);
+}
+
+/* Dark mode track */
+.bb8-toggle--dark {
+  background: linear-gradient(135deg, #0B0E13 0%, #151A23 50%, #0D1117 100%);
+  border-color: #282E39;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,107,0,0.08);
+}
+
+/* ── Sky layer ── */
+.bb8-toggle__sky {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+/* ── Stars ── */
+.bb8-toggle__star {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.bb8-toggle--dark .bb8-toggle__star { opacity: 1; }
+
+.bb8-toggle__star--1 { width: 3px; height: 3px; top: 14px; left: 30px; animation: bb8-twinkle 2.1s infinite alternate; }
+.bb8-toggle__star--2 { width: 2px; height: 2px; top: 22px; left: 55px; animation: bb8-twinkle 1.7s 0.3s infinite alternate; }
+.bb8-toggle__star--3 { width: 3px; height: 3px; top: 10px; left: 85px; animation: bb8-twinkle 2.4s 0.6s infinite alternate; }
+.bb8-toggle__star--4 { width: 2px; height: 2px; top: 28px; left: 110px; animation: bb8-twinkle 1.9s 0.9s infinite alternate; }
+.bb8-toggle__star--5 { width: 3px; height: 3px; top: 8px;  left: 140px; animation: bb8-twinkle 2.2s 0.2s infinite alternate; }
+.bb8-toggle__star--6 { width: 2px; height: 2px; top: 20px; left: 165px; animation: bb8-twinkle 1.6s 0.5s infinite alternate; }
+.bb8-toggle__star--7 { width: 2px; height: 2px; top: 32px; left: 190px; animation: bb8-twinkle 2.0s 0.8s infinite alternate; }
+
+@keyframes bb8-twinkle {
+  0%   { opacity: 0.4; transform: scale(0.8); }
+  100% { opacity: 1;   transform: scale(1.2); }
+}
+
+/* ── Clouds ── */
+.bb8-toggle__cloud {
+  position: absolute;
+  background: rgba(255,255,255,0.85);
+  border-radius: 50px;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+.bb8-toggle--dark .bb8-toggle__cloud { opacity: 0; }
+
+.bb8-toggle__cloud::before,
+.bb8-toggle__cloud::after {
+  content: '';
+  position: absolute;
+  background: inherit;
+  border-radius: 50%;
+}
+
+/* Cloud 1 */
+.bb8-toggle__cloud--1 {
+  width: 48px; height: 16px;
+  top: 14px; left: 18px;
+  animation: bb8-cloud-drift 8s linear infinite;
+}
+.bb8-toggle__cloud--1::before { width: 22px; height: 22px; top: -10px; left: 8px; }
+.bb8-toggle__cloud--1::after  { width: 16px; height: 16px; top: -6px;  left: 22px; }
+
+/* Cloud 2 */
+.bb8-toggle__cloud--2 {
+  width: 36px; height: 12px;
+  top: 10px; left: 100px;
+  animation: bb8-cloud-drift 11s 2s linear infinite;
+  opacity: 0.7;
+}
+.bb8-toggle__cloud--2::before { width: 16px; height: 16px; top: -8px; left: 6px; }
+.bb8-toggle__cloud--2::after  { width: 12px; height: 12px; top: -5px; left: 18px; }
+
+/* Cloud 3 */
+.bb8-toggle__cloud--3 {
+  width: 42px; height: 14px;
+  top: 18px; right: 20px;
+  animation: bb8-cloud-drift 9s 4s linear infinite;
+  opacity: 0.6;
+}
+.bb8-toggle__cloud--3::before { width: 18px; height: 18px; top: -9px; left: 8px; }
+.bb8-toggle__cloud--3::after  { width: 14px; height: 14px; top: -6px; left: 22px; }
+
+@keyframes bb8-cloud-drift {
+  0%   { transform: translateX(0); }
+  50%  { transform: translateX(6px); }
+  100% { transform: translateX(0); }
+}
+
+/* ── Ground strip ── */
+.bb8-toggle__ground {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 22px;
+  border-radius: 0 0 50px 50px;
+  background: linear-gradient(to bottom, #8BC34A, #6DAF2A);
+  transition: background 0.6s ease;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
+}
+.bb8-toggle--dark .bb8-toggle__ground {
+  background: linear-gradient(to bottom, #1B202A, #151A23);
+}
+
+/* ── BB-8 Droid wrapper — slides between positions ── */
+.bb8 {
+  position: absolute;
+  bottom: 10px;
+  /* Light = right side (day), Dark = left side (night) */
+  left: 148px;
+  transition: left 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  width: 52px;
+}
+.bb8--night { left: 14px; }
+
+/* ── BB-8 Shadow ── */
+.bb8__shadow {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 46px;
+  height: 10px;
+  background: rgba(0,0,0,0.25);
+  border-radius: 50%;
+  filter: blur(3px);
+  transition: opacity 0.3s;
+}
+
+/* ── BB-8 Body ── */
+.bb8__body {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #FFFFFF 0%, #F0F0F0 40%, #D8D8D8 100%);
+  border: 2px solid #BDBDBD;
+  overflow: hidden;
+  box-shadow:
+    inset -4px -4px 10px rgba(0,0,0,0.15),
+    inset 2px 2px 6px rgba(255,255,255,0.8),
+    0 2px 8px rgba(0,0,0,0.2);
+  /* Spin animation while sliding */
+  animation: bb8-spin-idle 3s linear infinite;
+}
+.bb8--night .bb8__body { animation: bb8-spin-reverse 3s linear infinite; }
+
+@keyframes bb8-spin-idle {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes bb8-spin-reverse {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+
+/* Body panels (orange stripes) */
+.bb8__body-panel {
+  position: absolute;
+  background: linear-gradient(135deg, #FF8C00, #FF6500);
+  border-radius: 50%;
+  opacity: 0.9;
+}
+.bb8__body-panel--1 { width: 12px; height: 28px; top: 10px; left: 6px; transform: rotate(-20deg); border-radius: 6px; }
+.bb8__body-panel--2 { width: 10px; height: 22px; top: 12px; left: 20px; transform: rotate(5deg);  border-radius: 5px; }
+.bb8__body-panel--3 { width: 8px;  height: 18px; top: 14px; left: 34px; transform: rotate(25deg); border-radius: 4px; }
+
+/* Equatorial band */
+.bb8__body-band {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(to right, #BDBDBD, #9E9E9E, #BDBDBD);
+  transform: translateY(-50%);
+}
+
+/* Body detail dots */
+.bb8__body-dot {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #FF9A00, #CC5200);
+  border: 1px solid rgba(0,0,0,0.2);
+}
+.bb8__body-dot--1 { width: 8px; height: 8px;  top: 6px;  left: 36px; }
+.bb8__body-dot--2 { width: 6px; height: 6px;  top: 32px; left: 8px; }
+.bb8__body-dot--3 { width: 5px; height: 5px;  top: 36px; left: 32px; }
+
+/* ── BB-8 Head ── */
+.bb8__head-container {
+  position: absolute;
+  bottom: 36px; /* sits on top of body */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  /* Head sways slightly */
+  animation: bb8-head-sway 3s ease-in-out infinite;
+}
+.bb8--night .bb8__head-container { animation: bb8-head-sway-reverse 3s ease-in-out infinite; }
+
+@keyframes bb8-head-sway {
+  0%, 100% { transform: translateX(-50%) rotate(-4deg); }
+  50%       { transform: translateX(-50%) rotate(4deg);  }
+}
+@keyframes bb8-head-sway-reverse {
+  0%, 100% { transform: translateX(-50%) rotate(4deg);  }
+  50%       { transform: translateX(-50%) rotate(-4deg); }
+}
+
+.bb8__head {
+  position: relative;
+  width: 36px;
+  height: 28px;
+  border-radius: 18px 18px 10px 10px;
+  background: radial-gradient(circle at 35% 35%, #FFFFFF 0%, #E8E8E8 60%, #C8C8C8 100%);
+  border: 2px solid #BDBDBD;
+  box-shadow:
+    inset -3px -3px 8px rgba(0,0,0,0.12),
+    inset 2px 2px 4px rgba(255,255,255,0.7),
+    0 2px 6px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+
+/* Head stripe accents */
+.bb8__head-stripe {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to right, #FF8C00, #FF6500, #FF8C00);
+  opacity: 0.85;
+}
+.bb8__head-stripe--1 { height: 4px; top: 6px; }
+.bb8__head-stripe--2 { height: 3px; top: 14px; opacity: 0.5; }
+
+/* Eyes */
+.bb8__eye {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #3D3D3D, #111);
+  border: 1.5px solid #555;
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.5), 0 0 3px rgba(0,120,255,0.3);
+}
+.bb8__eye--1 {
+  width: 11px; height: 11px;
+  top: 8px; left: 9px;
+}
+.bb8__eye--2 {
+  width: 7px; height: 7px;
+  top: 10px; left: 23px;
+}
+
+.bb8__eye-pupil {
+  position: absolute;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #5577FF, #2244CC);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 4px rgba(100,150,255,0.6);
+}
+
+/* Antennas */
+.bb8__antenna {
+  position: absolute;
+  background: #9E9E9E;
+  border-radius: 2px;
+}
+.bb8__antenna--1 {
+  width: 2px; height: 10px;
+  top: -10px; left: 10px;
+  transform: rotate(-10deg);
+}
+.bb8__antenna--1::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #FF9A00, #FF6500);
+  box-shadow: 0 0 4px rgba(255,101,0,0.6);
+}
+.bb8__antenna--2 {
+  width: 1.5px; height: 7px;
+  top: -7px; left: 22px;
+  transform: rotate(8deg);
+}
+.bb8__antenna--2::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: #BDBDBD;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .bb8__body,
+  .bb8--night .bb8__body,
+  .bb8__head-container,
+  .bb8--night .bb8__head-container,
+  .bb8-toggle__star,
+  .bb8-toggle__cloud--1,
+  .bb8-toggle__cloud--2,
+  .bb8-toggle__cloud--3 {
+    animation: none !important;
+  }
+  .bb8 { transition: left 0.3s ease !important; }
+}
+/* ============================================================
+   END BB-8 TOGGLE
+   ============================================================ */
