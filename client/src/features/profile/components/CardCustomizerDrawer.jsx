@@ -121,8 +121,8 @@ export const CardCustomizerDrawer = ({
       <div className="space-y-6 pb-6">
         {/* Theme Picker */}
         <div className="space-y-3">
-          <label className="text-xs font-semibold text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
-            <Palette className="w-4 h-4 text-brand-400" />
+          <label className="text-xs font-semibold text-surface-100 dark:text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
+            <Palette className="w-4 h-4 text-brand-600 dark:text-brand-400" />
             Visual Aesthetics Theme
           </label>
           <div className="grid grid-cols-1 gap-2.5">
@@ -133,8 +133,8 @@ export const CardCustomizerDrawer = ({
                 onClick={() => setTheme(t.id)}
                 className={`flex items-start text-left p-3 rounded-xl border transition-all ${
                   theme === t.id
-                    ? 'border-brand-500 bg-brand-500/10 shadow-md ring-1 ring-brand-500/50'
-                    : 'border-surface-800 bg-surface-900/40 hover:border-surface-700'
+                    ? 'border-brand-500 bg-brand-500/10 shadow-sm dark:shadow-md ring-1 ring-brand-500/50'
+                    : 'border-surface-700 dark:border-surface-800 bg-surface-900 dark:bg-surface-900/40 hover:border-surface-600 dark:hover:border-surface-700'
                 }`}
               >
                 <div className="flex-1">
@@ -155,8 +155,8 @@ export const CardCustomizerDrawer = ({
 
         {/* Identity & Handle */}
         <div className="space-y-3 pt-4 border-t border-surface-700">
-          <label className="text-xs font-semibold text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-cyan-400" />
+          <label className="text-xs font-semibold text-surface-100 dark:text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-sky-600 dark:text-cyan-400" />
             Handle & Bio
           </label>
           <div className="space-y-3">
@@ -168,7 +168,7 @@ export const CardCustomizerDrawer = ({
               helperText="Must be 3-24 alphanumeric characters or underscores"
             />
             <div className="space-y-1">
-              <label className="text-xs font-medium text-surface-300">
+              <label className="text-[13px] font-medium text-surface-100 dark:text-surface-300">
                 Headline / Tech Stack (Max 120 chars)
               </label>
               <textarea
@@ -176,7 +176,7 @@ export const CardCustomizerDrawer = ({
                 onChange={e => setHeadline(e.target.value)}
                 maxLength={120}
                 rows={2}
-                className="w-full rounded-xl bg-surface-900 border border-surface-700 text-surface-100 text-sm p-3 focus:outline-none focus:border-brand-500 placeholder-surface-500"
+                className="w-full rounded-[9px] bg-auth-input dark:bg-surface-900 border border-surface-600 dark:border-surface-700 text-surface-100 text-sm p-3 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-0 placeholder-surface-500"
                 placeholder="Systems Engineer • Distributed Systems & DSA • Rust/Go"
               />
               <div className="text-right text-[11px] text-surface-500">
@@ -188,8 +188,8 @@ export const CardCustomizerDrawer = ({
 
         {/* Visibility Setting */}
         <div className="space-y-3 pt-4 border-t border-surface-700">
-          <label className="text-xs font-semibold text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
-            <Shield className="w-4 h-4 text-emerald-400" />
+          <label className="text-xs font-semibold text-surface-100 dark:text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
+            <Shield className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             Card Visibility & Privacy
           </label>
           <div className="grid grid-cols-3 gap-2">
@@ -205,7 +205,7 @@ export const CardCustomizerDrawer = ({
                 className={`p-3 rounded-xl border text-center transition-all ${
                   visibility === v.id
                     ? 'border-brand-500 bg-brand-500/10 shadow-sm'
-                    : 'border-surface-700 bg-surface-900/40 hover:border-surface-600'
+                    : 'border-surface-700 bg-surface-900 dark:bg-surface-900/40 hover:border-surface-600'
                 }`}
               >
                 <div className="text-sm font-semibold text-surface-100 capitalize">{v.label}</div>
@@ -224,7 +224,7 @@ export const CardCustomizerDrawer = ({
                     type="button"
                     onClick={handleRotateToken}
                     disabled={isRotatingToken}
-                    className="text-brand-400 hover:text-brand-300 inline-flex items-center gap-1 text-[11px]"
+                    className="text-brand-700 dark:text-brand-400 hover:text-brand-600 dark:hover:text-brand-300 inline-flex items-center gap-1 text-[11px]"
                   >
                     <RefreshCw className={`w-3 h-3 ${isRotatingToken ? 'animate-spin' : ''}`} />
                     Rotate Token
@@ -235,7 +235,7 @@ export const CardCustomizerDrawer = ({
                 <input
                   readOnly
                   value={shareUrl}
-                  className="w-full text-xs font-mono bg-surface-850 border border-surface-700 rounded-lg px-2.5 py-1.5 text-surface-300 select-all"
+                  className="w-full text-xs font-mono bg-surface-850 border border-surface-600 dark:border-surface-700 rounded-lg px-2.5 py-1.5 text-surface-200 dark:text-surface-300 select-all"
                 />
                 <Button
                   size="sm"
@@ -252,8 +252,8 @@ export const CardCustomizerDrawer = ({
 
         {/* Section Disclosures */}
         <div className="space-y-3 pt-4 border-t border-surface-700">
-          <label className="text-xs font-semibold text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
-            <Eye className="w-4 h-4 text-purple-400" />
+          <label className="text-xs font-semibold text-surface-100 dark:text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
+            <Eye className="w-4 h-4 text-purple-600 dark:text-purple-400" />
             Displayed Sections
           </label>
           <div className="space-y-2">
@@ -268,14 +268,14 @@ export const CardCustomizerDrawer = ({
             ].map(item => (
               <label
                 key={item.key}
-                className="flex items-center justify-between p-2.5 rounded-lg border border-surface-800/80 bg-surface-900/30 hover:bg-surface-900/60 cursor-pointer"
+                className="flex items-center justify-between p-2.5 rounded-lg border border-surface-700 dark:border-surface-800/80 bg-surface-900 dark:bg-surface-900/30 hover:bg-surface-800 dark:hover:bg-surface-900/60 cursor-pointer"
               >
-                <span className="text-xs font-medium text-surface-300">{item.label}</span>
+                <span className="text-xs font-medium text-surface-200 dark:text-surface-300">{item.label}</span>
                 <input
                   type="checkbox"
                   checked={sections[item.key]}
                   onChange={() => handleToggleSection(item.key)}
-                  className="w-4 h-4 rounded border-surface-700 text-brand-600 focus:ring-brand-500 bg-surface-950 cursor-pointer"
+                  className="w-4 h-4 rounded border-surface-600 dark:border-surface-700 text-brand-600 focus:ring-brand-500 bg-surface-850 dark:bg-surface-950 cursor-pointer"
                 />
               </label>
             ))}
@@ -283,7 +283,7 @@ export const CardCustomizerDrawer = ({
         </div>
 
         {/* Drawer Actions */}
-        <div className="flex items-center justify-end gap-2 pt-4 border-t border-surface-800">
+        <div className="flex items-center justify-end gap-2 pt-4 border-t border-surface-700 dark:border-surface-800">
           <Button variant="secondary" onClick={onClose} disabled={isSaving}>
             Cancel
           </Button>

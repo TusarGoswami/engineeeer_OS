@@ -7,9 +7,9 @@ export const Card = ({ children, className = '', hover = false, ...props }) => {
   return (
     <div
       className={cn(
-        'rounded-2xl border border-surface-700 bg-surface-850 p-6 shadow-sm dark:shadow-xl transition-all duration-200',
+        'rounded-2xl border border-surface-700 bg-surface-850 p-6 shadow-[var(--shadow-card)] dark:shadow-xl transition-all duration-200',
         hover &&
-          'hover:border-surface-600 hover:bg-surface-800 hover:shadow-md dark:hover:shadow-2xl hover:-translate-y-0.5',
+          'hover:border-surface-600 hover:shadow-[var(--shadow-elevated)] dark:hover:bg-surface-800 dark:hover:shadow-2xl hover:-translate-y-0.5',
         className
       )}
       {...props}

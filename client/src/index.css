@@ -11,70 +11,81 @@
 :root {
   color-scheme: light;
 
-  /* Semantic Canvas & Surfaces (Light) */
-  --bg-canvas: #F8FAFC;
-  --bg-canvas-rgb: 248 250 252;
-  --bg-surface: #FFFFFF;
-  --bg-surface-rgb: 255 255 255;
+  /* 3-Level Soft Neutral Surface Hierarchy (Light) */
+  --bg-canvas: #F3F4F6;
+  --bg-canvas-rgb: 243 244 246;
+  --bg-sidebar: #ECEEF1;
+  --bg-sidebar-rgb: 236 238 241;
+  --bg-navbar: #F7F8FA;
+  --bg-navbar-rgb: 247 248 250;
+  --bg-surface: #F7F8FA;
+  --bg-surface-rgb: 247 248 250;
   --bg-card: #FFFFFF;
   --bg-card-rgb: 255 255 255;
-  --bg-elevated: #F1F5F9;
-  --bg-elevated-rgb: 241 245 249;
-  --bg-input: #FFFFFF;
-  --bg-input-rgb: 255 255 255;
+  --bg-elevated: #EEF0F3;
+  --bg-elevated-rgb: 238 240 243;
+  --bg-input: #F7F8FA;
+  --bg-input-rgb: 247 248 250;
 
   /* Borders (Light) */
-  --border-subtle: #E2E8F0;
-  --border-subtle-rgb: 226 232 240;
-  --border-default: #CBD5E1;
-  --border-default-rgb: 203 213 225;
+  --border-subtle: #DDE1E7;
+  --border-subtle-rgb: 221 225 231;
+  --border-default: #C9CFD8;
+  --border-default-rgb: 201 207 216;
 
-  /* Typography (Light - WCAG 2.2 AA compliant contrast) */
-  --text-primary: #0F172A;
-  --text-primary-rgb: 15 23 42;
-  --text-secondary: #475569;
-  --text-secondary-rgb: 71 85 105;
-  --text-muted: #64748B;
-  --text-muted-rgb: 100 116 139;
+  /* Typography (Light - WCAG AA compliant) */
+  --text-primary: #20242B;
+  --text-primary-rgb: 32 36 43;
+  --text-body: #3D4652;
+  --text-body-rgb: 61 70 82;
+  --text-secondary: #626B78;
+  --text-secondary-rgb: 98 107 120;
+  --text-muted: #68717D;
+  --text-muted-rgb: 104 113 125;
 
-  /* Brand Accents */
-  --color-brand: #FF6500;
-  --color-brand-hover: #E65300;
-  --color-compiler: #059669;
-  --color-signal: #D97706;
-  --color-fault: #DC2626;
-  --color-orange: #FF6500;
-  --color-cyan: #0284C7;
+  /* Brand & Semantic Accents (Light) */
+  --color-brand: #E96812;
+  --color-brand-rgb: 233 104 18;
+  --color-brand-hover: #D95708;
+  --color-brand-hover-rgb: 217 87 8;
+  --color-brand-subtle: #FFF0E5;
+  --color-compiler: #16834A;
+  --color-signal: #A76508;
+  --color-fault: #CF3535;
+  --color-orange: #E96812;
+  --color-cyan: #2563A6;
 
-  /* Surface scale (Light) */
-  --surface-50: #0F172A;
-  --surface-50-rgb: 15 23 42;
-  --surface-100: #0F172A;
-  --surface-100-rgb: 15 23 42;
-  --surface-200: #1E293B;
-  --surface-200-rgb: 30 41 59;
-  --surface-300: #334155;
-  --surface-300-rgb: 51 65 85;
-  --surface-400: #475569;
-  --surface-400-rgb: 71 85 105;
-  --surface-500: #64748B;
-  --surface-500-rgb: 100 116 139;
-  --surface-600: #CBD5E1;
-  --surface-600-rgb: 203 213 225;
-  --surface-700: #E2E8F0;
-  --surface-700-rgb: 226 232 240;
-  --surface-800: #F1F5F9;
-  --surface-800-rgb: 241 245 249;
-  --surface-850: #FFFFFF;
+  /* Surface scale (Light: 3 clear visual tiers) */
+  --surface-50: #111418;
+  --surface-50-rgb: 17 20 24;
+  --surface-100: #20242B;        /* Headings & high-contrast ink */
+  --surface-100-rgb: 32 36 43;
+  --surface-200: #3D4652;        /* Body text */
+  --surface-200-rgb: 61 70 82;
+  --surface-300: #4B5563;        /* Readable secondary UI text */
+  --surface-300-rgb: 75 85 99;
+  --surface-400: #626B78;        /* Secondary labels & captions */
+  --surface-400-rgb: 98 107 120;
+  --surface-500: #68717D;        /* Supporting metadata & placeholders */
+  --surface-500-rgb: 104 113 125;
+  --surface-600: #C9CFD8;        /* Strong borders */
+  --surface-600-rgb: 201 207 216;
+  --surface-700: #DDE1E7;        /* Primary subtle borders */
+  --surface-700-rgb: 221 225 231;
+  --surface-750: #E5E8EE;        /* Subtle divider / hover border */
+  --surface-750-rgb: 229 232 238;
+  --surface-800: #EEF0F3;        /* Level 3: tertiary / pills / secondary fills */
+  --surface-800-rgb: 238 240 243;
+  --surface-850: #FFFFFF;        /* Level 2: primary elevated white cards */
   --surface-850-rgb: 255 255 255;
-  --surface-900: #FFFFFF;
-  --surface-900-rgb: 255 255 255;
-  --surface-950: #F8FAFC;
-  --surface-950-rgb: 248 250 252;
+  --surface-900: #F7F8FA;        /* Level 3: secondary nested surfaces & table heads */
+  --surface-900-rgb: 247 248 250;
+  --surface-950: #F3F4F6;        /* Level 1: main warm-neutral canvas & recessed wells */
+  --surface-950-rgb: 243 244 246;
 
-  /* Shadows */
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
-  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+  /* Restrained SaaS Shadows (Light) */
+  --shadow-card: 0 1px 2px 0 rgba(16, 24, 40, 0.04), 0 1px 3px 0 rgba(16, 24, 40, 0.05);
+  --shadow-elevated: 0 8px 24px -4px rgba(16, 24, 40, 0.08), 0 2px 6px -2px rgba(16, 24, 40, 0.04);
 }
 
 .dark {
@@ -83,6 +94,10 @@
   /* Semantic Canvas & Surfaces (Dark — preserving exact visual character) */
   --bg-canvas: #0B0D11;
   --bg-canvas-rgb: 11 13 17;
+  --bg-sidebar: #101319;
+  --bg-sidebar-rgb: 16 19 25;
+  --bg-navbar: #0B0D11;
+  --bg-navbar-rgb: 11 13 17;
   --bg-surface: #101319;
   --bg-surface-rgb: 16 19 25;
   --bg-card: #151922;
@@ -101,6 +116,8 @@
   /* Typography (Dark) */
   --text-primary: #F4F4F5;
   --text-primary-rgb: 244 244 245;
+  --text-body: #E4E4E7;
+  --text-body-rgb: 228 228 231;
   --text-secondary: #A1A1AA;
   --text-secondary-rgb: 161 161 170;
   --text-muted: #71717A;
@@ -108,7 +125,10 @@
 
   /* Brand Accents */
   --color-brand: #FF6500;
+  --color-brand-rgb: 255 101 0;
   --color-brand-hover: #E65300;
+  --color-brand-hover-rgb: 230 83 0;
+  --color-brand-subtle: rgba(255, 101, 0, 0.1);
   --color-compiler: #10B981;
   --color-signal: #F59E0B;
   --color-fault: #EF4444;
@@ -132,6 +152,8 @@
   --surface-600-rgb: 63 68 80;
   --surface-700: #292E38;
   --surface-700-rgb: 41 46 56;
+  --surface-750: #222732;
+  --surface-750-rgb: 34 39 50;
   --surface-800: #1B202A;
   --surface-800-rgb: 27 32 42;
   --surface-850: #151922;
@@ -163,7 +185,7 @@ body {
 
 /* Accessible focus ring across all keyboard interactive elements */
 :focus-visible {
-  outline: 2px solid #FF6500;
+  outline: 2px solid var(--color-brand);
   outline-offset: 2px;
 }
 
@@ -272,7 +294,7 @@ input:-webkit-autofill {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .bg-grid-cyber {
-  background-image: radial-gradient(rgba(255, 101, 0, 0.05) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(32, 36, 43, 0.045) 1px, transparent 1px);
   background-size: 28px 28px;
 }
 
@@ -376,7 +398,7 @@ input:-webkit-autofill {
   border-radius: 50px;
 }
 .bb8-toggle-btn:focus-visible {
-  outline: 2px solid #FF6500;
+  outline: 2px solid var(--color-brand);
   outline-offset: 3px;
 }
 
@@ -388,10 +410,10 @@ input:-webkit-autofill {
   border-radius: 50px;
   overflow: hidden;
   cursor: pointer;
-  /* Light theme default */
-  background: linear-gradient(135deg, #87CEEB 0%, #B0E0FF 50%, #E0F4FF 100%);
-  border: 2px solid #CBD5E1;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.4);
+  /* Light theme default — soft, restrained daylight sky */
+  background: linear-gradient(135deg, #DCE8F2 0%, #EAF1F7 55%, #F7F8FA 100%);
+  border: 2px solid #C9CFD8;
+  box-shadow: 0 1px 6px rgba(16, 24, 40, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.75);
   transition:
     background 0.6s ease,
     border-color 0.4s ease,
@@ -444,9 +466,10 @@ input:-webkit-autofill {
 /* ── Clouds ── */
 .bb8-toggle__cloud {
   position: absolute;
-  background: rgba(255,255,255,0.85);
+  background: rgba(255, 255, 255, 0.94);
   border-radius: 50px;
   opacity: 1;
+  box-shadow: 0 1px 3px rgba(98, 107, 120, 0.14);
   transition: opacity 0.5s ease;
 }
 .bb8-toggle--dark .bb8-toggle__cloud { opacity: 0; }
@@ -502,9 +525,9 @@ input:-webkit-autofill {
   right: 0;
   height: 22px;
   border-radius: 0 0 50px 50px;
-  background: linear-gradient(to bottom, #8BC34A, #6DAF2A);
+  background: linear-gradient(to bottom, #9FB4A5, #849D8C);
   transition: background 0.6s ease;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
+  box-shadow: inset 0 1px 3px rgba(32, 36, 43, 0.12);
 }
 .bb8-toggle--dark .bb8-toggle__ground {
   background: linear-gradient(to bottom, #1B202A, #151A23);

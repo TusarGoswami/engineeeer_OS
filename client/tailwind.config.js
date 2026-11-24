@@ -11,8 +11,8 @@ export default {
           200: '#fed7aa',
           300: '#fdba74',
           400: '#fb923c',
-          500: '#FF6500', // Primary Brand Accent
-          600: '#E65300', // Hover Accent
+          500: 'rgb(var(--color-brand-rgb) / <alpha-value>)', // Primary Brand Accent
+          600: 'rgb(var(--color-brand-hover-rgb) / <alpha-value>)', // Hover Accent
           700: '#c2410c',
           800: '#9a3412',
           900: '#7c2d12',
@@ -24,8 +24,8 @@ export default {
           200: '#fed7aa',
           300: '#fdba74',
           400: '#fb923c',
-          500: '#FF6500',
-          600: '#E65300',
+          500: 'rgb(var(--color-brand-rgb) / <alpha-value>)',
+          600: 'rgb(var(--color-brand-hover-rgb) / <alpha-value>)',
           700: '#c2410c',
         },
         auth: {
@@ -41,14 +41,17 @@ export default {
           300: 'rgb(var(--surface-300-rgb) / <alpha-value>)',
           400: 'rgb(var(--surface-400-rgb) / <alpha-value>)', // Secondary text
           500: 'rgb(var(--surface-500-rgb) / <alpha-value>)', // Muted text
-          600: 'rgb(var(--surface-600-rgb) / <alpha-value>)',
+          600: 'rgb(var(--surface-600-rgb) / <alpha-value>)', // Strong borders
           700: 'rgb(var(--surface-700-rgb) / <alpha-value>)', // Standard borders
-          800: 'rgb(var(--surface-800-rgb) / <alpha-value>)', // Elevated / hover bg
+          750: 'rgb(var(--surface-750-rgb) / <alpha-value>)', // Subtle divider / hover
+          800: 'rgb(var(--surface-800-rgb) / <alpha-value>)', // Elevated / hover / tertiary bg
           850: 'rgb(var(--surface-850-rgb) / <alpha-value>)', // Card background
-          900: 'rgb(var(--surface-900-rgb) / <alpha-value>)', // Panel / sidebar bg
+          900: 'rgb(var(--surface-900-rgb) / <alpha-value>)', // Secondary panel / dark sidebar bg
           950: 'rgb(var(--surface-950-rgb) / <alpha-value>)', // Main canvas background
         },
         canvas: 'rgb(var(--bg-canvas-rgb) / <alpha-value>)',
+        sidebar: 'rgb(var(--bg-sidebar-rgb) / <alpha-value>)',
+        navbar: 'rgb(var(--bg-navbar-rgb) / <alpha-value>)',
         card: 'rgb(var(--bg-card-rgb) / <alpha-value>)',
         elevated: 'rgb(var(--bg-elevated-rgb) / <alpha-value>)',
         panel: 'rgb(var(--bg-surface-rgb) / <alpha-value>)',

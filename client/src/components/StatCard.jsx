@@ -25,20 +25,20 @@ export const StatCard = ({
   };
 
   const iconVariants = {
-    default: 'text-surface-400 bg-surface-800',
-    brand: 'text-brand-500 bg-brand-500/10 border border-brand-500/20',
-    compiler: 'text-emerald-500 bg-emerald-500/10 border border-emerald-500/20',
-    signal: 'text-amber-500 bg-amber-500/10 border border-amber-500/20',
-    fault: 'text-rose-500 bg-rose-500/10 border border-rose-500/20',
-    cyan: 'text-sky-500 bg-sky-500/10 border border-sky-500/20',
-    purple: 'text-purple-400 bg-purple-500/10 border border-purple-500/20',
+    default: 'text-surface-300 dark:text-surface-400 bg-surface-800 border-surface-700',
+    brand: 'text-brand-700 dark:text-brand-500 bg-brand-500/10 border border-brand-500/20',
+    compiler: 'text-emerald-700 dark:text-emerald-500 bg-emerald-500/10 border border-emerald-500/20',
+    signal: 'text-amber-700 dark:text-amber-500 bg-amber-500/10 border border-amber-500/20',
+    fault: 'text-rose-700 dark:text-rose-500 bg-rose-500/10 border border-rose-500/20',
+    cyan: 'text-sky-700 dark:text-sky-500 bg-sky-500/10 border border-sky-500/20',
+    purple: 'text-purple-700 dark:text-purple-400 bg-purple-500/10 border border-purple-500/20',
   };
 
   return (
     <div
       onClick={onClick}
       className={cn(
-        'rounded-2xl border bg-surface-850 p-5 shadow-sm dark:shadow-lg transition-all duration-200 hover:-translate-y-0.5',
+        'rounded-2xl border bg-surface-850 p-5 shadow-[var(--shadow-card)] dark:shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] dark:hover:shadow-lg',
         borderVariants[variant] || borderVariants.default,
         onClick && 'cursor-pointer active:scale-[0.99]',
         className
@@ -55,8 +55,8 @@ export const StatCard = ({
                 className={cn(
                   'text-xs font-mono font-medium px-1.5 py-0.5 rounded',
                   typeof trend === 'object' && trend.isPositive === false
-                    ? 'text-rose-500 dark:text-rose-400 bg-rose-500/10'
-                    : 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10'
+                    ? 'text-rose-700 dark:text-rose-400 bg-rose-500/10'
+                    : 'text-emerald-700 dark:text-emerald-400 bg-emerald-500/10'
                 )}
               >
                 {typeof trend === 'object' ? trend.value : trend}

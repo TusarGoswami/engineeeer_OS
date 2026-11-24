@@ -81,12 +81,12 @@ export const CommandPalette = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 p-4 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-surface-950/80 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-slate-900/45 dark:bg-surface-950/80 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-xl rounded-2xl border border-surface-700 bg-surface-850 shadow-2xl z-10 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div className="relative w-full max-w-xl rounded-2xl border border-surface-700 bg-surface-850 shadow-[var(--shadow-elevated)] dark:shadow-2xl z-10 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Search Input Bar */}
         <div className="flex items-center gap-3 px-4 py-3.5 border-b border-surface-700 bg-surface-900">
           <Search className="w-5 h-5 text-surface-400" />
@@ -134,11 +134,13 @@ export const CommandPalette = ({ isOpen, onClose }) => {
                   onMouseEnter={() => setSelectedIndex(idx)}
                   className={cn(
                     'flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer text-xs transition-colors',
-                    isSelected ? 'bg-brand-500/15 text-brand-500 font-semibold border border-brand-500/30' : 'text-surface-300 hover:bg-surface-800'
+                    isSelected
+                      ? 'bg-[#FFF0E5] dark:bg-brand-500/15 text-brand-700 dark:text-brand-500 font-semibold border border-brand-500/25 dark:border-brand-500/30'
+                      : 'text-surface-200 dark:text-surface-300 hover:bg-surface-900 dark:hover:bg-surface-800'
                   )}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={cn('p-1.5 rounded-lg border border-surface-700', isSelected ? 'bg-brand-500/20 text-brand-500' : 'bg-surface-800 text-surface-400')}>
+                    <div className={cn('p-1.5 rounded-lg border border-surface-700', isSelected ? 'bg-brand-500/15 dark:bg-brand-500/20 text-brand-700 dark:text-brand-500' : 'bg-surface-900 dark:bg-surface-800 text-surface-400')}>
                       <Icon className="w-4 h-4" />
                     </div>
                     <div>
@@ -146,7 +148,7 @@ export const CommandPalette = ({ isOpen, onClose }) => {
                       <p className="text-[10px] text-surface-400">{cmd.category}</p>
                     </div>
                   </div>
-                  {isSelected && <ArrowRight className="w-3.5 h-3.5 text-brand-500" />}
+                  {isSelected && <ArrowRight className="w-3.5 h-3.5 text-brand-700 dark:text-brand-500" />}
                 </div>
               );
             })
@@ -154,12 +156,12 @@ export const CommandPalette = ({ isOpen, onClose }) => {
         </div>
 
         {/* Footer shortcuts */}
-        <div className="flex items-center justify-between px-4 py-2 border-t border-surface-700 bg-surface-950 text-[11px] font-mono text-surface-400">
+        <div className="flex items-center justify-between px-4 py-2 border-t border-surface-700 bg-surface-900 dark:bg-surface-950 text-[11px] font-mono text-surface-400">
           <div className="flex items-center gap-2">
             <span>Navigation:</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-surface-800 border border-surface-700 text-surface-300">↑</kbd>
-            <kbd className="px-1.5 py-0.5 rounded bg-surface-800 border border-surface-700 text-surface-300">↓</kbd>
-            <kbd className="px-1.5 py-0.5 rounded bg-surface-800 border border-surface-700 text-surface-300">↵ Select</kbd>
+            <kbd className="px-1.5 py-0.5 rounded bg-surface-850 dark:bg-surface-800 border border-surface-700 text-surface-200 dark:text-surface-300">↑</kbd>
+            <kbd className="px-1.5 py-0.5 rounded bg-surface-850 dark:bg-surface-800 border border-surface-700 text-surface-200 dark:text-surface-300">↓</kbd>
+            <kbd className="px-1.5 py-0.5 rounded bg-surface-850 dark:bg-surface-800 border border-surface-700 text-surface-200 dark:text-surface-300">↵ Select</kbd>
           </div>
           <span>EngineerOS v1.0</span>
         </div>

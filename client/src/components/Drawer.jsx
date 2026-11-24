@@ -44,7 +44,7 @@ export const Drawer = ({
     <div className="fixed inset-0 z-50 overflow-hidden" role="dialog" aria-modal="true">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-surface-950/80 backdrop-blur-sm transition-opacity duration-200"
+        className="fixed inset-0 bg-slate-900/45 dark:bg-surface-950/80 backdrop-blur-sm transition-opacity duration-200"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -52,7 +52,7 @@ export const Drawer = ({
       {/* Drawer Container */}
       <div
         className={cn(
-          'fixed flex flex-col bg-surface-850 border-surface-700 shadow-2xl z-10 w-full overflow-hidden',
+          'fixed flex flex-col bg-surface-850 border-surface-700 shadow-[var(--shadow-elevated)] dark:shadow-2xl z-10 w-full overflow-hidden',
           side === 'right' && 'border-l',
           side === 'left' && 'border-r',
           side === 'bottom' && 'border-t',

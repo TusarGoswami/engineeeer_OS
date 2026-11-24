@@ -23,15 +23,15 @@ export const Button = ({
     primary:
       'bg-brand-500 hover:bg-brand-600 text-white shadow-sm focus:ring-brand-500/50',
     secondary:
-      'bg-surface-800 hover:bg-surface-700 text-surface-100 border border-surface-700 focus:ring-brand-500/40',
+      'bg-surface-900 hover:bg-surface-800 text-surface-100 border border-surface-600 hover:border-surface-500 shadow-2xs dark:bg-surface-800 dark:hover:bg-surface-700 dark:border-surface-700 dark:shadow-none focus:ring-brand-500/40',
     outline:
-      'bg-transparent border border-surface-700 hover:border-brand-500 hover:bg-brand-500/10 text-surface-400 hover:text-surface-100 focus:ring-brand-500/50',
+      'bg-transparent border border-surface-600 dark:border-surface-700 hover:border-brand-500 hover:bg-brand-500/10 text-surface-200 dark:text-surface-400 hover:text-brand-700 dark:hover:text-surface-100 focus:ring-brand-500/50',
     ghost:
-      'bg-transparent hover:bg-surface-800 text-surface-400 hover:text-surface-100 focus:ring-surface-600',
+      'bg-transparent hover:bg-surface-800 text-surface-300 dark:text-surface-400 hover:text-surface-100 focus:ring-surface-600',
     danger:
-      'bg-rose-600 hover:bg-rose-500 text-white shadow-sm focus:ring-rose-500/50',
+      'bg-rose-600 hover:bg-rose-700 dark:hover:bg-rose-500 text-white shadow-sm focus:ring-rose-500/50',
     success:
-      'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm focus:ring-emerald-500/50',
+      'bg-emerald-600 hover:bg-emerald-700 dark:hover:bg-emerald-500 text-white shadow-sm focus:ring-emerald-500/50',
   };
 
   const sizes = {

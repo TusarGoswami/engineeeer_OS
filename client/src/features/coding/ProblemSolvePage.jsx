@@ -48,7 +48,7 @@ export function ProblemSolvePage() {
   const [consoleTab, setConsoleTab] = useState('result'); // 'testcase' | 'result'
   const [selectedCaseIdx, setSelectedCaseIdx] = useState(0);
   const [customInput, setCustomInput] = useState('');
-  const [editorTheme, setEditorTheme] = useState(() => localStorage.getItem('engineeros_editor_theme') || 'vs-dark');
+  const [editorTheme, setEditorTheme] = useState(() => localStorage.getItem('engineeros_editor_theme') || '');
 
   const editorRef = useRef(null);
 
@@ -335,7 +335,7 @@ export function ProblemSolvePage() {
       {/* Main Split Layout: Description on Left, Editor on Right */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 min-h-0">
         {/* Left Column: Problem Tabs (Description, Submissions) */}
-        <div className="lg:col-span-5 flex flex-col h-full min-h-0 rounded-2xl border border-surface-700 bg-surface-850 overflow-hidden shadow-lg">
+        <div className="lg:col-span-5 flex flex-col h-full min-h-0 rounded-2xl border border-surface-700 bg-surface-850 overflow-hidden shadow-[var(--shadow-card)] dark:shadow-lg">
           <div className="flex items-center border-b border-surface-700 bg-surface-900 px-3 pt-2">
             <button
               type="button"
@@ -359,7 +359,7 @@ export function ProblemSolvePage() {
             >
               <span>Submissions</span>
               {submissions.length > 0 && (
-                <span className="text-[10px] bg-surface-800 text-surface-300 px-1.5 py-0.2 rounded-full font-mono">
+                <span className="text-[10px] bg-surface-800 text-surface-200 dark:text-surface-300 px-1.5 py-0.2 rounded-full font-mono">
                   {submissions.length}
                 </span>
               )}
@@ -369,31 +369,31 @@ export function ProblemSolvePage() {
           <div className="flex-1 p-5 overflow-y-auto space-y-5 text-sm text-surface-200 leading-relaxed">
             {activeTab === 'description' ? (
               <>
-                <div className="prose prose-invert max-w-none text-xs sm:text-sm">
+                <div className="prose dark:prose-invert max-w-none text-xs sm:text-sm">
                   <p>{problem?.description}</p>
                 </div>
 
                 {/* Sample Test Cases */}
                 {problem?.sampleTestCases?.length > 0 && (
-                  <div className="space-y-3 pt-3 border-t border-surface-800/80">
+                  <div className="space-y-3 pt-3 border-t border-surface-700 dark:border-surface-800/80">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-surface-400">
                       Sample Test Cases
                     </h4>
                     {problem.sampleTestCases.map((tc, idx) => (
                       <div
                         key={idx}
-                        className="p-3 rounded-xl bg-surface-950/80 border border-surface-800 space-y-2 font-mono text-xs"
+                        className="p-3 rounded-xl bg-surface-900 dark:bg-surface-950/80 border border-surface-700 dark:border-surface-800 space-y-2 font-mono text-xs"
                       >
                         <div>
                           <span className="text-surface-500 text-[11px] block">Input:</span>
-                          <code className="text-emerald-400">{tc.input}</code>
+                          <code className="text-emerald-700 dark:text-emerald-400">{tc.input}</code>
                         </div>
                         <div>
                           <span className="text-surface-500 text-[11px] block">Output:</span>
-                          <code className="text-cyan-400">{tc.expectedOutput}</code>
+                          <code className="text-sky-700 dark:text-cyan-400">{tc.expectedOutput}</code>
                         </div>
                         {tc.explanation && (
-                          <div className="text-[11px] text-surface-400 font-sans pt-1 border-t border-surface-800/50">
+                          <div className="text-[11px] text-surface-400 font-sans pt-1 border-t border-surface-700 dark:border-surface-800/50">
                             <strong>Explanation:</strong> {tc.explanation}
                           </div>
                         )}
@@ -404,7 +404,7 @@ export function ProblemSolvePage() {
 
                 {/* Constraints */}
                 {problem?.constraints?.length > 0 && (
-                  <div className="space-y-2 pt-3 border-t border-surface-800/80">
+                  <div className="space-y-2 pt-3 border-t border-surface-700 dark:border-surface-800/80">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-surface-400">
                       Constraints
                     </h4>
@@ -422,7 +422,7 @@ export function ProblemSolvePage() {
                     {problem.tags.map(t => (
                       <span
                         key={t}
-                        className="text-[11px] font-mono px-2 py-0.5 rounded bg-surface-800 text-surface-300 border border-surface-700/60"
+                        className="text-[11px] font-mono px-2 py-0.5 rounded bg-surface-800 text-surface-200 dark:text-surface-300 border border-surface-700"
                       >
                         #{t}
                       </span>
@@ -441,7 +441,7 @@ export function ProblemSolvePage() {
                   submissions.map(sub => (
                     <div
                       key={sub._id}
-                      className="flex items-center justify-between p-3 rounded-xl border border-surface-800 bg-surface-950/60"
+                      className="flex items-center justify-between p-3 rounded-xl border border-surface-700 dark:border-surface-800 bg-surface-900 dark:bg-surface-950/60"
                     >
                       <div className="flex items-center gap-2">
                         <Badge
@@ -477,18 +477,18 @@ export function ProblemSolvePage() {
         <div className="lg:col-span-7 flex flex-col h-full min-h-0 gap-3">
           {/* Editor Container */}
           <div
-            className={`flex flex-col min-h-0 rounded-2xl border border-surface-700 bg-surface-850 overflow-hidden shadow-lg transition-all duration-200 ${
+            className={`flex flex-col min-h-0 rounded-2xl border border-surface-700 bg-surface-850 overflow-hidden shadow-[var(--shadow-card)] dark:shadow-lg transition-all duration-200 ${
               consoleOpen ? 'h-[50%]' : 'flex-1'
             }`}
           >
             {/* Editor Action Bar */}
             <div className="flex items-center justify-between px-3 py-2 border-b border-surface-700 bg-surface-900">
               <div className="flex items-center gap-2">
-                <Code2 className="w-4 h-4 text-brand-400" />
+                <Code2 className="w-4 h-4 text-brand-700 dark:text-brand-400" />
                 <select
                   value={language}
                   onChange={e => handleLanguageChange(e.target.value)}
-                  className="rounded-lg bg-surface-850 border border-surface-700 text-xs text-surface-100 px-2.5 py-1 focus:outline-none focus:border-brand-500 font-mono"
+                  className="rounded-lg bg-surface-850 border border-surface-600 dark:border-surface-700 text-xs text-surface-100 px-2.5 py-1 focus:outline-none focus:border-brand-500 font-mono"
                 >
                   <option value="python">Python 3</option>
                   <option value="cpp">C++ (GCC)</option>
@@ -497,12 +497,12 @@ export function ProblemSolvePage() {
                 </select>
 
                 <select
-                  value={editorTheme}
+                  value={editorTheme || (isDark ? 'vs-dark' : 'vs')}
                   onChange={e => {
                     setEditorTheme(e.target.value);
                     localStorage.setItem('engineeros_editor_theme', e.target.value);
                   }}
-                  className="rounded-lg bg-surface-850 border border-surface-700 text-xs text-surface-300 px-2 py-1 focus:outline-none focus:border-brand-500 font-mono hidden sm:inline-block"
+                  className="rounded-lg bg-surface-850 border border-surface-600 dark:border-surface-700 text-xs text-surface-200 dark:text-surface-300 px-2 py-1 focus:outline-none focus:border-brand-500 font-mono hidden sm:inline-block"
                 >
                   <option value="vs-dark">Dark Theme</option>
                   <option value="hc-black">High Contrast</option>
@@ -516,7 +516,7 @@ export function ProblemSolvePage() {
                   size="sm"
                   onClick={handleResetStarterCode}
                   leftIcon={RotateCcw}
-                  className="text-xs text-surface-400 hover:text-surface-200"
+                  className="text-xs text-surface-400 hover:text-surface-100 dark:hover:text-surface-200"
                 >
                   Reset Starter
                 </Button>
@@ -529,7 +529,7 @@ export function ProblemSolvePage() {
                       setConsoleTab(submitVerdict || runResults ? 'result' : 'testcase');
                     }}
                     leftIcon={Terminal}
-                    className="text-xs text-surface-400 hover:text-surface-200"
+                    className="text-xs text-surface-400 hover:text-surface-100 dark:hover:text-surface-200"
                   >
                     Console
                   </Button>
@@ -543,7 +543,7 @@ export function ProblemSolvePage() {
                 height="100%"
                 language={getMonacoLang(language)}
                 value={sourceCode}
-                theme={editorTheme || (isDark ? 'vs-dark' : 'light')}
+                theme={editorTheme || (isDark ? 'vs-dark' : 'vs')}
                 onChange={handleCodeChange}
                 onMount={(editor, monaco) => {
                   editorRef.current = editor;
@@ -586,24 +586,24 @@ export function ProblemSolvePage() {
 
           {/* Bottom Half: Console & Proper Test Cases Viewer */}
           {consoleOpen && (
-            <div className="h-[50%] flex flex-col min-h-0 rounded-2xl border border-surface-700 bg-surface-850 overflow-hidden shadow-xl animate-fade-in">
+            <div className="h-[50%] flex flex-col min-h-0 rounded-2xl border border-surface-700 bg-surface-850 overflow-hidden shadow-[var(--shadow-elevated)] dark:shadow-xl animate-fade-in">
               {/* Console Header Bar */}
               <div className="flex items-center justify-between px-3.5 py-2 border-b border-surface-700 bg-surface-900">
                 <div className="flex items-center gap-1.5 sm:gap-2">
-                  <div className="flex items-center gap-1.5 mr-2 text-xs font-bold text-surface-300">
-                    <Terminal className="w-3.5 h-3.5 text-brand-400" />
+                  <div className="flex items-center gap-1.5 mr-2 text-xs font-bold text-surface-200 dark:text-surface-300">
+                    <Terminal className="w-3.5 h-3.5 text-brand-700 dark:text-brand-400" />
                     <span className="hidden sm:inline">Console</span>
                   </div>
 
                   {/* Tabs */}
-                  <div className="flex items-center gap-1 bg-surface-800/80 p-0.5 rounded-lg border border-surface-700/60">
+                  <div className="flex items-center gap-1 bg-surface-800 dark:bg-surface-800/80 p-0.5 rounded-lg border border-surface-700">
                     <button
                       type="button"
                       onClick={() => setConsoleTab('testcase')}
                       className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
                         consoleTab === 'testcase'
-                          ? 'bg-surface-700 text-surface-100 shadow-sm'
-                          : 'text-surface-400 hover:text-surface-200'
+                          ? 'bg-surface-850 dark:bg-surface-700 text-surface-100 shadow-sm'
+                          : 'text-surface-300 dark:text-surface-400 hover:text-surface-100 dark:hover:text-surface-200'
                       }`}
                     >
                       Testcase
@@ -613,13 +613,13 @@ export function ProblemSolvePage() {
                       onClick={() => setConsoleTab('result')}
                       className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all flex items-center gap-1.5 ${
                         consoleTab === 'result'
-                          ? 'bg-surface-700 text-surface-100 shadow-sm'
-                          : 'text-surface-400 hover:text-surface-200'
+                          ? 'bg-surface-850 dark:bg-surface-700 text-surface-100 shadow-sm'
+                          : 'text-surface-300 dark:text-surface-400 hover:text-surface-100 dark:hover:text-surface-200'
                       }`}
                     >
                       <span>Test Result</span>
                       {(isRunning || isSubmitting) && (
-                        <div className="w-2 h-2 rounded-full bg-brand-400 animate-ping" />
+                        <div className="w-2 h-2 rounded-full bg-brand-500 dark:bg-brand-400 animate-ping" />
                       )}
                     </button>
                   </div>
@@ -681,8 +681,8 @@ export function ProblemSolvePage() {
                           onClick={() => setSelectedCaseIdx(idx)}
                           className={`px-3 py-1.5 rounded-lg text-xs font-medium font-mono transition-all border ${
                             selectedCaseIdx === idx
-                              ? 'bg-brand-500/20 border-brand-500/50 text-brand-300 shadow-sm'
-                              : 'bg-surface-800/80 border-surface-700/80 text-surface-400 hover:text-surface-200'
+                              ? 'bg-brand-500/15 dark:bg-brand-500/20 border-brand-500/40 dark:border-brand-500/50 text-brand-800 dark:text-brand-300 shadow-2xs dark:shadow-sm'
+                              : 'bg-surface-900 dark:bg-surface-800/80 border-surface-700 text-surface-300 dark:text-surface-400 hover:text-surface-100 dark:hover:text-surface-200'
                           }`}
                         >
                           Case {idx + 1}
@@ -695,8 +695,8 @@ export function ProblemSolvePage() {
                         onClick={() => setSelectedCaseIdx('custom')}
                         className={`px-3 py-1.5 rounded-lg text-xs font-medium font-mono transition-all border ${
                           selectedCaseIdx === 'custom'
-                            ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 shadow-sm'
-                            : 'bg-surface-800/80 border-surface-700/80 text-surface-400 hover:text-surface-200'
+                            ? 'bg-emerald-500/15 dark:bg-emerald-500/20 border-emerald-600/40 dark:border-emerald-500/50 text-emerald-800 dark:text-emerald-300 shadow-2xs dark:shadow-sm'
+                            : 'bg-surface-900 dark:bg-surface-800/80 border-surface-700 text-surface-300 dark:text-surface-400 hover:text-surface-100 dark:hover:text-surface-200'
                         }`}
                       >
                         + Custom Input
@@ -761,15 +761,15 @@ export function ProblemSolvePage() {
                   <div className="space-y-3">
                     {/* Running / Submitting In-Progress Banner */}
                     {(isRunning || isSubmitting) && (
-                      <div className="flex items-center gap-3 p-4 rounded-xl border border-brand-500/30 bg-brand-500/10 text-xs font-mono text-brand-300 animate-pulse">
-                        <div className="w-4 h-4 rounded-full border-2 border-brand-400 border-t-transparent animate-spin flex-shrink-0" />
+                      <div className="flex items-center gap-3 p-4 rounded-xl border border-brand-500/30 bg-brand-500/10 text-xs font-mono text-brand-800 dark:text-brand-300 animate-pulse">
+                        <div className="w-4 h-4 rounded-full border-2 border-brand-600 dark:border-brand-400 border-t-transparent animate-spin flex-shrink-0" />
                         <div>
-                          <div className="font-semibold text-brand-200">
+                          <div className="font-semibold text-brand-900 dark:text-brand-200">
                             {isSubmitting
                               ? 'Evaluating Submission...'
                               : 'Executing Sample Test Cases...'}
                           </div>
-                          <div className="text-[11px] text-brand-400/80 mt-0.5">
+                          <div className="text-[11px] text-brand-700 dark:text-brand-400/80 mt-0.5">
                             {isSubmitting
                               ? 'Evaluating code against complete test matrix & hidden edge cases via sandboxed Judge0...'
                               : 'Compiling source code and executing against sample test cases...'}
@@ -785,26 +785,26 @@ export function ProblemSolvePage() {
                         <div
                           className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                             submitVerdict.status === 'accepted'
-                              ? 'border-emerald-500/30 bg-emerald-500/10'
+                              ? 'border-emerald-600/30 dark:border-emerald-500/30 bg-emerald-500/10'
                               : submitVerdict.status === 'compile_error'
-                              ? 'border-rose-500/30 bg-rose-500/10'
-                              : 'border-amber-500/30 bg-amber-500/10'
+                              ? 'border-rose-600/30 dark:border-rose-500/30 bg-rose-500/10'
+                              : 'border-amber-600/30 dark:border-amber-500/30 bg-amber-500/10'
                           }`}
                         >
                           <div className="flex items-center gap-3">
                             {submitVerdict.status === 'accepted' ? (
-                              <CheckCircle2 className="w-7 h-7 text-emerald-400 flex-shrink-0" />
+                              <CheckCircle2 className="w-7 h-7 text-emerald-700 dark:text-emerald-400 flex-shrink-0" />
                             ) : submitVerdict.status === 'compile_error' ? (
-                              <AlertCircle className="w-7 h-7 text-rose-400 flex-shrink-0" />
+                              <AlertCircle className="w-7 h-7 text-rose-700 dark:text-rose-400 flex-shrink-0" />
                             ) : (
-                              <XCircle className="w-7 h-7 text-rose-400 flex-shrink-0" />
+                              <XCircle className="w-7 h-7 text-rose-700 dark:text-rose-400 flex-shrink-0" />
                             )}
                             <div>
                               <div
                                 className={`text-base font-bold font-mono tracking-tight ${
                                   submitVerdict.status === 'accepted'
-                                    ? 'text-emerald-400'
-                                    : 'text-rose-400'
+                                    ? 'text-emerald-700 dark:text-emerald-400'
+                                    : 'text-rose-700 dark:text-rose-400'
                                 }`}
                               >
                                 {submitVerdict.status === 'accepted'
@@ -846,10 +846,10 @@ export function ProblemSolvePage() {
                         {/* Compile Error Output if present */}
                         {(submitVerdict.compileError || submitVerdict.compileOutput) && (
                           <div>
-                            <span className="text-[11px] font-semibold text-rose-400 uppercase tracking-wider block mb-1">
+                            <span className="text-[11px] font-semibold text-rose-700 dark:text-rose-400 uppercase tracking-wider block mb-1">
                               Compiler Diagnostic
                             </span>
-                            <pre className="p-3 rounded-xl bg-surface-900 border border-rose-500/30 text-rose-300 font-mono text-xs whitespace-pre-wrap">
+                            <pre className="p-3 rounded-xl bg-rose-50/70 dark:bg-surface-900 border border-rose-500/30 text-rose-800 dark:text-rose-300 font-mono text-xs whitespace-pre-wrap">
                               {submitVerdict.compileError || submitVerdict.compileOutput}
                             </pre>
                           </div>
@@ -941,21 +941,21 @@ export function ProblemSolvePage() {
                         <div
                           className={`p-3.5 rounded-xl border flex items-center justify-between ${
                             runResults.passedSamples === runResults.totalSamples
-                              ? 'border-emerald-500/30 bg-emerald-500/10'
-                              : 'border-rose-500/30 bg-rose-500/10'
+                              ? 'border-emerald-600/30 dark:border-emerald-500/30 bg-emerald-500/10'
+                              : 'border-rose-600/30 dark:border-rose-500/30 bg-rose-500/10'
                           }`}
                         >
                           <div className="flex items-center gap-2.5">
                             {runResults.passedSamples === runResults.totalSamples ? (
-                              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                              <CheckCircle2 className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
                             ) : (
-                              <XCircle className="w-5 h-5 text-rose-400" />
+                              <XCircle className="w-5 h-5 text-rose-700 dark:text-rose-400" />
                             )}
                             <span
                               className={`text-sm font-bold font-mono ${
                                 runResults.passedSamples === runResults.totalSamples
-                                  ? 'text-emerald-400'
-                                  : 'text-rose-400'
+                                  ? 'text-emerald-700 dark:text-emerald-400'
+                                  : 'text-rose-700 dark:text-rose-400'
                               }`}
                             >
                               {runResults.passedSamples === runResults.totalSamples
@@ -974,14 +974,14 @@ export function ProblemSolvePage() {
                               onClick={() => setSelectedCaseIdx(idx)}
                               className={`px-3 py-1.5 rounded-lg text-xs font-medium font-mono transition-all flex items-center gap-1.5 border ${
                                 selectedCaseIdx === idx
-                                  ? 'bg-surface-700 border-surface-500 text-surface-100 shadow-sm'
-                                  : 'bg-surface-850 border-surface-700/70 text-surface-400 hover:text-surface-200'
+                                  ? 'bg-surface-800 dark:bg-surface-700 border-surface-600 dark:border-surface-500 text-surface-100 shadow-2xs dark:shadow-sm'
+                                  : 'bg-surface-900 dark:bg-surface-850 border-surface-700 text-surface-400 hover:text-surface-100 dark:hover:text-surface-200'
                               }`}
                             >
                               {sr.passed ? (
-                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
                               ) : (
-                                <XCircle className="w-3.5 h-3.5 text-rose-400" />
+                                <XCircle className="w-3.5 h-3.5 text-rose-700 dark:text-rose-400" />
                               )}
                               <span>Case {sr.sampleIndex || idx + 1}</span>
                               {sr.runtime ? (
@@ -1001,7 +1001,7 @@ export function ProblemSolvePage() {
                                 <span className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider block mb-1">
                                   Input
                                 </span>
-                                <pre className="p-2.5 rounded-lg bg-surface-950 border border-surface-800 text-surface-200 whitespace-pre-wrap">
+                                <pre className="p-2.5 rounded-lg bg-surface-850 dark:bg-surface-950 border border-surface-700 dark:border-surface-800 text-surface-200 whitespace-pre-wrap">
                                   {runResults.sampleResults[selectedCaseIdx].input}
                                 </pre>
                               </div>
@@ -1012,10 +1012,10 @@ export function ProblemSolvePage() {
                                 Your Output
                               </span>
                               <pre
-                                className={`p-2.5 rounded-lg bg-surface-950 border whitespace-pre-wrap ${
+                                className={`p-2.5 rounded-lg bg-surface-850 dark:bg-surface-950 border whitespace-pre-wrap ${
                                   runResults.sampleResults[selectedCaseIdx].passed
-                                    ? 'border-emerald-500/30 text-emerald-300'
-                                    : 'border-rose-500/30 text-rose-300'
+                                    ? 'border-emerald-600/30 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
+                                    : 'border-rose-600/30 dark:border-rose-500/30 text-rose-800 dark:text-rose-300'
                                 }`}
                               >
                                 {runResults.sampleResults[selectedCaseIdx].actualOutput || '(Empty stdout)'}
@@ -1027,7 +1027,7 @@ export function ProblemSolvePage() {
                                 <span className="text-[11px] font-semibold text-surface-400 uppercase tracking-wider block mb-1">
                                   Expected Output
                                 </span>
-                                <pre className="p-2.5 rounded-lg bg-surface-950 border border-surface-800 text-surface-200 whitespace-pre-wrap">
+                                <pre className="p-2.5 rounded-lg bg-surface-850 dark:bg-surface-950 border border-surface-700 dark:border-surface-800 text-surface-200 whitespace-pre-wrap">
                                   {runResults.sampleResults[selectedCaseIdx].expectedOutput}
                                 </pre>
                               </div>
@@ -1035,10 +1035,10 @@ export function ProblemSolvePage() {
 
                             {runResults.sampleResults[selectedCaseIdx].compileError && (
                               <div>
-                                <span className="text-[11px] font-semibold text-rose-400 uppercase tracking-wider block mb-1">
+                                <span className="text-[11px] font-semibold text-rose-700 dark:text-rose-400 uppercase tracking-wider block mb-1">
                                   Compiler Output
                                 </span>
-                                <pre className="p-2.5 rounded-lg bg-surface-950 border border-rose-500/30 text-rose-300 whitespace-pre-wrap">
+                                <pre className="p-2.5 rounded-lg bg-rose-50/70 dark:bg-surface-950 border border-rose-500/30 text-rose-800 dark:text-rose-300 whitespace-pre-wrap">
                                   {runResults.sampleResults[selectedCaseIdx].compileError}
                                 </pre>
                               </div>

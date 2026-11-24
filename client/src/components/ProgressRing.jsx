@@ -20,11 +20,11 @@ export const ProgressRing = ({
 
   const colorVariants = {
     brand: 'text-brand-500',
-    compiler: 'text-emerald-500',
-    signal: 'text-amber-500',
-    fault: 'text-rose-500',
-    violet: 'text-violet-500',
-    cyan: 'text-cyan-500',
+    compiler: 'text-emerald-600 dark:text-emerald-500',
+    signal: 'text-amber-600 dark:text-amber-500',
+    fault: 'text-rose-600 dark:text-rose-500',
+    violet: 'text-violet-600 dark:text-violet-500',
+    cyan: 'text-sky-600 dark:text-cyan-500',
   };
 
   return (
@@ -43,7 +43,7 @@ export const ProgressRing = ({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          className="text-surface-800"
+          className="text-surface-700 dark:text-surface-800"
           strokeWidth={strokeWidth}
           stroke="currentColor"
           fill="transparent"

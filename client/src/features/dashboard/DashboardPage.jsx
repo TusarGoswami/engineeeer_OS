@@ -124,7 +124,7 @@ export const DashboardPage = () => {
               <span className="text-xs font-semibold uppercase tracking-wider text-surface-400">
                 Operating System Dashboard
               </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse" />
             </div>
             <h1 className="text-[28px] sm:text-[32px] font-bold text-surface-100 tracking-tight leading-tight">
               Welcome back, {user?.name?.split(' ')[0] || 'Engineer'}
@@ -150,7 +150,7 @@ export const DashboardPage = () => {
                 href={`/u/${username}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-surface-800 hover:bg-surface-700 text-surface-200 transition-colors border border-surface-700/80"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-surface-850 hover:bg-surface-900 dark:bg-surface-800 dark:hover:bg-surface-700 text-surface-100 dark:text-surface-200 transition-colors border border-surface-600 dark:border-surface-700/80 shadow-2xs dark:shadow-none"
               >
                 <span>/u/{username}</span>
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -168,7 +168,7 @@ export const DashboardPage = () => {
               ref={cardRef}
               profile={profile}
               compact={false}
-              className="max-w-3xl shadow-xl"
+              className="max-w-3xl"
             />
           )}
         </div>
@@ -178,7 +178,7 @@ export const DashboardPage = () => {
       <section className="space-y-5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20">
+            <div className="p-2 rounded-xl bg-brand-500/10 text-brand-700 dark:text-brand-400 border border-brand-500/20">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
@@ -192,17 +192,17 @@ export const DashboardPage = () => {
           </div>
 
           {/* Daily Progress Tracker */}
-          <div className="flex items-center gap-3 bg-surface-850 border border-surface-700 rounded-xl px-3.5 py-2">
-            <div className="text-xs font-mono text-surface-300">
-              <span className="text-emerald-400 font-bold">{completedCount}</span> / {totalTasks} Completed
+          <div className="flex items-center gap-3 bg-surface-850 border border-surface-700 rounded-xl px-3.5 py-2 shadow-[var(--shadow-card)] dark:shadow-none">
+            <div className="text-xs font-mono text-surface-200 dark:text-surface-300">
+              <span className="text-emerald-700 dark:text-emerald-400 font-bold">{completedCount}</span> / {totalTasks} Completed
             </div>
             <div className="w-24 h-2 rounded-full bg-surface-800 overflow-hidden">
               <div
-                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                className="h-full bg-emerald-600 dark:bg-emerald-500 rounded-full transition-all duration-500"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
-            <span className="text-sm font-bold font-mono text-surface-400">{progressPercent}%</span>
+            <span className="text-sm font-bold font-mono text-surface-300 dark:text-surface-400">{progressPercent}%</span>
           </div>
         </div>
 
@@ -228,10 +228,10 @@ export const DashboardPage = () => {
                   key={task._id || task.taskId}
                   className={`flex flex-col justify-between p-4 rounded-2xl border transition-all duration-200 ${
                     isCompleted
-                      ? 'bg-surface-900/30 border-surface-800/50 opacity-60'
+                      ? 'bg-surface-900 dark:bg-surface-900/30 border-surface-700 dark:border-surface-800/50 opacity-65 dark:opacity-60'
                       : isSnoozed
-                      ? 'bg-surface-950/40 border-surface-800/50 opacity-70'
-                      : 'bg-surface-850 border-surface-700 hover:border-surface-600 hover:-translate-y-0.5 shadow-sm dark:shadow-md'
+                      ? 'bg-surface-900 dark:bg-surface-950/40 border-surface-700 dark:border-surface-800/50 opacity-75 dark:opacity-70'
+                      : 'bg-surface-850 border-surface-700 hover:border-surface-600 hover:-translate-y-0.5 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] dark:shadow-md'
                   }`}
                 >
                   <div className="space-y-2.5">
@@ -256,7 +256,7 @@ export const DashboardPage = () => {
                             type="button"
                             onClick={() => handleSnooze(task)}
                             title="Snooze for 4 hours"
-                            className="p-1 text-surface-500 hover:text-surface-300 rounded-lg hover:bg-surface-800 transition-colors"
+                            className="p-1 text-surface-500 hover:text-surface-200 dark:hover:text-surface-300 rounded-lg hover:bg-surface-800 transition-colors"
                           >
                             <Moon className="w-3.5 h-3.5" />
                           </button>
@@ -264,10 +264,10 @@ export const DashboardPage = () => {
                         <button
                           type="button"
                           onClick={() => handleToggleComplete(task)}
-                          className="p-1 text-surface-400 hover:text-emerald-400 transition-colors"
+                          className="p-1 text-surface-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                         >
                           {isCompleted ? (
-                            <CheckCircle2 className="w-5 h-5 text-emerald-400 fill-emerald-500/20" />
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 fill-emerald-500/20" />
                           ) : (
                             <Circle className="w-5 h-5" />
                           )}
@@ -284,7 +284,7 @@ export const DashboardPage = () => {
                     </h3>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-surface-800/60 flex items-center justify-between gap-2">
+                  <div className="mt-4 pt-3 border-t border-surface-700 dark:border-surface-800/60 flex items-center justify-between gap-2">
                     <Link to={task.actionUrl} className="flex-1">
                       <Button
                         size="sm"
@@ -315,7 +315,7 @@ export const DashboardPage = () => {
           <div className="flex items-center gap-3 text-xs font-mono">
             <span className="text-surface-400">
               Active Streak:{' '}
-              <strong className="text-amber-400">{stats?.overallStreak || stats?.coding?.streak || 0}d</strong>
+              <strong className="text-amber-700 dark:text-amber-400">{stats?.overallStreak || stats?.coding?.streak || 0}d</strong>
             </span>
           </div>
         </div>
@@ -350,10 +350,10 @@ export const DashboardPage = () => {
           <Card hover className="p-5 flex flex-col justify-between min-h-[200px]">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400 font-mono">
+                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 font-mono">
                   Coding & DSA
                 </span>
-                <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-600/20 dark:border-emerald-500/20">
                   <Code2 className="w-4 h-4" />
                 </div>
               </div>
@@ -362,17 +362,17 @@ export const DashboardPage = () => {
                   {stats?.coding?.solvedCount || 0} <span className="text-base font-normal text-surface-400">Solved</span>
                 </div>
                 <div className="text-xs text-surface-400 mt-1.5 flex items-center gap-1.5 flex-wrap">
-                  <span className="text-emerald-400 font-medium">{stats?.coding?.easyCount || 0}E</span>
-                  <span className="text-surface-600">/</span>
-                  <span className="text-amber-400 font-medium">{stats?.coding?.mediumCount || 0}M</span>
-                  <span className="text-surface-600">/</span>
-                  <span className="text-rose-400 font-medium">{stats?.coding?.hardCount || 0}H</span>
-                  <span className="text-surface-600">•</span>
+                  <span className="text-emerald-700 dark:text-emerald-400 font-medium">{stats?.coding?.easyCount || 0}E</span>
+                  <span className="text-surface-500 dark:text-surface-600">/</span>
+                  <span className="text-amber-700 dark:text-amber-400 font-medium">{stats?.coding?.mediumCount || 0}M</span>
+                  <span className="text-surface-500 dark:text-surface-600">/</span>
+                  <span className="text-rose-700 dark:text-rose-400 font-medium">{stats?.coding?.hardCount || 0}H</span>
+                  <span className="text-surface-500 dark:text-surface-600">•</span>
                   <span className="font-mono">{stats?.coding?.accuracyRate || 0}% Accuracy</span>
                 </div>
               </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-surface-800">
+            <div className="mt-4 pt-3 border-t border-surface-700 dark:border-surface-800">
               <Link to="/coding">
                 <Button size="sm" variant="secondary" className="w-full justify-between" rightIcon={ArrowRight}>
                   Open Monaco Sandbox
@@ -385,10 +385,10 @@ export const DashboardPage = () => {
           <Card hover className="p-5 flex flex-col justify-between min-h-[200px]">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-cyan-400 font-mono">
+                <span className="text-xs font-semibold uppercase tracking-wider text-sky-700 dark:text-cyan-400 font-mono">
                   GATE Preparation
                 </span>
-                <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                <div className="p-2 rounded-xl bg-sky-500/10 dark:bg-cyan-500/10 text-sky-700 dark:text-cyan-400 border border-sky-600/20 dark:border-cyan-500/20">
                   <Compass className="w-4 h-4" />
                 </div>
               </div>
@@ -401,14 +401,14 @@ export const DashboardPage = () => {
                 </div>
                 <div className="text-xs text-surface-400 mt-1.5 truncate">
                   {stats?.gate?.weakTopics?.length > 0 ? (
-                    <span className="text-amber-400 font-medium">Weak Area: {stats.gate.weakTopics[0]}</span>
+                    <span className="text-amber-700 dark:text-amber-400 font-medium">Weak Area: {stats.gate.weakTopics[0]}</span>
                   ) : (
                     'Diagnostic & Full Mock Tests'
                   )}
                 </div>
               </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-surface-800">
+            <div className="mt-4 pt-3 border-t border-surface-700 dark:border-surface-800">
               <Link to="/gate">
                 <Button size="sm" variant="secondary" className="w-full justify-between" rightIcon={ArrowRight}>
                   Take GATE Mock
@@ -421,10 +421,10 @@ export const DashboardPage = () => {
           <Card hover className="p-5 flex flex-col justify-between min-h-[200px]">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-brand-400 font-mono">
+                <span className="text-xs font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-400 font-mono">
                   Curriculum Hub
                 </span>
-                <div className="p-2 rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20">
+                <div className="p-2 rounded-xl bg-brand-500/10 text-brand-700 dark:text-brand-400 border border-brand-500/20">
                   <BookOpen className="w-4 h-4" />
                 </div>
               </div>
@@ -437,7 +437,7 @@ export const DashboardPage = () => {
                 </div>
               </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-surface-800">
+            <div className="mt-4 pt-3 border-t border-surface-700 dark:border-surface-800">
               <Link to="/academics">
                 <Button size="sm" variant="secondary" className="w-full justify-between" rightIcon={ArrowRight}>
                   Browse Curriculum
@@ -450,10 +450,10 @@ export const DashboardPage = () => {
           <Card hover className="p-5 flex flex-col justify-between min-h-[200px]">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-purple-400 font-mono">
+                <span className="text-xs font-semibold uppercase tracking-wider text-purple-700 dark:text-purple-400 font-mono">
                   AI Assistant
                 </span>
-                <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                <div className="p-2 rounded-xl bg-purple-500/10 text-purple-700 dark:text-purple-400 border border-purple-600/20 dark:border-purple-500/20">
                   <Sparkles className="w-4 h-4" />
                 </div>
               </div>
@@ -466,7 +466,7 @@ export const DashboardPage = () => {
                 </div>
               </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-surface-800">
+            <div className="mt-4 pt-3 border-t border-surface-700 dark:border-surface-800">
               <Link to="/ai-assistant">
                 <Button size="sm" variant="secondary" className="w-full justify-between" rightIcon={ArrowRight}>
                   Open AI Chat
@@ -479,10 +479,10 @@ export const DashboardPage = () => {
           <Card hover className="p-5 flex flex-col justify-between min-h-[200px]">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-amber-400 font-mono">
+                <span className="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400 font-mono">
                   Mock Interviews
                 </span>
-                <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                <div className="p-2 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-600/20 dark:border-amber-500/20">
                   <Video className="w-4 h-4" />
                 </div>
               </div>
@@ -495,7 +495,7 @@ export const DashboardPage = () => {
                 </div>
               </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-surface-800">
+            <div className="mt-4 pt-3 border-t border-surface-700 dark:border-surface-800">
               <Link to="/interviews">
                 <Button size="sm" variant="secondary" className="w-full justify-between" rightIcon={ArrowRight}>
                   Start Interview Session
@@ -508,10 +508,10 @@ export const DashboardPage = () => {
           <Card hover className="p-5 flex flex-col justify-between min-h-[200px]">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-rose-400 font-mono">
+                <span className="text-xs font-semibold uppercase tracking-wider text-rose-700 dark:text-rose-400 font-mono">
                   Senior Network
                 </span>
-                <div className="p-2 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                <div className="p-2 rounded-xl bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-600/20 dark:border-rose-500/20">
                   <Users className="w-4 h-4" />
                 </div>
               </div>
@@ -524,7 +524,7 @@ export const DashboardPage = () => {
                 </div>
               </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-surface-800">
+            <div className="mt-4 pt-3 border-t border-surface-700 dark:border-surface-800">
               <Link to="/community">
                 <Button size="sm" variant="secondary" className="w-full justify-between" rightIcon={ArrowRight}>
                   Enter Community
@@ -537,8 +537,8 @@ export const DashboardPage = () => {
 
       {/* 5. Diagnostic Callout / Focus Recommendation */}
       {stats?.gate?.weakTopics?.length > 0 && (
-        <div className="flex items-center gap-3 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300">
-          <AlertCircle className="w-5 h-5 shrink-0 text-amber-400" />
+        <div className="flex items-center gap-3 p-4 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-900 dark:text-amber-300">
+          <AlertCircle className="w-5 h-5 shrink-0 text-amber-700 dark:text-amber-400" />
           <div className="flex-1 text-xs">
             <strong>Targeted Diagnostic Notice:</strong> Your lowest accuracy topic is{' '}
             <span className="underline font-semibold">{stats.gate.weakTopics[0]}</span>. Revising this topic today can boost your mock percentile by up to 12%.

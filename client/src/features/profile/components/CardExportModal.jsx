@@ -163,11 +163,11 @@ export const CardExportModal = ({
         </div>
 
         {/* Share Link Box */}
-        <div className="p-3.5 rounded-xl bg-surface-950/80 border border-surface-800 space-y-2">
+        <div className="p-3.5 rounded-xl bg-surface-900 dark:bg-surface-950/80 border border-surface-700 dark:border-surface-800 space-y-2">
           <div className="flex items-center justify-between text-xs text-surface-400">
             <span>Direct Public Link</span>
             {visibility === 'unlisted' && (
-              <span className="text-amber-400 text-[10px] uppercase font-semibold">
+              <span className="text-amber-700 dark:text-amber-400 text-[10px] uppercase font-semibold">
                 Secret Token Included
               </span>
             )}
@@ -176,7 +176,7 @@ export const CardExportModal = ({
             <input
               readOnly
               value={shareUrl}
-              className="w-full text-xs font-mono bg-surface-900 border border-surface-700/60 rounded-lg px-2.5 py-2 text-surface-300 select-all"
+              className="w-full text-xs font-mono bg-surface-850 dark:bg-surface-900 border border-surface-600 dark:border-surface-700/60 rounded-lg px-2.5 py-2 text-surface-200 dark:text-surface-300 select-all"
             />
             <Button
               size="sm"
@@ -191,14 +191,14 @@ export const CardExportModal = ({
 
         {/* Social Sharing Intents */}
         <div className="space-y-2">
-          <label className="text-xs font-semibold text-surface-300 uppercase tracking-wider">
+          <label className="text-xs font-semibold text-surface-200 dark:text-surface-300 uppercase tracking-wider">
             Share Directly
           </label>
           <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
               onClick={shareToLinkedIn}
-              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-surface-800 bg-surface-900 hover:bg-surface-800/80 text-surface-200 text-xs font-medium transition-colors"
+              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-surface-700 dark:border-surface-800 bg-surface-900 hover:bg-surface-800 dark:hover:bg-surface-800/80 text-surface-100 dark:text-surface-200 text-xs font-medium transition-colors"
             >
               <Linkedin className="w-4 h-4 text-[#0A66C2]" />
               <span>LinkedIn</span>
@@ -207,18 +207,18 @@ export const CardExportModal = ({
             <button
               type="button"
               onClick={shareToTwitter}
-              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-surface-800 bg-surface-900 hover:bg-surface-800/80 text-surface-200 text-xs font-medium transition-colors"
+              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-surface-700 dark:border-surface-800 bg-surface-900 hover:bg-surface-800 dark:hover:bg-surface-800/80 text-surface-100 dark:text-surface-200 text-xs font-medium transition-colors"
             >
-              <Twitter className="w-4 h-4 text-sky-400" />
+              <Twitter className="w-4 h-4 text-sky-600 dark:text-sky-400" />
               <span>Twitter / X</span>
             </button>
 
             <button
               type="button"
               onClick={shareToWhatsApp}
-              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-surface-800 bg-surface-900 hover:bg-surface-800/80 text-surface-200 text-xs font-medium transition-colors"
+              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-surface-700 dark:border-surface-800 bg-surface-900 hover:bg-surface-800 dark:hover:bg-surface-800/80 text-surface-100 dark:text-surface-200 text-xs font-medium transition-colors"
             >
-              <MessageCircle className="w-4 h-4 text-emerald-400" />
+              <MessageCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>WhatsApp</span>
             </button>
           </div>

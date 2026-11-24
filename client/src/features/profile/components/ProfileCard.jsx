@@ -336,11 +336,11 @@ export const ProfileCard = forwardRef(
         className={`pc-parent w-full max-w-2xl ${className}`}
         style={{ perspective: '1200px' }}
       >
-        {/* 3D card body */}
+        {/* 3D card body — self-contained dark showcase card across both site themes */}
         <div
           ref={ref}
           id="engineeros-profile-card"
-          className="pc-card w-full rounded-3xl relative overflow-visible"
+          className="pc-card w-full rounded-3xl relative overflow-visible text-[#F4F4F5]"
           style={cardStyle}
         >
           {/* ── Layered glass circles — upper-right logo motif ── */}
@@ -481,7 +481,7 @@ export const ProfileCard = forwardRef(
                     >
                       <Cpu className="w-3.5 h-3.5" style={{ color: ts.btnColor }} />
                     </div>
-                    <span className="text-xs font-semibold tracking-wider uppercase text-surface-400">
+                    <span className="text-xs font-semibold tracking-wider uppercase text-[#A1A1AA]">
                       EngineerOS Certified Card
                     </span>
                   </div>
@@ -489,7 +489,7 @@ export const ProfileCard = forwardRef(
               </div>
 
               {/* Streak pill */}
-              <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded font-mono bg-surface-900/80 border border-surface-700/50 text-surface-300">
+              <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded font-mono bg-[#101319]/90 border border-[#292E38] text-[#D4D4D8]">
                 <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                 <span>{stats.streaks?.current || 0}d streak</span>
               </span>
@@ -506,14 +506,14 @@ export const ProfileCard = forwardRef(
                         src={identity.avatarUrl}
                         name={identity.name}
                         size="xl"
-                        className="border-2 border-surface-700 shadow-md"
+                        className="border-2 border-[#292E38] shadow-md"
                       />
-                      <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5 border-2 border-surface-950">
+                      <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5 border-2 border-[#0B0D11]">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                       </div>
                     </div>
                   ) : (
-                    <div className="w-14 h-14 rounded-xl bg-surface-800 flex items-center justify-center font-bold text-surface-300 text-lg border border-surface-700">
+                    <div className="w-14 h-14 rounded-xl bg-[#1B202A] flex items-center justify-center font-bold text-[#D4D4D8] text-lg border border-[#292E38]">
                       {identity.name?.slice(0, 2).toUpperCase() || 'OS'}
                     </div>
                   )}
@@ -585,7 +585,7 @@ export const ProfileCard = forwardRef(
                           href={`https://github.com/${identity.githubHandle}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-surface-700 bg-surface-900/80 px-2.5 py-1 text-xs font-mono text-surface-200 transition-colors hover:border-surface-600 hover:text-white"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-[#292E38] bg-[#101319]/90 px-2.5 py-1 text-xs font-mono text-[#E4E4E7] transition-colors hover:border-[#3F4450] hover:text-white"
                         >
                           <Github className="w-3.5 h-3.5" />
                           <span>{identity.githubHandle}</span>
@@ -747,7 +747,7 @@ export const ProfileCard = forwardRef(
                       const count = d.count || 0;
                       const bgClass =
                         count === 0
-                          ? 'bg-surface-800/40'
+                          ? 'bg-[#292E38]/50'
                           : count <= 2
                           ? 'bg-emerald-500/40'
                           : count <= 5

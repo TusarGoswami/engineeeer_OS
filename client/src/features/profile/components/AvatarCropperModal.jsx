@@ -106,16 +106,16 @@ export const AvatarCropperModal = ({ isOpen, onClose, onAvatarUpdated }) => {
     >
       <div className="space-y-4">
         {!imageSrc ? (
-          <div className="flex flex-col items-center justify-center border-2 border-dashed border-surface-700 hover:border-brand-500 rounded-2xl p-8 transition-colors bg-surface-900">
-            <div className="w-16 h-16 rounded-full bg-surface-800 flex items-center justify-center text-surface-400 mb-4">
+          <div className="flex flex-col items-center justify-center border-2 border-dashed border-surface-600 dark:border-surface-700 hover:border-brand-500 rounded-2xl p-8 transition-colors bg-surface-900">
+            <div className="w-16 h-16 rounded-full bg-surface-800 border border-surface-700 flex items-center justify-center text-surface-400 mb-4">
               <ImageIcon className="w-8 h-8" />
             </div>
-            <p className="text-sm font-medium text-surface-200 mb-1">
+            <p className="text-sm font-medium text-surface-100 dark:text-surface-200 mb-1">
               Choose an image from your computer
             </p>
             <p className="text-xs text-surface-400 mb-4">PNG, JPG, or WebP up to 3MB</p>
             <label className="cursor-pointer">
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-500 text-white transition-colors shadow-lg shadow-brand-600/20">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-brand-500 hover:bg-brand-600 text-white transition-colors shadow-sm">
                 <Upload className="w-4 h-4" /> Browse Photo
               </span>
               <input

@@ -223,7 +223,7 @@ export const ProfilePage = () => {
                 href={`/u/${username}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-surface-800 hover:bg-surface-700 text-surface-200 transition-colors border border-surface-700/80"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-surface-900 hover:bg-surface-800 dark:bg-surface-800 dark:hover:bg-surface-700 text-surface-100 dark:text-surface-200 transition-colors border border-surface-600 dark:border-surface-700/80"
               >
                 <span>Live View</span>
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -235,7 +235,7 @@ export const ProfilePage = () => {
         {/* Live Card Preview */}
         <div className="w-full flex justify-center py-2">
           {loading ? (
-            <div className="w-full max-w-2xl h-80 rounded-2xl bg-surface-900/40 border border-surface-800 animate-pulse" />
+            <div className="w-full max-w-2xl h-80 rounded-2xl bg-surface-850/80 dark:bg-surface-900/40 border border-surface-700 dark:border-surface-800 animate-pulse" />
           ) : (
             <ProfileCard
               ref={cardRef}
@@ -257,7 +257,7 @@ export const ProfilePage = () => {
         {/* Tab 1: Academic & Personal Form */}
         <TabsContent value="academic" className="space-y-6">
           {successMsg && (
-            <div className="flex items-center gap-2 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm">
+            <div className="flex items-center gap-2 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 text-sm">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{successMsg}</span>
             </div>
@@ -285,11 +285,11 @@ export const ProfilePage = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input label="Branch / Major" {...register('branch')} />
                   <div className="flex flex-col space-y-1.5">
-                    <label className="text-xs font-medium text-surface-300">
+                    <label className="text-[13px] font-medium text-surface-100 dark:text-surface-300">
                       Current Semester
                     </label>
                     <select
-                      className="w-full rounded-xl bg-surface-950/80 border border-surface-800 text-surface-100 text-sm px-3.5 py-2.5 focus:outline-none focus:border-brand-500"
+                      className="w-full rounded-[9px] bg-auth-input dark:bg-surface-950/80 border border-surface-600 dark:border-surface-800 text-surface-100 text-sm px-3.5 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-0"
                       {...register('semester')}
                     >
                       {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
@@ -316,14 +316,14 @@ export const ProfilePage = () => {
                 </div>
 
                 <div className="flex flex-col space-y-1.5">
-                  <label className="text-xs font-medium text-surface-300">
+                  <label className="text-[13px] font-medium text-surface-100 dark:text-surface-300">
                     Headline / Bio (Max 120 chars)
                   </label>
                   <textarea
                     rows={2}
                     maxLength={120}
-                    className="w-full rounded-xl bg-surface-950/80 border border-surface-800 text-surface-100 text-sm p-3 focus:outline-none focus:border-brand-500 placeholder-surface-500"
-                    placeholder="Distributed Systems Enthusiast â€¢ 300+ LeetCode Solved"
+                    className="w-full rounded-[9px] bg-auth-input dark:bg-surface-950/80 border border-surface-600 dark:border-surface-800 text-surface-100 text-sm p-3 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-0 placeholder-surface-500"
+                    placeholder="Distributed Systems Enthusiast • 300+ LeetCode Solved"
                     {...register('bio')}
                   />
                 </div>
@@ -373,7 +373,7 @@ export const ProfilePage = () => {
                   </CardDescription>
                 </div>
                 <div className="text-right">
-                  <div className="text-lg font-bold font-mono text-emerald-400">
+                  <div className="text-lg font-bold font-mono text-emerald-700 dark:text-emerald-400">
                     {profileData?.stats?.streaks?.current || 0} Days
                   </div>
                   <div className="text-xs text-surface-400">Current Streak</div>

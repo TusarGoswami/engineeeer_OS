@@ -70,13 +70,13 @@ export const PublicProfilePage = () => {
   return (
     <div className="min-h-screen bg-surface-950 text-surface-100 flex flex-col justify-between selection:bg-brand-500 selection:text-white">
       {/* Top Banner */}
-      <header className="border-b border-surface-700/80 bg-surface-950/70 backdrop-blur-md sticky top-0 z-40">
+      <header className="border-b border-surface-700 dark:border-surface-700/80 bg-navbar/95 dark:bg-surface-950/70 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link
             to="/"
             className="flex items-center gap-2.5 font-bold text-surface-100 text-sm hover:opacity-90 transition-opacity"
           >
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center font-bold text-xs text-white shadow-md shadow-brand-500/25">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center font-bold text-xs text-white shadow-sm dark:shadow-md shadow-brand-500/25">
               OS
             </div>
             <span>Engineer<span className="text-brand-500">OS</span></span>
@@ -100,8 +100,8 @@ export const PublicProfilePage = () => {
             <CardSkeleton />
           </div>
         ) : error ? (
-          <div className="w-full max-w-md mx-auto text-center p-8 rounded-2xl bg-surface-900/60 border border-surface-800 shadow-2xl backdrop-blur-md space-y-4">
-            <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+          <div className="w-full max-w-md mx-auto text-center p-8 rounded-2xl bg-surface-850 dark:bg-surface-900/60 border border-surface-700 dark:border-surface-800 shadow-[var(--shadow-elevated)] dark:shadow-2xl backdrop-blur-md space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
               <Lock className="w-6 h-6" />
             </div>
             <h2 className="text-lg font-bold text-surface-100">Profile Restricted</h2>
@@ -149,7 +149,7 @@ export const PublicProfilePage = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-surface-800/80 bg-surface-950/40 py-6 text-center text-xs text-surface-500">
+      <footer className="border-t border-surface-700 dark:border-surface-800/80 bg-navbar/60 dark:bg-surface-950/40 py-6 text-center text-xs text-surface-500">
         <p>
           EngineerOS — The Complete Operating System for Engineering Students
         </p>

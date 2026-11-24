@@ -22,13 +22,13 @@ export const IconButton = ({
     primary:
       'bg-brand-500 hover:bg-brand-600 text-white shadow-sm focus:ring-brand-500/50',
     secondary:
-      'bg-surface-800 hover:bg-surface-700 text-surface-200 hover:text-surface-100 border border-surface-700 focus:ring-surface-600',
+      'bg-surface-900 hover:bg-surface-800 text-surface-100 border border-surface-600 dark:bg-surface-800 dark:hover:bg-surface-700 dark:text-surface-200 dark:hover:text-surface-100 dark:border-surface-700 focus:ring-surface-600',
     outline:
-      'bg-transparent border border-surface-700 hover:border-brand-500 hover:bg-brand-500/10 text-surface-300 hover:text-surface-100 focus:ring-brand-500/50',
+      'bg-transparent border border-surface-600 dark:border-surface-700 hover:border-brand-500 hover:bg-brand-500/10 text-surface-200 dark:text-surface-300 hover:text-brand-700 dark:hover:text-surface-100 focus:ring-brand-500/50',
     ghost:
-      'bg-transparent hover:bg-surface-800 text-surface-400 hover:text-surface-100 focus:ring-surface-600',
+      'bg-transparent hover:bg-surface-800 text-surface-300 dark:text-surface-400 hover:text-surface-100 focus:ring-surface-600',
     danger:
-      'bg-rose-600/20 hover:bg-rose-600/30 text-rose-500 dark:text-rose-300 border border-rose-500/30 focus:ring-rose-500',
+      'bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 dark:bg-rose-600/20 dark:hover:bg-rose-600/30 dark:text-rose-300 border border-rose-500/30 focus:ring-rose-500',
   };
 
   const sizes = {

@@ -33,7 +33,7 @@ const AuthLayout = ({ children }) => {
   return (
     <div className="flex min-h-screen w-full overflow-x-hidden bg-surface-950 text-surface-100 selection:bg-orange-500 selection:text-white">
       {/* ── LEFT PANEL: Branding & Animated Bongo Cat Coder ───────── */}
-      <div className="relative hidden w-[45%] flex-col justify-between border-r border-surface-700/80 bg-surface-900 md:flex lg:w-[48%] xl:w-[50%] min-h-screen">
+      <div className="relative hidden w-[45%] flex-col justify-between border-r border-surface-700 dark:border-surface-700/80 bg-sidebar dark:bg-surface-900 md:flex lg:w-[48%] xl:w-[50%] min-h-screen">
         {/* Subtle technical background grid texture */}
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.035]"
@@ -45,7 +45,7 @@ const AuthLayout = ({ children }) => {
 
         {/* Ambient warm glow in lower portion for mascot */}
         <div
-          className="absolute bottom-0 left-0 right-0 h-[450px] pointer-events-none"
+          className="absolute bottom-0 left-0 right-0 h-[450px] pointer-events-none opacity-45 dark:opacity-100"
           style={{
             background:
               'radial-gradient(circle at 50% 65%, rgba(255, 101, 0, 0.12) 0%, rgba(255, 101, 0, 0.03) 45%, transparent 70%)',
@@ -62,7 +62,7 @@ const AuthLayout = ({ children }) => {
           {/* Eyebrow */}
           <div className="mb-2.5 inline-flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse" />
-            <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-500">
+            <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-700 dark:text-orange-500">
               Developer Productivity Platform
             </p>
           </div>
@@ -86,7 +86,7 @@ const AuthLayout = ({ children }) => {
               (item) => (
                 <span
                   key={item}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-surface-700 bg-surface-850/80 px-2.5 py-0.5 text-[10.5px] lg:px-3 lg:py-1 lg:text-[11px] font-medium text-surface-400 backdrop-blur-sm transition-all duration-150 hover:border-orange-500/40 hover:text-surface-100 hover:bg-surface-800"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-surface-700 bg-surface-850 dark:bg-surface-850/80 px-2.5 py-0.5 text-[10.5px] lg:px-3 lg:py-1 lg:text-[11px] font-medium text-surface-300 dark:text-surface-400 backdrop-blur-sm transition-all duration-150 hover:border-orange-500/40 hover:text-surface-100 hover:bg-surface-800 shadow-2xs dark:shadow-none"
                 >
                   <span className="h-1.5 w-1.5 rounded-full bg-orange-500" />
                   {item}
@@ -104,7 +104,7 @@ const AuthLayout = ({ children }) => {
         </div>
 
         {/* Subtle bottom brand bar */}
-        <div className="relative z-10 shrink-0 border-t border-surface-700/50 px-6 py-3 md:px-8 lg:px-10">
+        <div className="relative z-10 shrink-0 border-t border-surface-700 dark:border-surface-700/50 px-6 py-3 md:px-8 lg:px-10">
           <p className="text-[10.5px] lg:text-[11px] text-surface-500">
             © {new Date().getFullYear()} EngineerOS — The Complete Operating System for Engineering Students
           </p>
@@ -114,7 +114,7 @@ const AuthLayout = ({ children }) => {
       {/* ── RIGHT PANEL: Auth ────────────────────────────────────── */}
       <div className="flex flex-1 flex-col bg-surface-950 min-w-0 overflow-y-auto">
         {/* Top navigation */}
-        <header className="flex items-center justify-between px-5 py-4 sm:px-8 sm:py-5 border-b border-surface-700/50">
+        <header className="flex items-center justify-between px-5 py-4 sm:px-8 sm:py-5 border-b border-surface-700 dark:border-surface-700/50 bg-navbar/90 dark:bg-transparent">
           {/* Mobile logo — visible on small screens */}
           <div className="md:hidden">
             <EngineerOSLogo size="sm" />
@@ -171,16 +171,16 @@ const AuthLayout = ({ children }) => {
 // ─── Standard Public Layout (fallback for non-auth public pages) ─────────────
 const StandardLayout = () => (
   <div className="min-h-screen bg-surface-950 text-surface-100 flex flex-col justify-between selection:bg-brand-500 selection:text-white">
-    <header className="px-6 py-4 flex items-center justify-between border-b border-surface-700/80 bg-surface-900/80 backdrop-blur-md">
+    <header className="px-6 py-4 flex items-center justify-between border-b border-surface-700 dark:border-surface-700/80 bg-navbar dark:bg-surface-900/80 backdrop-blur-md">
       <EngineerOSLogo size="md" />
-      <div className="flex items-center gap-4 text-xs font-medium text-surface-400">
+      <div className="flex items-center gap-4 text-xs font-medium text-surface-300 dark:text-surface-400">
         <ThemeToggle size="sm" />
         <Link to="/login" className="hover:text-surface-100 transition-colors">
           Sign In
         </Link>
         <Link
           to="/register"
-          className="px-3.5 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-medium transition-all shadow-md shadow-orange-500/20"
+          className="px-3.5 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-medium transition-all shadow-sm dark:shadow-md shadow-orange-500/20"
         >
           Create Account
         </Link>
@@ -189,7 +189,7 @@ const StandardLayout = () => (
     <main className="flex-1 flex items-center justify-center p-6">
       <Outlet />
     </main>
-    <footer className="py-4 text-center text-xs text-surface-400 border-t border-surface-700/80">
+    <footer className="py-4 text-center text-xs text-surface-400 border-t border-surface-700 dark:border-surface-700/80">
       EngineerOS — The Complete Operating System for an Engineering Student
     </footer>
   </div>

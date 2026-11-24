@@ -154,8 +154,8 @@ export const DashboardLayout = () => {
                 cn(
                   'group flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200',
                   isActive
-                    ? 'bg-brand-500/10 text-brand-400 font-semibold border-l-[3px] border-l-brand-500 border border-brand-500/20 rounded-r-xl rounded-l-none'
-                    : 'text-surface-400 hover:text-surface-100 hover:bg-surface-800/60 rounded-xl'
+                    ? 'bg-[#FFF0E5] dark:bg-brand-500/10 text-brand-700 dark:text-brand-400 font-semibold border-l-[3px] border-l-brand-500 border border-brand-500/25 dark:border-brand-500/20 rounded-r-xl rounded-l-none'
+                    : 'text-surface-300 dark:text-surface-400 hover:text-surface-100 hover:bg-[#E3E6EC] dark:hover:bg-surface-800/60 rounded-xl'
                 )
               }
             >
@@ -188,10 +188,10 @@ export const DashboardLayout = () => {
   return (
     <div className="flex min-h-screen bg-surface-950 text-surface-100 font-sans bg-grid-cyber">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-64 flex-col fixed inset-y-0 border-r border-surface-700/80 bg-surface-900/90 backdrop-blur-2xl z-30">
+      <aside className="hidden lg:flex w-64 flex-col fixed inset-y-0 border-r border-surface-700 dark:border-surface-700/80 bg-sidebar dark:bg-surface-900/90 dark:backdrop-blur-2xl z-30">
         {/* Brand Header */}
-        <div className="flex h-16 items-center gap-3 px-6 border-b border-surface-700/80">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 font-bold text-white shadow-md shadow-brand-500/25 text-sm">
+        <div className="flex h-16 items-center gap-3 px-6 border-b border-surface-700 dark:border-surface-700/80">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 font-bold text-white shadow-sm dark:shadow-md shadow-brand-500/25 text-sm">
             OS
           </div>
           <div>
@@ -206,10 +206,10 @@ export const DashboardLayout = () => {
         <div className="flex-1 overflow-y-auto px-4 py-5 space-y-6">{renderNavLinks()}</div>
 
         {/* User Card & Logout Footer */}
-        <div className="p-4 border-t border-surface-700/80 bg-surface-950/60">
+        <div className="p-4 border-t border-surface-700 dark:border-surface-700/80 bg-surface-900/80 dark:bg-surface-950/60">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3 overflow-hidden">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-800 border border-surface-700 text-brand-400 font-bold text-xs uppercase">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-850 dark:bg-surface-800 border border-surface-700 text-brand-700 dark:text-brand-400 font-bold text-xs uppercase shadow-2xs dark:shadow-none">
                 {user?.name?.slice(0, 2) || 'ST'}
               </div>
               <div className="overflow-hidden">
@@ -222,7 +222,7 @@ export const DashboardLayout = () => {
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-surface-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors border border-transparent hover:border-rose-500/20"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-surface-300 dark:text-surface-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors border border-transparent hover:border-rose-500/20"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Sign Out</span>
@@ -234,11 +234,11 @@ export const DashboardLayout = () => {
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
-            className="fixed inset-0 bg-surface-950/80 backdrop-blur-sm"
+            className="fixed inset-0 bg-slate-900/45 dark:bg-surface-950/80 backdrop-blur-sm"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <div className="fixed inset-y-0 left-0 w-72 bg-surface-900 border-r border-surface-800 p-5 flex flex-col shadow-2xl">
-            <div className="flex items-center justify-between pb-4 border-b border-surface-800 mb-4">
+          <div className="fixed inset-y-0 left-0 w-72 bg-sidebar dark:bg-surface-900 border-r border-surface-700 dark:border-surface-800 p-5 flex flex-col shadow-2xl">
+            <div className="flex items-center justify-between pb-4 border-b border-surface-700 dark:border-surface-800 mb-4">
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 font-bold text-white text-xs">
                   OS
@@ -256,10 +256,10 @@ export const DashboardLayout = () => {
               </div>
             </div>
             <div className="flex-1 overflow-y-auto">{renderNavLinks()}</div>
-            <div className="pt-4 border-t border-surface-800">
+            <div className="pt-4 border-t border-surface-700 dark:border-surface-800">
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-rose-400 bg-rose-500/10 rounded-xl"
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-rose-600 dark:text-rose-400 bg-rose-500/10 rounded-xl"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Sign Out</span>
@@ -272,11 +272,11 @@ export const DashboardLayout = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col lg:pl-64 min-w-0">
         {/* Top Navbar */}
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between px-6 border-b border-surface-700/80 bg-surface-950/80 backdrop-blur-xl">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between px-6 border-b border-surface-700 dark:border-surface-700/80 bg-navbar/95 dark:bg-surface-950/80 backdrop-blur-xl">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden p-2 rounded-xl text-surface-400 hover:text-surface-100 hover:bg-surface-800"
+              className="lg:hidden p-2 rounded-xl text-surface-300 dark:text-surface-400 hover:text-surface-100 hover:bg-surface-800"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -291,11 +291,11 @@ export const DashboardLayout = () => {
           <button
             type="button"
             onClick={() => setIsCommandPaletteOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-900 border border-surface-700 text-surface-400 hover:text-surface-200 text-xs transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-850 dark:bg-surface-900 border border-surface-600/80 dark:border-surface-700 text-surface-400 hover:text-surface-100 hover:border-surface-600 text-xs transition-colors shadow-2xs dark:shadow-none"
           >
             <Search className="w-3.5 h-3.5" />
             <span className="hidden md:inline">Search platform or press</span>
-            <kbd className="font-mono text-[10px] bg-surface-800 text-surface-300 px-1.5 py-0.5 rounded border border-surface-700">
+            <kbd className="font-mono text-[10px] bg-surface-800 text-surface-200 dark:text-surface-300 px-1.5 py-0.5 rounded border border-surface-700">
               Ctrl K
             </kbd>
           </button>
@@ -308,24 +308,24 @@ export const DashboardLayout = () => {
             <div className="relative">
               <button
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
-                className="relative p-2 rounded-xl text-surface-400 hover:text-surface-100 hover:bg-surface-800 transition-colors"
+                className="relative p-2 rounded-xl text-surface-300 dark:text-surface-400 hover:text-surface-100 hover:bg-surface-800 transition-colors"
                 title="Notifications"
               >
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-500 text-[10px] font-bold text-white ring-2 ring-surface-950">
+                  <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-500 text-[10px] font-bold text-white ring-2 ring-navbar dark:ring-surface-950">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
               </button>
 
               {isNotifOpen && (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-surface-900 border border-surface-800 shadow-2xl z-50 overflow-hidden animate-fadeIn">
-                  <div className="flex items-center justify-between p-4 border-b border-surface-800 bg-surface-950/60">
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-surface-850 dark:bg-surface-900 border border-surface-700 dark:border-surface-800 shadow-[var(--shadow-elevated)] dark:shadow-2xl z-50 overflow-hidden animate-fadeIn">
+                  <div className="flex items-center justify-between p-4 border-b border-surface-700 dark:border-surface-800 bg-surface-900 dark:bg-surface-950/60">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-surface-100">Notifications</span>
                       {unreadCount > 0 && (
-                        <span className="text-[10px] bg-brand-500/20 text-brand-300 px-1.5 py-0.5 rounded-full font-semibold">
+                        <span className="text-[10px] bg-brand-500/15 dark:bg-brand-500/20 text-brand-700 dark:text-brand-300 px-1.5 py-0.5 rounded-full font-semibold">
                           {unreadCount} new
                         </span>
                       )}
@@ -333,7 +333,7 @@ export const DashboardLayout = () => {
                     {unreadCount > 0 && (
                       <button
                         onClick={handleMarkAllRead}
-                        className="flex items-center gap-1 text-[11px] text-surface-400 hover:text-brand-400"
+                        className="flex items-center gap-1 text-[11px] text-surface-400 hover:text-brand-600 dark:hover:text-brand-400"
                       >
                         <Check className="w-3 h-3" />
                         <span>Mark all read</span>
@@ -341,7 +341,7 @@ export const DashboardLayout = () => {
                     )}
                   </div>
 
-                  <div className="max-h-80 overflow-y-auto divide-y divide-surface-800/60">
+                  <div className="max-h-80 overflow-y-auto divide-y divide-surface-700 dark:divide-surface-800/60">
                     {notifications.length === 0 ? (
                       <div className="p-6 text-center text-xs text-surface-400">
                         No notifications yet.
@@ -351,7 +351,7 @@ export const DashboardLayout = () => {
                         <div
                           key={n._id}
                           onClick={() => handleNotificationClick(n)}
-                          className={`p-3.5 hover:bg-surface-800/50 cursor-pointer transition-colors ${
+                          className={`p-3.5 hover:bg-surface-900 dark:hover:bg-surface-800/50 cursor-pointer transition-colors ${
                             !n.isRead ? 'bg-brand-500/5' : ''
                           }`}
                         >
@@ -364,7 +364,7 @@ export const DashboardLayout = () => {
                               {n.title}
                             </span>
                             {!n.isRead && (
-                              <span className="w-2 h-2 rounded-full bg-brand-400 mt-1 shrink-0" />
+                              <span className="w-2 h-2 rounded-full bg-brand-500 dark:bg-brand-400 mt-1 shrink-0" />
                             )}
                           </div>
                           <p className="text-[11px] text-surface-400 mt-0.5 leading-relaxed">
@@ -402,7 +402,7 @@ export const DashboardLayout = () => {
         </main>
 
         {/* Mobile Bottom Navigation Bar */}
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-surface-950/95 backdrop-blur-xl border-t border-surface-700/80 px-2 py-1.5 flex items-center justify-around">
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-navbar/95 dark:bg-surface-950/95 backdrop-blur-xl border-t border-surface-700 dark:border-surface-700/80 px-2 py-1.5 flex items-center justify-around">
           {[
             { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
             { name: 'Coding', path: '/coding', icon: Code2 },
@@ -419,8 +419,8 @@ export const DashboardLayout = () => {
                   cn(
                     'flex flex-col items-center justify-center p-1.5 rounded-xl text-[10px] font-medium transition-colors',
                     isActive
-                      ? 'text-brand-400 font-semibold'
-                      : 'text-surface-400 hover:text-surface-200'
+                      ? 'text-brand-700 dark:text-brand-400 font-semibold'
+                      : 'text-surface-300 dark:text-surface-400 hover:text-surface-100'
                   )
                 }
               >

@@ -56,13 +56,13 @@ export const Heatmap = ({
     return cols;
   }, [countMap, weeks]);
 
-  // Intensity color mapper
+  // Intensity color mapper (light mode: light -> dark green; dark mode preserved)
   const getIntensityClass = (count) => {
-    if (!count || count === 0) return 'bg-surface-800/70 border-surface-700/30';
-    if (count <= 2) return 'bg-emerald-900/80 border-emerald-700/40 text-emerald-300';
-    if (count <= 5) return 'bg-emerald-700 border-emerald-600/50 text-emerald-100';
-    if (count <= 8) return 'bg-emerald-500 border-emerald-400 text-white';
-    return 'bg-emerald-400 border-emerald-300 text-black shadow-sm shadow-emerald-400/30';
+    if (!count || count === 0) return 'bg-surface-800 border-surface-700 dark:bg-surface-800/70 dark:border-surface-700/30';
+    if (count <= 2) return 'bg-emerald-200 border-emerald-300 text-emerald-900 dark:bg-emerald-900/80 dark:border-emerald-700/40 dark:text-emerald-300';
+    if (count <= 5) return 'bg-emerald-400 border-emerald-500/60 text-emerald-950 dark:bg-emerald-700 dark:border-emerald-600/50 dark:text-emerald-100';
+    if (count <= 8) return 'bg-emerald-500 border-emerald-600 text-white dark:border-emerald-400';
+    return 'bg-emerald-700 border-emerald-800 text-white dark:bg-emerald-400 dark:border-emerald-300 dark:text-black shadow-2xs dark:shadow-sm dark:shadow-emerald-400/30';
   };
 
   return (
@@ -76,7 +76,7 @@ export const Heatmap = ({
           )}
           {currentStreak !== undefined && (
             <span>
-              Current Streak: <strong className="font-mono text-emerald-400">{currentStreak}d 🔥</strong>
+              Current Streak: <strong className="font-mono text-emerald-700 dark:text-emerald-400">{currentStreak}d 🔥</strong>
             </span>
           )}
           {longestStreak !== undefined && (
@@ -88,11 +88,11 @@ export const Heatmap = ({
 
         <div className="flex items-center gap-1.5 text-xs text-surface-400">
           <span>Less</span>
-          <div className="w-2.5 h-2.5 rounded-sm bg-surface-800 border border-surface-700/30" />
-          <div className="w-2.5 h-2.5 rounded-sm bg-emerald-900/80 border border-emerald-700/40" />
-          <div className="w-2.5 h-2.5 rounded-sm bg-emerald-700 border border-emerald-600/50" />
-          <div className="w-2.5 h-2.5 rounded-sm bg-emerald-500 border border-emerald-400" />
-          <div className="w-2.5 h-2.5 rounded-sm bg-emerald-400 border border-emerald-300" />
+          <div className="w-2.5 h-2.5 rounded-sm bg-surface-800 border border-surface-700 dark:border-surface-700/30" />
+          <div className="w-2.5 h-2.5 rounded-sm bg-emerald-200 border-emerald-300 dark:bg-emerald-900/80 border dark:border-emerald-700/40" />
+          <div className="w-2.5 h-2.5 rounded-sm bg-emerald-400 border-emerald-500/60 dark:bg-emerald-700 border dark:border-emerald-600/50" />
+          <div className="w-2.5 h-2.5 rounded-sm bg-emerald-500 border-emerald-600 border dark:border-emerald-400" />
+          <div className="w-2.5 h-2.5 rounded-sm bg-emerald-700 border-emerald-800 dark:bg-emerald-400 border dark:border-emerald-300" />
           <span>More</span>
         </div>
       </div>
@@ -111,7 +111,7 @@ export const Heatmap = ({
                   onMouseLeave={() => setHoveredCell(null)}
                   aria-label={`${cell.date}: ${cell.count} activities`}
                   className={cn(
-                    'w-3 h-3 rounded-[3px] border transition-transform hover:scale-125 focus:scale-125 focus:outline-none focus:ring-1 focus:ring-emerald-400',
+                    'w-3 h-3 rounded-[3px] border transition-transform hover:scale-125 focus:scale-125 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:focus:ring-emerald-400',
                     getIntensityClass(cell.count)
                   )}
                 />
@@ -122,7 +122,7 @@ export const Heatmap = ({
 
         {/* Floating Tooltip */}
         {hoveredCell && (
-          <div className="absolute top-0 right-0 pointer-events-none bg-surface-900/95 border border-surface-700 px-2 py-1 rounded-md text-xs font-mono text-surface-200 shadow-xl z-20">
+          <div className="absolute top-0 right-0 pointer-events-none bg-surface-100 text-surface-850 border border-surface-200 dark:bg-surface-900/95 dark:border-surface-700 dark:text-surface-200 px-2.5 py-1 rounded-md text-xs font-mono shadow-lg dark:shadow-xl z-20">
             {hoveredCell.date}: <strong>{hoveredCell.count}</strong> contribution{hoveredCell.count !== 1 ? 's' : ''}
           </div>
         )}

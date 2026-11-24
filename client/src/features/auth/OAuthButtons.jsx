@@ -70,7 +70,7 @@ export const OAuthButtons = ({ onError }) => {
         type="button"
         onClick={handleGoogleClick}
         disabled={!!loadingProvider}
-        className="flex w-full items-center justify-center gap-3 rounded-[9px] border border-surface-700 bg-surface-800 px-4 py-2.5 text-sm font-semibold text-surface-100 transition-all duration-150 hover:border-surface-600 hover:bg-surface-750 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-3 rounded-[9px] border border-surface-600 dark:border-surface-700 bg-surface-900 dark:bg-surface-800 px-4 py-2.5 text-sm font-semibold text-surface-100 transition-all duration-150 hover:border-surface-500 dark:hover:border-surface-600 hover:bg-surface-800 dark:hover:bg-surface-750 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loadingProvider === 'google' ? (
           <Loader2 className="h-4 w-4 animate-spin text-surface-400" />
@@ -102,7 +102,7 @@ export const OAuthButtons = ({ onError }) => {
         type="button"
         onClick={handleGitHubClick}
         disabled={!!loadingProvider}
-        className="flex w-full items-center justify-center gap-3 rounded-[9px] border border-surface-700 bg-surface-800 px-4 py-2.5 text-sm font-semibold text-surface-100 transition-all duration-150 hover:border-surface-600 hover:bg-surface-750 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-3 rounded-[9px] border border-surface-600 dark:border-surface-700 bg-surface-900 dark:bg-surface-800 px-4 py-2.5 text-sm font-semibold text-surface-100 transition-all duration-150 hover:border-surface-500 dark:hover:border-surface-600 hover:bg-surface-800 dark:hover:bg-surface-750 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loadingProvider === 'github' ? (
           <Loader2 className="h-4 w-4 animate-spin text-surface-400" />

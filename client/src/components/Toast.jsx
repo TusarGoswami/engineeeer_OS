@@ -69,10 +69,10 @@ export const ToastProvider = ({ children }) => {
   };
 
   const styles = {
-    success: 'border-emerald-500/40 bg-surface-850/95 text-emerald-600 dark:text-emerald-300',
-    error: 'border-rose-500/40 bg-surface-850/95 text-rose-600 dark:text-rose-300',
-    warning: 'border-amber-500/40 bg-surface-850/95 text-amber-600 dark:text-amber-300',
-    info: 'border-brand-500/40 bg-surface-850/95 text-brand-600 dark:text-brand-300',
+    success: 'border-emerald-600/30 dark:border-emerald-500/40 bg-surface-850 dark:bg-surface-850/95 text-emerald-700 dark:text-emerald-300',
+    error: 'border-rose-600/30 dark:border-rose-500/40 bg-surface-850 dark:bg-surface-850/95 text-rose-700 dark:text-rose-300',
+    warning: 'border-amber-600/30 dark:border-amber-500/40 bg-surface-850 dark:bg-surface-850/95 text-amber-700 dark:text-amber-300',
+    info: 'border-brand-500/30 dark:border-brand-500/40 bg-surface-850 dark:bg-surface-850/95 text-brand-700 dark:text-brand-300',
   };
 
   return (
@@ -92,14 +92,14 @@ export const ToastProvider = ({ children }) => {
               key={t.id}
               role="status"
               className={cn(
-                'pointer-events-auto flex items-start gap-3 p-4 rounded-xl border shadow-xl backdrop-blur-md animate-fade-in-up transition-all',
+                'pointer-events-auto flex items-start gap-3 p-4 rounded-xl border shadow-[var(--shadow-elevated)] dark:shadow-xl backdrop-blur-md animate-fade-in-up transition-all',
                 styles[t.type] || styles.info
               )}
             >
               <Icon className="w-5 h-5 flex-shrink-0 mt-0.5" />
               <div className="flex-1 text-xs">
                 {t.title && <h5 className="font-semibold text-surface-100">{t.title}</h5>}
-                {t.message && <p className="text-surface-300 mt-0.5">{t.message}</p>}
+                {t.message && <p className="text-surface-200 dark:text-surface-300 mt-0.5">{t.message}</p>}
               </div>
               <button
                 type="button"

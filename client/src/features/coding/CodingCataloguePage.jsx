@@ -78,7 +78,7 @@ export function CodingCataloguePage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-mono uppercase tracking-wider text-emerald-400">
+            <span className="text-xs font-mono uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
               Algorithm & Data Structure Arena
             </span>
           </div>
@@ -91,8 +91,8 @@ export function CodingCataloguePage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="px-3 py-2 rounded-xl bg-surface-900 border border-surface-800 text-xs text-surface-300 font-mono">
-            <span className="text-emerald-400 font-bold">{problems.length}</span> Curated Problems
+          <div className="px-3 py-2 rounded-xl bg-surface-850 dark:bg-surface-900 border border-surface-700 dark:border-surface-800 text-xs text-surface-200 dark:text-surface-300 font-mono shadow-2xs dark:shadow-none">
+            <span className="text-emerald-700 dark:text-emerald-400 font-bold">{problems.length}</span> Curated Problems
           </div>
         </div>
       </div>
@@ -130,7 +130,7 @@ export function CodingCataloguePage() {
         </form>
 
         {/* Difficulty Selector Tabs */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-surface-800/80">
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-surface-700 dark:border-surface-800/80">
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-xs font-semibold text-surface-400 mr-1 flex items-center gap-1">
               <Filter className="w-3.5 h-3.5" /> Difficulty:
@@ -147,8 +147,8 @@ export function CodingCataloguePage() {
                 onClick={() => setDifficulty(d.id)}
                 className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                   difficulty === d.id
-                    ? 'bg-brand-600 text-white font-semibold'
-                    : 'bg-surface-800/60 text-surface-300 hover:bg-surface-800 hover:text-surface-100'
+                    ? 'bg-brand-500 dark:bg-brand-600 text-white font-semibold'
+                    : 'bg-surface-800 dark:bg-surface-800/60 text-surface-200 dark:text-surface-300 hover:bg-surface-700/70 dark:hover:bg-surface-800 hover:text-surface-100'
                 }`}
               >
                 {d.label}
@@ -165,10 +165,10 @@ export function CodingCataloguePage() {
               key={tag}
               type="button"
               onClick={() => setSelectedTag(selectedTag === tag ? '' : tag)}
-              className={`px-3 py-1.5 rounded-md text-[11px] font-mono transition-colors ${
+              className={`px-3 py-1.5 rounded-md text-[11px] font-mono transition-colors border ${
                 selectedTag === tag
-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold'
-                  : 'bg-surface-950/60 text-surface-400 border border-surface-800 hover:border-surface-700 hover:text-surface-200'
+                  ? 'bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-600/35 dark:border-emerald-500/40 font-semibold'
+                  : 'bg-surface-900 dark:bg-surface-950/60 text-surface-300 dark:text-surface-400 border-surface-700 dark:border-surface-800 hover:border-surface-600 dark:hover:border-surface-700 hover:text-surface-100 dark:hover:text-surface-200'
               }`}
             >
               #{tag}
@@ -182,7 +182,7 @@ export function CodingCataloguePage() {
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3, 4, 5].map(i => (
-              <div key={i} className="h-16 rounded-xl bg-surface-900/40 border border-surface-800 animate-pulse" />
+              <div key={i} className="h-16 rounded-xl bg-surface-850 dark:bg-surface-900/40 border border-surface-700 dark:border-surface-800 animate-pulse" />
             ))}
           </div>
         ) : problems.length === 0 ? (
@@ -194,7 +194,7 @@ export function CodingCataloguePage() {
             <div
               key={prob._id}
               onClick={() => navigate(`/coding/solve/${prob.slug}`)}
-              className="flex items-center justify-between p-4 sm:p-5 rounded-xl border border-surface-700 bg-surface-850 hover:bg-surface-800 hover:border-surface-600 transition-all duration-200 cursor-pointer group shadow-sm hover:-translate-y-px"
+              className="flex items-center justify-between p-4 sm:p-5 rounded-xl border border-surface-700 bg-surface-850 hover:border-surface-600 hover:shadow-[var(--shadow-elevated)] dark:hover:bg-surface-800 transition-all duration-200 cursor-pointer group shadow-[var(--shadow-card)] dark:shadow-sm hover:-translate-y-px"
             >
               <div className="flex items-center gap-3.5 min-w-0">
                 <span className="text-xs font-mono text-surface-500 w-6 shrink-0">

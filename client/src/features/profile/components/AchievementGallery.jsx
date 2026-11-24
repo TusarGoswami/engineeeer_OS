@@ -26,10 +26,10 @@ import { useTheme } from '../../../context/ThemeContext.jsx';
 const TIER_CONFIG = {
   bronze: {
     label: 'Bronze',
-    glow: 'shadow-orange-900/40',
-    glowHover: 'group-hover:shadow-orange-700/50',
-    accent: 'text-amber-500',
-    accentBg: 'bg-amber-500/10 border-amber-500/20 text-amber-500',
+    glow: 'dark:shadow-orange-900/40',
+    glowHover: 'dark:group-hover:shadow-orange-700/50',
+    accent: 'text-amber-700 dark:text-amber-500',
+    accentBg: 'bg-amber-500/10 border-amber-600/25 dark:border-amber-500/20 text-amber-800 dark:text-amber-500',
     iconColor: '#d97706',
     iconColorLight: '#b45309',
     ringColor: 'ring-amber-500/30',
@@ -48,10 +48,10 @@ const TIER_CONFIG = {
   },
   silver: {
     label: 'Silver',
-    glow: 'shadow-slate-500/30',
-    glowHover: 'group-hover:shadow-slate-400/50',
-    accent: 'text-slate-300',
-    accentBg: 'bg-slate-400/10 border-slate-400/20 text-slate-400',
+    glow: 'dark:shadow-slate-500/30',
+    glowHover: 'dark:group-hover:shadow-slate-400/50',
+    accent: 'text-slate-600 dark:text-slate-300',
+    accentBg: 'bg-slate-500/10 dark:bg-slate-400/10 border-slate-400/30 dark:border-slate-400/20 text-slate-700 dark:text-slate-400',
     iconColor: '#94a3b8',
     iconColorLight: '#64748b',
     ringColor: 'ring-slate-400/30',
@@ -70,10 +70,10 @@ const TIER_CONFIG = {
   },
   gold: {
     label: 'Gold',
-    glow: 'shadow-amber-500/40',
-    glowHover: 'group-hover:shadow-amber-400/60',
-    accent: 'text-amber-400',
-    accentBg: 'bg-amber-400/10 border-amber-400/20 text-amber-400',
+    glow: 'dark:shadow-amber-500/40',
+    glowHover: 'dark:group-hover:shadow-amber-400/60',
+    accent: 'text-amber-700 dark:text-amber-400',
+    accentBg: 'bg-amber-500/10 dark:bg-amber-400/10 border-amber-600/25 dark:border-amber-400/20 text-amber-800 dark:text-amber-400',
     iconColor: '#fbbf24',
     iconColorLight: '#d97706',
     ringColor: 'ring-amber-400/30',
@@ -92,10 +92,10 @@ const TIER_CONFIG = {
   },
   platinum: {
     label: 'Platinum',
-    glow: 'shadow-cyan-500/40',
-    glowHover: 'group-hover:shadow-cyan-400/60',
-    accent: 'text-cyan-400',
-    accentBg: 'bg-cyan-400/10 border-cyan-400/20 text-cyan-400',
+    glow: 'dark:shadow-cyan-500/40',
+    glowHover: 'dark:group-hover:shadow-cyan-400/60',
+    accent: 'text-sky-700 dark:text-cyan-400',
+    accentBg: 'bg-sky-500/10 dark:bg-cyan-400/10 border-sky-600/25 dark:border-cyan-400/20 text-sky-800 dark:text-cyan-400',
     iconColor: '#22d3ee',
     iconColorLight: '#0891b2',
     ringColor: 'ring-cyan-400/30',
@@ -783,8 +783,8 @@ const AchievementBadgeCard = ({ badge, isUnlocked, onClick }) => {
         transition-all duration-300 ease-out cursor-pointer
         focus:outline-none focus-visible:ring-2 ${tierCfg.ringColor} focus-visible:ring-offset-2 focus-visible:ring-offset-transparent
         ${isUnlocked
-          ? `bg-surface-900/40 hover:bg-surface-800/60 border border-surface-700/40 hover:border-surface-600/60 shadow-lg ${tierCfg.glow} ${tierCfg.glowHover} hover:shadow-xl hover:-translate-y-1`
-          : 'bg-surface-900/20 border border-surface-800/30 hover:bg-surface-900/30 opacity-60 hover:opacity-80'
+          ? `bg-surface-850 dark:bg-surface-900/40 dark:hover:bg-surface-800/60 border border-surface-700 dark:border-surface-700/40 hover:border-surface-600 dark:hover:border-surface-600/60 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] dark:shadow-lg ${tierCfg.glow} ${tierCfg.glowHover} dark:hover:shadow-xl hover:-translate-y-1`
+          : 'bg-surface-900 dark:bg-surface-900/20 border border-surface-700 dark:border-surface-800/30 hover:bg-surface-800/60 dark:hover:bg-surface-900/30 opacity-70 dark:opacity-60 hover:opacity-85'
         }`}
       aria-label={`${badge.name} — ${isUnlocked ? 'Unlocked' : 'Locked'} ${tierCfg.label} badge`}
     >
@@ -909,20 +909,20 @@ const BadgeDetailModal = ({ badge, isUnlocked, earnedDate, isOpen, onClose }) =>
 
         {/* Status */}
         {isUnlocked ? (
-          <div className="flex items-center gap-2 text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl">
+          <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-600/25 dark:border-emerald-500/20 px-3 py-1.5 rounded-xl">
             <Trophy className="w-3.5 h-3.5" />
             <span className="text-xs font-semibold">Unlocked</span>
             {earnedDate && (
               <>
                 <span className="text-emerald-500/40">•</span>
-                <span className="text-[10px] font-mono text-emerald-400/80">
+                <span className="text-[10px] font-mono text-emerald-700/80 dark:text-emerald-400/80">
                   {new Date(earnedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </span>
               </>
             )}
           </div>
         ) : (
-          <div className="flex items-center gap-2 text-surface-500 bg-surface-800/40 border border-surface-700/30 px-3 py-1.5 rounded-xl">
+          <div className="flex items-center gap-2 text-surface-500 bg-surface-900 dark:bg-surface-800/40 border border-surface-700 dark:border-surface-700/30 px-3 py-1.5 rounded-xl">
             <Lock className="w-3.5 h-3.5" />
             <span className="text-xs font-semibold">Locked</span>
           </div>
@@ -966,8 +966,8 @@ export const AchievementGallery = ({ earnedBadges = [] }) => {
       {/* Section Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
-            <Trophy className="w-5 h-5 text-amber-400" />
+          <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-600/25 dark:border-amber-500/20">
+            <Trophy className="w-5 h-5 text-amber-700 dark:text-amber-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-surface-100 tracking-tight">
@@ -980,7 +980,7 @@ export const AchievementGallery = ({ earnedBadges = [] }) => {
         </div>
 
         <div className="hidden sm:flex items-center gap-3">
-          <div className="w-32 h-2 rounded-full bg-surface-800 overflow-hidden">
+          <div className="w-32 h-2 rounded-full bg-surface-700 dark:bg-surface-800 overflow-hidden">
             <div
               className="h-full rounded-full bg-gradient-to-r from-amber-600 to-amber-400 transition-all duration-500"
               style={{ width: `${allBadges.length > 0 ? (unlocked.length / allBadges.length) * 100 : 0}%` }}

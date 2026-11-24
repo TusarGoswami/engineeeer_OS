@@ -42,14 +42,14 @@ export const OAuthCallbackPage = () => {
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center p-6 text-center">
       {error ? (
-        <div className="max-w-md rounded-2xl border border-rose-500/20 bg-rose-500/10 p-6 text-rose-400">
-          <AlertCircle className="mx-auto mb-3 h-8 w-8 text-rose-400" />
+        <div className="max-w-md rounded-2xl border border-rose-500/25 bg-rose-500/10 p-6 text-rose-700 dark:text-rose-400">
+          <AlertCircle className="mx-auto mb-3 h-8 w-8 text-rose-600 dark:text-rose-400" />
           <h3 className="mb-2 text-base font-semibold text-surface-100">Authentication Failed</h3>
-          <p className="mb-4 text-xs text-surface-300">{error}</p>
+          <p className="mb-4 text-xs text-surface-200 dark:text-surface-300">{error}</p>
           <button
             type="button"
             onClick={() => navigate('/login', { replace: true })}
-            className="rounded-lg bg-surface-800 px-4 py-2 text-xs font-medium text-white hover:bg-surface-700"
+            className="rounded-lg bg-surface-900 dark:bg-surface-800 border border-surface-600 dark:border-surface-700 px-4 py-2 text-xs font-medium text-surface-100 dark:text-white hover:bg-surface-800 dark:hover:bg-surface-700"
           >
             Return to Login
           </button>

@@ -22,7 +22,7 @@ const AuthInput = forwardRef(
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
-          <label htmlFor={inputId} className="text-[13px] font-medium text-surface-200">
+          <label htmlFor={inputId} className="text-[13px] font-medium text-surface-100 dark:text-surface-200">
             {label}
           </label>
         )}
@@ -38,13 +38,13 @@ const AuthInput = forwardRef(
             className={[
               'w-full rounded-[9px] border bg-auth-input px-3.5 py-2.5 text-sm text-surface-100',
               'placeholder-surface-500 transition-all duration-200 outline-none',
-              'focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50',
-              'disabled:opacity-50 disabled:cursor-not-allowed',
+              'focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:focus:ring-1 dark:focus:ring-orange-500/50',
+              'disabled:opacity-55 disabled:cursor-not-allowed',
               LeftIcon ? 'pl-10' : '',
               RightIcon ? 'pr-10' : '',
               error
-                ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/40'
-                : 'border-surface-700',
+                ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/30'
+                : 'border-surface-600 dark:border-surface-700',
               className,
             ]
               .filter(Boolean)
@@ -56,7 +56,7 @@ const AuthInput = forwardRef(
           )}
         </div>
         {error && (
-          <p className="text-[12px] font-medium text-rose-500 dark:text-rose-400">{error}</p>
+          <p className="text-[12px] font-medium text-rose-600 dark:text-rose-400">{error}</p>
         )}
       </div>
     );
@@ -115,7 +115,7 @@ export const LoginPage = () => {
     <div className="relative w-full max-w-[430px]">
       {/* Subtle ambient accent illumination behind login card */}
       <div
-        className="absolute -inset-1 rounded-[20px] pointer-events-none -z-10 opacity-70 blur-md transition-opacity duration-300"
+        className="absolute -inset-1 rounded-[20px] pointer-events-none -z-10 opacity-25 dark:opacity-70 blur-md transition-opacity duration-300"
         style={{
           background:
             'radial-gradient(circle at 50% 30%, rgba(255, 101, 0, 0.08) 0%, transparent 75%)',
@@ -123,7 +123,7 @@ export const LoginPage = () => {
       />
 
       {/* ── Login Card ── */}
-      <div className="rounded-[16px] border border-surface-700 bg-surface-850 px-7 py-8 shadow-xl dark:shadow-2xl dark:shadow-black/60 sm:px-8 sm:py-8">
+      <div className="rounded-[16px] border border-surface-700 bg-surface-850 px-7 py-8 shadow-[var(--shadow-elevated)] dark:shadow-2xl dark:shadow-black/60 sm:px-8 sm:py-8">
         {/* Card heading */}
         <div className="mb-7">
           <h2 className="text-[22px] font-bold tracking-tight text-surface-100">
@@ -136,7 +136,7 @@ export const LoginPage = () => {
 
         {/* Server error banner — original error state logic preserved */}
         {serverError && (
-          <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-rose-500/20 bg-rose-500/10 p-3.5 text-sm text-rose-500 dark:text-rose-400">
+          <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-rose-500/25 bg-rose-500/10 p-3.5 text-sm text-rose-700 dark:text-rose-400">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <span className="leading-snug">{serverError}</span>
           </div>
@@ -169,7 +169,7 @@ export const LoginPage = () => {
 
           {/* Password with connected label/id and visibility toggle */}
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="password" className="text-[13px] font-medium text-surface-200">
+            <label htmlFor="password" className="text-[13px] font-medium text-surface-100 dark:text-surface-200">
               Password
             </label>
             <div className="relative flex items-center">
@@ -183,11 +183,11 @@ export const LoginPage = () => {
                 className={[
                   'w-full rounded-[9px] border bg-auth-input px-3.5 py-2.5 pl-10 pr-10 text-sm text-surface-100',
                   'placeholder-surface-500 transition-all duration-200 outline-none',
-                  'focus:border-orange-500 focus:ring-1 focus:ring-orange-500/50',
-                  'disabled:opacity-50 disabled:cursor-not-allowed',
+                  'focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:focus:ring-1 dark:focus:ring-orange-500/50',
+                  'disabled:opacity-55 disabled:cursor-not-allowed',
                   errors.password
-                    ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/40'
-                    : 'border-surface-700',
+                    ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/30'
+                    : 'border-surface-600 dark:border-surface-700',
                 ]
                   .filter(Boolean)
                   .join(' ')}
@@ -198,7 +198,7 @@ export const LoginPage = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3.5 text-surface-400 transition-colors duration-150 hover:text-surface-200 focus:outline-none focus-visible:ring-1 focus-visible:ring-orange-500"
+                className="absolute right-3.5 text-surface-400 transition-colors duration-150 hover:text-surface-100 dark:hover:text-surface-200 focus:outline-none focus-visible:ring-1 focus-visible:ring-orange-500"
                 aria-label={showPassword ? 'Hide text' : 'Show text'}
                 tabIndex={0}
               >
@@ -210,7 +210,7 @@ export const LoginPage = () => {
               </button>
             </div>
             {errors.password && (
-              <p className="text-[12px] font-medium text-rose-500 dark:text-rose-400">
+              <p className="text-[12px] font-medium text-rose-600 dark:text-rose-400">
                 {errors.password.message}
               </p>
             )}
@@ -243,7 +243,7 @@ export const LoginPage = () => {
             <button
               type="button"
               onClick={() => fillDemoAccount('student@engineeros.dev', 'Password123')}
-              className="rounded-[8px] border border-surface-700 bg-surface-800 px-2 py-2 text-[12px] font-medium text-surface-200 transition-all duration-150 hover:border-surface-600 hover:bg-surface-700 hover:text-surface-100 active:scale-[0.98]"
+              className="rounded-[8px] border border-surface-600 dark:border-surface-700 bg-surface-900 dark:bg-surface-800 px-2 py-2 text-[12px] font-medium text-surface-100 dark:text-surface-200 transition-all duration-150 hover:border-surface-500 dark:hover:border-surface-600 hover:bg-surface-800 dark:hover:bg-surface-700 hover:text-surface-100 active:scale-[0.98]"
             >
               Student
             </button>
@@ -252,7 +252,7 @@ export const LoginPage = () => {
             <button
               type="button"
               onClick={() => fillDemoAccount('senior@engineeros.dev', 'Password123')}
-              className="rounded-[8px] border border-surface-700 bg-surface-800 px-2 py-2 text-[12px] font-medium text-surface-200 transition-all duration-150 hover:border-surface-600 hover:bg-surface-700 hover:text-surface-100 active:scale-[0.98]"
+              className="rounded-[8px] border border-surface-600 dark:border-surface-700 bg-surface-900 dark:bg-surface-800 px-2 py-2 text-[12px] font-medium text-surface-100 dark:text-surface-200 transition-all duration-150 hover:border-surface-500 dark:hover:border-surface-600 hover:bg-surface-800 dark:hover:bg-surface-700 hover:text-surface-100 active:scale-[0.98]"
             >
               Senior
             </button>
@@ -261,7 +261,7 @@ export const LoginPage = () => {
             <button
               type="button"
               onClick={() => fillDemoAccount('admin@engineeros.dev', 'Password123')}
-              className="rounded-[8px] border border-surface-700 bg-surface-800 px-2 py-2 text-[12px] font-medium text-surface-200 transition-all duration-150 hover:border-surface-600 hover:bg-surface-700 hover:text-surface-100 active:scale-[0.98]"
+              className="rounded-[8px] border border-surface-600 dark:border-surface-700 bg-surface-900 dark:bg-surface-800 px-2 py-2 text-[12px] font-medium text-surface-100 dark:text-surface-200 transition-all duration-150 hover:border-surface-500 dark:hover:border-surface-600 hover:bg-surface-800 dark:hover:bg-surface-700 hover:text-surface-100 active:scale-[0.98]"
             >
               Admin
             </button>
@@ -273,7 +273,7 @@ export const LoginPage = () => {
               💡{' '}
               <span className="font-semibold text-surface-200">New machine or fresh clone?</span>{' '}
               Run{' '}
-              <code className="font-mono text-orange-500">npm run seed</code> in the terminal to
+              <code className="font-mono text-brand-700 dark:text-orange-500">npm run seed</code> in the terminal to
               load demo accounts.
             </p>
           )}
@@ -284,7 +284,7 @@ export const LoginPage = () => {
           Don&apos;t have an account?{' '}
           <Link
             to="/register"
-            className="font-semibold text-orange-500 transition-colors duration-150 hover:text-orange-400"
+            className="font-semibold text-brand-700 dark:text-orange-500 transition-colors duration-150 hover:text-brand-600 dark:hover:text-orange-400"
           >
             Create an account
           </Link>

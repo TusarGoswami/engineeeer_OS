@@ -35,7 +35,7 @@ export const TabsList = ({ children, className = '' }) => {
     <div
       role="tablist"
       className={cn(
-        'inline-flex items-center gap-1 rounded-xl bg-surface-900 p-1 border border-surface-700 text-surface-400',
+        'inline-flex items-center gap-1 rounded-xl bg-surface-800 dark:bg-surface-900 p-1 border border-surface-700 text-surface-300 dark:text-surface-400',
         className
       )}
     >
@@ -61,8 +61,8 @@ export const TabsTrigger = ({ value, children, disabled = false, className = '' 
       className={cn(
         'inline-flex items-center justify-center whitespace-nowrap rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:opacity-40 disabled:cursor-not-allowed',
         isSelected
-          ? 'bg-surface-800 text-surface-100 font-semibold shadow-sm border border-surface-700'
-          : 'hover:text-surface-100 hover:bg-surface-800/50 text-surface-400',
+          ? 'bg-surface-850 dark:bg-surface-800 text-surface-100 font-semibold shadow-sm border border-surface-700'
+          : 'hover:text-surface-100 hover:bg-surface-850/60 dark:hover:bg-surface-800/50 text-surface-300 dark:text-surface-400',
         className
       )}
     >

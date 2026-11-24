@@ -30,14 +30,14 @@ export const Modal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-surface-950/80 backdrop-blur-md transition-opacity duration-200"
+        className="fixed inset-0 bg-slate-900/45 dark:bg-surface-950/80 backdrop-blur-sm dark:backdrop-blur-md transition-opacity duration-200"
         onClick={onClose}
       />
 
       {/* Modal Dialog Content */}
       <div
         className={cn(
-          'relative w-full rounded-2xl border border-surface-700 bg-surface-850 p-6 shadow-2xl z-10 animate-in fade-in zoom-in-95 duration-200',
+          'relative w-full rounded-2xl border border-surface-700 bg-surface-850 p-6 shadow-[var(--shadow-elevated)] dark:shadow-2xl z-10 animate-in fade-in zoom-in-95 duration-200',
           maxWidth
         )}
       >

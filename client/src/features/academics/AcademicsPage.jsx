@@ -76,10 +76,10 @@ export const AcademicsPage = () => {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-surface-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-surface-700 dark:border-surface-800">
         <div>
           <h1 className="text-[26px] font-bold tracking-tight text-surface-100 flex items-center gap-2.5">
-            <GraduationCap className="w-6 h-6 text-brand-400" />
+            <GraduationCap className="w-6 h-6 text-brand-700 dark:text-brand-400" />
             <span>Academic Curriculum Hub</span>
           </h1>
           <p className="text-sm text-surface-400 mt-1">
@@ -92,7 +92,7 @@ export const AcademicsPage = () => {
           <select
             value={selectedBranch}
             onChange={e => setSelectedBranch(e.target.value)}
-            className="rounded-xl bg-surface-900 border border-surface-800 text-xs text-surface-200 px-3 py-2 focus:outline-none focus:border-brand-500"
+            className="rounded-xl bg-surface-850 dark:bg-surface-900 border border-surface-600 dark:border-surface-800 text-xs text-surface-100 dark:text-surface-200 px-3 py-2 focus:outline-none focus:border-brand-500"
           >
             <option value="Computer Science and Engineering">
               Computer Science and Engineering
@@ -110,15 +110,21 @@ export const AcademicsPage = () => {
           <button
             key={sem}
             onClick={() => setSelectedSemester(sem)}
-            className={`px-4 py-2 rounded-xl text-xs font-medium transition-all select-none whitespace-nowrap min-w-[100px] text-center justify-center ${
+            className={`px-4 py-2 rounded-xl text-xs font-medium transition-all select-none whitespace-nowrap min-w-[100px] text-center justify-center border ${
               selectedSemester === sem
-                ? 'bg-brand-600 text-white shadow-md shadow-brand-600/30'
-                : 'bg-surface-900/60 text-surface-400 hover:text-surface-100 hover:bg-surface-800'
+                ? 'bg-brand-500 dark:bg-brand-600 border-brand-500 text-white shadow-sm dark:shadow-md shadow-brand-600/20'
+                : 'bg-surface-850 dark:bg-surface-900/60 border-surface-700 dark:border-transparent text-surface-300 dark:text-surface-400 hover:text-surface-100 hover:bg-surface-800'
             }`}
           >
             Semester {sem}
             {sem === user?.semester && (
-              <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-brand-400/20 text-[10px] text-brand-300">
+              <span
+                className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] ${
+                  selectedSemester === sem
+                    ? 'bg-white/20 text-white'
+                    : 'bg-brand-500/15 text-brand-700 dark:bg-brand-400/20 dark:text-brand-300'
+                }`}
+              >
                 Current
               </span>
             )}
@@ -128,13 +134,13 @@ export const AcademicsPage = () => {
 
       {/* Search Input */}
       <div className="relative max-w-md">
-        <Search className="w-4 h-4 absolute left-3.5 top-3 text-surface-500" />
+        <Search className="w-4 h-4 absolute left-3.5 top-2.5 text-surface-500" />
         <input
           type="text"
           placeholder="Search subjects or syllabus topics..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 rounded-xl bg-surface-900/80 border border-surface-800 text-xs text-surface-100 placeholder-surface-500 focus:outline-none focus:border-brand-500"
+          className="w-full pl-10 pr-4 py-2 rounded-xl bg-surface-850 dark:bg-surface-900/80 border border-surface-600 dark:border-surface-800 text-xs text-surface-100 placeholder-surface-500 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-0"
         />
       </div>
 
@@ -160,7 +166,7 @@ export const AcademicsPage = () => {
               <Card
                 key={subject._id}
                 hover
-                className="flex flex-col justify-between border-surface-800/80 bg-surface-900/50 cursor-pointer min-h-[200px] group"
+                className="flex flex-col justify-between border-surface-700 dark:border-surface-800/80 bg-surface-850 dark:bg-surface-900/50 cursor-pointer min-h-[200px] group"
                 onClick={() => {
                   setActiveSubject(subject);
                   setActiveTab('topics');
@@ -191,13 +197,13 @@ export const AcademicsPage = () => {
                   </CardDescription>
                 </div>
 
-                <div className="mt-5 pt-4 border-t border-surface-800/60">
+                <div className="mt-5 pt-4 border-t border-surface-700 dark:border-surface-800/60">
                   <div className="flex items-center justify-between text-xs text-surface-400 mb-2">
                     <span className="flex items-center gap-1">
-                      <BookOpen className="w-3.5 h-3.5 text-brand-400" />
+                      <BookOpen className="w-3.5 h-3.5 text-brand-700 dark:text-brand-400" />
                       {topicCount} Topics
                     </span>
-                    <span className="text-brand-400 font-medium group-hover:text-brand-500 transition-colors">Syllabus & Notes &rarr;</span>
+                    <span className="text-brand-700 dark:text-brand-400 font-medium group-hover:text-brand-600 dark:group-hover:text-brand-500 transition-colors">Syllabus & Notes &rarr;</span>
                   </div>
                 </div>
               </Card>
@@ -222,10 +228,10 @@ export const AcademicsPage = () => {
         ) : (
           <div className="space-y-5">
             {/* Completion Progress Bar */}
-            <div className="p-4 rounded-xl bg-surface-950 border border-surface-800">
+            <div className="p-4 rounded-xl bg-surface-900 dark:bg-surface-950 border border-surface-700 dark:border-surface-800">
               <div className="flex items-center justify-between text-xs mb-1.5">
-                <span className="text-surface-300 font-medium">Topic Completion Progress</span>
-                <span className="text-brand-400 font-bold text-sm">
+                <span className="text-surface-200 dark:text-surface-300 font-medium">Topic Completion Progress</span>
+                <span className="text-brand-700 dark:text-brand-400 font-bold text-sm">
                   {subjectDetails?.completionPercentage || 0}% Complete
                 </span>
               </div>
@@ -238,12 +244,12 @@ export const AcademicsPage = () => {
             </div>
 
             {/* Modal Tabs */}
-            <div className="flex border-b border-surface-800 text-xs">
+            <div className="flex border-b border-surface-700 dark:border-surface-800 text-xs">
               <button
                 onClick={() => setActiveTab('topics')}
                 className={`px-4 py-2 font-medium border-b-2 transition-colors ${
                   activeTab === 'topics'
-                    ? 'border-brand-500 text-brand-400'
+                    ? 'border-brand-500 text-brand-700 dark:text-brand-400'
                     : 'border-transparent text-surface-400 hover:text-surface-100'
                 }`}
               >
@@ -253,7 +259,7 @@ export const AcademicsPage = () => {
                 onClick={() => setActiveTab('resources')}
                 className={`px-4 py-2 font-medium border-b-2 transition-colors ${
                   activeTab === 'resources'
-                    ? 'border-brand-500 text-brand-400'
+                    ? 'border-brand-500 text-brand-700 dark:text-brand-400'
                     : 'border-transparent text-surface-400 hover:text-surface-100'
                 }`}
               >
@@ -278,13 +284,13 @@ export const AcademicsPage = () => {
                       }
                       className={`flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
                         isDone
-                          ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-200'
-                          : 'bg-surface-950/60 border-surface-800 hover:border-surface-700 text-surface-200'
+                          ? 'bg-emerald-500/10 border-emerald-600/25 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-200'
+                          : 'bg-surface-900 dark:bg-surface-950/60 border-surface-700 dark:border-surface-800 hover:border-surface-600 dark:hover:border-surface-700 text-surface-200'
                       }`}
                     >
                       <button className="mt-0.5 shrink-0 focus:outline-none">
                         {isDone ? (
-                          <CheckCircle className="w-4 h-4 text-emerald-400" />
+                          <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                         ) : (
                           <Circle className="w-4 h-4 text-surface-500 hover:text-surface-300" />
                         )}
@@ -322,10 +328,10 @@ export const AcademicsPage = () => {
                   subjectResources?.map(res => (
                     <div
                       key={res._id}
-                      className="p-3.5 rounded-xl border border-surface-800 bg-surface-950/70 flex items-start justify-between gap-3"
+                      className="p-3.5 rounded-xl border border-surface-700 dark:border-surface-800 bg-surface-900 dark:bg-surface-950/70 flex items-start justify-between gap-3"
                     >
                       <div className="flex items-start gap-3">
-                        <div className="p-2 rounded-lg bg-brand-500/10 text-brand-400 border border-brand-500/20 shrink-0">
+                        <div className="p-2 rounded-lg bg-brand-500/10 text-brand-700 dark:text-brand-400 border border-brand-500/20 shrink-0">
                           <FileText className="w-4 h-4" />
                         </div>
                         <div>
@@ -349,7 +355,7 @@ export const AcademicsPage = () => {
                           type="button"
                           onClick={() => setPreviewResource(res)}
                           title="Quick View Document"
-                          className="p-1.5 rounded-lg text-surface-400 hover:text-brand-400 hover:bg-surface-800 transition-colors"
+                          className="p-1.5 rounded-lg text-surface-400 hover:text-brand-700 dark:hover:text-brand-400 hover:bg-surface-800 transition-colors"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
@@ -359,7 +365,7 @@ export const AcademicsPage = () => {
                             target="_blank"
                             rel="noreferrer"
                             title="Open in new window"
-                            className="p-1.5 rounded-lg text-surface-400 hover:text-brand-400 hover:bg-surface-800 transition-colors"
+                            className="p-1.5 rounded-lg text-surface-400 hover:text-brand-700 dark:hover:text-brand-400 hover:bg-surface-800 transition-colors"
                           >
                             <ExternalLink className="w-4 h-4" />
                           </a>
@@ -384,7 +390,7 @@ export const AcademicsPage = () => {
       >
         {previewResource && (
           <div className="space-y-4 text-surface-200">
-            <div className="flex items-center justify-between p-3 rounded-xl bg-surface-950 border border-surface-800 text-xs">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-surface-900 dark:bg-surface-950 border border-surface-700 dark:border-surface-800 text-xs">
               <div className="flex items-center gap-2">
                 <Badge variant={previewResource.type === 'pyq' ? 'purple' : 'brand'}>
                   {previewResource.type?.toUpperCase()}
@@ -398,7 +404,7 @@ export const AcademicsPage = () => {
                   href={previewResource.contentUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-800 hover:bg-surface-700 text-brand-400 text-xs font-semibold transition-colors"
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-800 hover:bg-surface-700 text-brand-700 dark:text-brand-400 text-xs font-semibold transition-colors"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   Direct Link
@@ -406,7 +412,7 @@ export const AcademicsPage = () => {
               )}
             </div>
 
-            <div className="p-5 rounded-2xl bg-surface-950/80 border border-surface-800 max-h-96 overflow-y-auto font-sans leading-relaxed text-xs sm:text-sm text-surface-300 whitespace-pre-wrap">
+            <div className="p-5 rounded-2xl bg-surface-900 dark:bg-surface-950/80 border border-surface-700 dark:border-surface-800 max-h-96 overflow-y-auto font-sans leading-relaxed text-xs sm:text-sm text-surface-200 dark:text-surface-300 whitespace-pre-wrap">
               {previewResource.textContent || (
                 <div className="py-12 text-center text-surface-400 space-y-2">
                   <FileText className="w-8 h-8 mx-auto text-surface-500" />
@@ -416,7 +422,7 @@ export const AcademicsPage = () => {
                       href={previewResource.contentUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-brand-400 underline font-semibold block"
+                      className="text-brand-700 dark:text-brand-400 underline font-semibold block"
                     >
                       Open full PDF / Drive document &rarr;
                     </a>
