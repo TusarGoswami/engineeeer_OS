@@ -1,3 +1,11 @@
+/*
+ * From Uiverse.io by Smit-Prajapati — https://uiverse.io/Smit-Prajapati/smart-liger-5
+ * MIT License, Copyright (c) Smit-Prajapati (Smit Prajapati)
+ *
+ * Adapted for EngineerOS — dark engineering dashboard aesthetic,
+ * orange accent palette, full profile data integration.
+ */
+
 import { forwardRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import {
@@ -11,6 +19,7 @@ import {
   CheckCircle2,
   Terminal as TerminalIcon,
   Cpu,
+  Github,
 } from 'lucide-react';
 import Avatar from '../../../components/Avatar.jsx';
 
@@ -39,6 +48,110 @@ export const THEMES = {
     id: 'blueprint',
     name: 'Blueprint CAD',
     description: 'Engineering schematic with dimensional callouts and grid',
+  },
+};
+
+/* ── Per-theme inner styling (colours only — 3D wrapper is universal) ── */
+const THEME_STYLES = {
+  terminal: {
+    circleAccent: 'rgba(16,185,129,0.15)',
+    circleBorder: 'rgba(16,185,129,0.3)',
+    cardBg: 'linear-gradient(135deg,#0B0D11 0%,#101319 60%,#0f1a14 100%)',
+    glassOverlay: 'linear-gradient(160deg,rgba(16,185,129,0.06) 0%,rgba(16,185,129,0.01) 100%)',
+    glassBorder: 'rgba(16,185,129,0.15)',
+    shadowColor: 'rgba(16,185,129,0.12)',
+    hoverShadow: 'rgba(16,185,129,0.2)',
+    btnBg: 'rgba(16,185,129,0.12)',
+    btnBorder: 'rgba(16,185,129,0.3)',
+    btnColor: '#6ee7b7',
+    cardTitle: 'text-emerald-300 font-mono',
+    subtext: 'text-emerald-500/70',
+    panel: 'bg-[#151922] border border-emerald-500/20 rounded-lg p-3.5',
+    metricVal: 'text-emerald-300 font-bold',
+    metricLabel: 'text-emerald-500/80 text-xs uppercase tracking-wider',
+    chip: 'bg-emerald-950/80 text-emerald-400 border border-emerald-500/30',
+    badgeBorder: 'border border-emerald-500/40 bg-emerald-950/60',
+    headerText: 'text-emerald-400',
+  },
+  minimalist: {
+    circleAccent: 'rgba(100,116,139,0.12)',
+    circleBorder: 'rgba(100,116,139,0.25)',
+    cardBg: 'linear-gradient(135deg,#0B0D11 0%,#101319 100%)',
+    glassOverlay: 'linear-gradient(160deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.01) 100%)',
+    glassBorder: 'rgba(255,255,255,0.08)',
+    shadowColor: 'rgba(0,0,0,0.3)',
+    hoverShadow: 'rgba(0,0,0,0.5)',
+    btnBg: 'rgba(255,255,255,0.06)',
+    btnBorder: 'rgba(255,255,255,0.12)',
+    btnColor: '#e2e8f0',
+    cardTitle: 'text-white font-semibold tracking-tight',
+    subtext: 'text-surface-400',
+    panel: 'bg-[#151922] border border-[#292E38] rounded-lg p-3.5',
+    metricVal: 'text-white font-mono font-bold',
+    metricLabel: 'text-surface-400 text-xs tracking-wider uppercase',
+    chip: 'bg-[#1B202A] text-surface-200 border border-[#292E38]',
+    badgeBorder: 'border border-[#292E38] bg-[#1B202A]',
+    headerText: 'text-surface-300',
+  },
+  silicon: {
+    circleAccent: 'rgba(255,101,0,0.14)',
+    circleBorder: 'rgba(255,101,0,0.3)',
+    cardBg: 'linear-gradient(135deg,#0B0D11 0%,#151922 55%,#1a1208 100%)',
+    glassOverlay: 'linear-gradient(160deg,rgba(255,101,0,0.07) 0%,rgba(255,101,0,0.01) 100%)',
+    glassBorder: 'rgba(255,101,0,0.2)',
+    shadowColor: 'rgba(255,101,0,0.15)',
+    hoverShadow: 'rgba(255,101,0,0.25)',
+    btnBg: 'rgba(255,101,0,0.1)',
+    btnBorder: 'rgba(255,101,0,0.3)',
+    btnColor: '#fb923c',
+    cardTitle: 'text-transparent bg-clip-text bg-gradient-to-r from-[#FF6500] via-amber-400 to-[#38BDF8] font-bold tracking-tight',
+    subtext: 'text-[#A1A1AA]',
+    panel: 'bg-[#151922] border border-[#292E38] rounded-xl p-3.5',
+    metricVal: 'text-orange-200 font-mono font-bold',
+    metricLabel: 'text-orange-400/80 text-xs uppercase tracking-wider',
+    chip: 'bg-orange-950/40 text-orange-300 border border-orange-500/30',
+    badgeBorder: 'border border-orange-500/40 bg-[#1B202A]',
+    headerText: 'text-orange-300',
+  },
+  varsity: {
+    circleAccent: 'rgba(217,119,6,0.14)',
+    circleBorder: 'rgba(217,119,6,0.3)',
+    cardBg: 'linear-gradient(135deg,#0B0D11 0%,#101319 60%,#1a1508 100%)',
+    glassOverlay: 'linear-gradient(160deg,rgba(217,119,6,0.07) 0%,rgba(217,119,6,0.01) 100%)',
+    glassBorder: 'rgba(217,119,6,0.2)',
+    shadowColor: 'rgba(217,119,6,0.12)',
+    hoverShadow: 'rgba(217,119,6,0.22)',
+    btnBg: 'rgba(217,119,6,0.1)',
+    btnBorder: 'rgba(217,119,6,0.3)',
+    btnColor: '#fcd34d',
+    cardTitle: 'text-amber-300 font-serif font-bold tracking-wide',
+    subtext: 'text-amber-200/70',
+    panel: 'bg-[#151922] border border-amber-500/20 rounded-xl p-3.5',
+    metricVal: 'text-amber-200 font-mono font-bold',
+    metricLabel: 'text-amber-400/80 text-xs uppercase tracking-wider font-semibold',
+    chip: 'bg-amber-950/60 text-amber-300 border border-amber-500/30',
+    badgeBorder: 'border border-amber-500/50 bg-amber-950/40',
+    headerText: 'text-amber-300',
+  },
+  blueprint: {
+    circleAccent: 'rgba(6,182,212,0.12)',
+    circleBorder: 'rgba(6,182,212,0.28)',
+    cardBg: 'linear-gradient(135deg,#0B0D11 0%,#101319 100%)',
+    glassOverlay: 'linear-gradient(160deg,rgba(6,182,212,0.06) 0%,rgba(6,182,212,0.01) 100%)',
+    glassBorder: 'rgba(6,182,212,0.18)',
+    shadowColor: 'rgba(6,182,212,0.1)',
+    hoverShadow: 'rgba(6,182,212,0.2)',
+    btnBg: 'rgba(6,182,212,0.08)',
+    btnBorder: 'rgba(6,182,212,0.25)',
+    btnColor: '#67e8f9',
+    cardTitle: 'text-cyan-300 font-mono font-bold uppercase tracking-widest',
+    subtext: 'text-cyan-400/70',
+    panel: 'bg-[#151922] border border-cyan-500/30 p-3.5',
+    metricVal: 'text-cyan-100 font-mono font-bold',
+    metricLabel: 'text-cyan-400/80 text-xs uppercase tracking-wider',
+    chip: 'bg-cyan-950/80 text-cyan-300 border border-cyan-500/40',
+    badgeBorder: 'border border-cyan-500/50 bg-cyan-950/60',
+    headerText: 'text-cyan-300',
   },
 };
 
@@ -71,7 +184,7 @@ export const ProfileCard = forwardRef(
       showBadges: true,
     };
 
-    // Resolve avatar key and URL with robust fallbacks and version cache-busting
+    /* ── Avatar resolution ── */
     const resolvedAvatarKey =
       profile.identity?.avatarKey ||
       profile.avatarKey ||
@@ -83,7 +196,9 @@ export const ProfileCard = forwardRef(
       profile.avatarUrl ||
       profile.profile?.avatarUrl ||
       profile.user?.profile?.avatarUrl ||
-      (resolvedAvatarKey ? `/api/v1/users/avatar/${encodeURIComponent(resolvedAvatarKey)}` : '');
+      (resolvedAvatarKey
+        ? `/api/v1/users/avatar/${encodeURIComponent(resolvedAvatarKey)}`
+        : '');
 
     const avatarVersion =
       profile.identity?.avatarVersion ||
@@ -92,16 +207,37 @@ export const ProfileCard = forwardRef(
       1;
 
     const avatarUrl = rawAvatarUrl
-      ? (rawAvatarUrl.includes('?') ? `${rawAvatarUrl}&v=${avatarVersion}` : `${rawAvatarUrl}?v=${avatarVersion}`)
+      ? rawAvatarUrl.includes('?')
+        ? `${rawAvatarUrl}&v=${avatarVersion}`
+        : `${rawAvatarUrl}?v=${avatarVersion}`
       : '';
 
+    /* ── Identity ── */
     const identity = {
-      name: profile.identity?.name || profile.name || profile.user?.name || '',
-      username: profile.identity?.username || profile.username || profile.user?.username || '',
-      headline: profile.identity?.headline || profile.headline || '',
-      university: profile.identity?.university || profile.university || profile.user?.university || '',
-      branch: profile.identity?.branch || profile.branch || profile.user?.branch || '',
-      semester: profile.identity?.semester || profile.semester || profile.user?.semester || 1,
+      name:
+        profile.identity?.name || profile.name || profile.user?.name || '',
+      username:
+        profile.identity?.username ||
+        profile.username ||
+        profile.user?.username ||
+        '',
+      headline:
+        profile.identity?.headline || profile.headline || '',
+      university:
+        profile.identity?.university ||
+        profile.university ||
+        profile.user?.university ||
+        '',
+      branch:
+        profile.identity?.branch ||
+        profile.branch ||
+        profile.user?.branch ||
+        '',
+      semester:
+        profile.identity?.semester ||
+        profile.semester ||
+        profile.user?.semester ||
+        1,
       graduationYear:
         profile.identity?.graduationYear ||
         profile.graduationYear ||
@@ -122,6 +258,7 @@ export const ProfileCard = forwardRef(
         false,
     };
 
+    /* ── Stats ── */
     const stats = profile.stats || {
       coding: { solved: 0, easy: 0, medium: 0, hard: 0, accuracy: 0 },
       gate: { testsTaken: 0, bestScore: 0, accuracy: 0 },
@@ -134,7 +271,7 @@ export const ProfileCard = forwardRef(
     const topSkills = profile.topSkills || [];
     const recentActivity = profile.recentActivity || [];
 
-    // Public URL for QR Code
+    /* ── QR code URL ── */
     const baseUrl =
       typeof window !== 'undefined'
         ? window.location.origin
@@ -143,564 +280,538 @@ export const ProfileCard = forwardRef(
       profile.shareToken ? `?token=${profile.shareToken}` : ''
     }`;
 
-    // Theme Styles Configuration
-    const themeStyles = {
-      terminal: {
-        container:
-          'bg-[#0B0D11] text-emerald-400 font-mono border-2 border-emerald-500/30 shadow-2xl shadow-emerald-950/40 relative overflow-hidden',
-        header: 'border-b border-emerald-500/20 bg-[#101319] px-5 py-3',
-        cardTitle: 'text-emerald-300 font-mono',
-        subtext: 'text-emerald-500/70',
-        panel: 'bg-[#151922] border border-emerald-500/20 rounded-lg p-3.5',
-        metricVal: 'text-emerald-300 font-bold',
-        metricLabel: 'text-emerald-500/80 text-xs uppercase tracking-wider',
-        chip: 'bg-emerald-950/80 text-emerald-400 border border-emerald-500/30',
-        footer: 'border-t border-emerald-500/20 bg-[#101319]',
-        badgeBorder: 'border border-emerald-500/40 bg-emerald-950/60',
-      },
-      minimalist: {
-        container:
-          'bg-[#0B0D11] text-surface-100 font-sans border border-[#292E38] shadow-2xl relative overflow-hidden rounded-xl',
-        header: 'border-b border-[#292E38] bg-[#101319] px-5 py-4',
-        cardTitle: 'text-white font-semibold tracking-tight',
-        subtext: 'text-surface-400',
-        panel: 'bg-[#151922] border border-[#292E38] rounded-lg p-3.5',
-        metricVal: 'text-white font-mono font-bold',
-        metricLabel: 'text-surface-400 text-xs tracking-wider uppercase',
-        chip: 'bg-[#1B202A] text-surface-200 border border-[#292E38]',
-        footer: 'border-t border-[#292E38] bg-[#101319]',
-        badgeBorder: 'border border-[#292E38] bg-[#1B202A]',
-      },
-      silicon: {
-        container:
-          'bg-gradient-to-br from-[#0B0D11] via-[#151922] to-[#1B202A] text-white font-sans border-2 border-[#FF6500]/30 shadow-2xl shadow-orange-950/40 relative overflow-hidden rounded-2xl backdrop-blur-xl',
-        header:
-          'border-b border-[#292E38] bg-[#101319]/80 backdrop-blur-md px-5 py-4',
-        cardTitle: 'text-transparent bg-clip-text bg-gradient-to-r from-[#FF6500] via-amber-400 to-[#38BDF8] font-bold tracking-tight',
-        subtext: 'text-[#A1A1AA]',
-        panel: 'bg-[#151922] border border-[#292E38] rounded-xl p-3.5 backdrop-blur-md',
-        metricVal: 'text-orange-200 font-mono font-bold',
-        metricLabel: 'text-orange-400/80 text-xs uppercase tracking-wider',
-        chip: 'bg-orange-950/40 text-orange-300 border border-orange-500/30',
-        footer: 'border-t border-[#292E38] bg-[#101319]/80 backdrop-blur-md',
-        badgeBorder: 'border border-orange-500/40 bg-[#1B202A]',
+    /* ── Theme styles ── */
+    const ts = THEME_STYLES[theme] || THEME_STYLES.terminal;
 
-
-
-
-      },
-      varsity: {
-        container:
-          'bg-[#0B0D11] text-amber-100 font-sans border-2 border-amber-500/40 shadow-2xl shadow-amber-950/40 relative overflow-hidden rounded-2xl',
-        header: 'border-b border-amber-500/30 bg-[#101319] px-5 py-4',
-        cardTitle: 'text-amber-300 font-serif font-bold tracking-wide',
-        subtext: 'text-amber-200/70',
-        panel: 'bg-[#151922] border border-amber-500/20 rounded-xl p-3.5',
-        metricVal: 'text-amber-200 font-mono font-bold',
-        metricLabel: 'text-amber-400/80 text-xs uppercase tracking-wider font-semibold',
-        chip: 'bg-amber-950/60 text-amber-300 border border-amber-500/30',
-        footer: 'border-t border-amber-500/30 bg-[#101319]',
-        badgeBorder: 'border border-amber-500/50 bg-amber-950/40',
-      },
-      blueprint: {
-        container:
-          'bg-[#0B0D11] text-cyan-200 font-mono border-2 border-cyan-500/40 shadow-2xl shadow-cyan-950/40 relative overflow-hidden rounded-none',
-        header: 'border-b-2 border-cyan-500/40 bg-[#101319] px-5 py-3',
-        cardTitle: 'text-cyan-300 font-mono font-bold uppercase tracking-widest',
-        subtext: 'text-cyan-400/70',
-        panel: 'bg-[#151922] border border-cyan-500/30 p-3.5',
-        metricVal: 'text-cyan-100 font-mono font-bold',
-        metricLabel: 'text-cyan-400/80 text-xs uppercase tracking-wider',
-        chip: 'bg-cyan-950/80 text-cyan-300 border border-cyan-500/40',
-        footer: 'border-t-2 border-cyan-500/40 bg-[#101319]',
-        badgeBorder: 'border border-cyan-500/50 bg-cyan-950/60',
-      },
+    /* ── Inline 3D card styles (from Uiverse reference, adapted) ── */
+    const cardStyle = {
+      background: ts.cardBg,
+      boxShadow: `${ts.shadowColor} 40px 50px 25px -40px, ${ts.shadowColor} 0px 25px 25px -5px`,
+      transition: 'all 0.5s ease-in-out',
+      transformStyle: 'preserve-3d',
     };
 
-    const style = themeStyles[theme] || themeStyles.terminal;
+    const glassStyle = {
+      transformStyle: 'preserve-3d',
+      position: 'absolute',
+      inset: '8px',
+      borderRadius: '22px',
+      borderTop: `1.5px solid ${ts.glassBorder}`,
+      borderLeft: `1.5px solid ${ts.glassBorder}`,
+      background: ts.glassOverlay,
+      backdropFilter: 'blur(4px)',
+      WebkitBackdropFilter: 'blur(4px)',
+      transform: 'translate3d(0,0,20px)',
+      pointerEvents: 'none',
+      zIndex: 1,
+    };
+
+    /* Five layered circles — upper-right corner logo */
+    const circleBase = {
+      display: 'block',
+      position: 'absolute',
+      aspectRatio: '1',
+      borderRadius: '50%',
+      top: 0,
+      right: 0,
+      backdropFilter: 'blur(4px)',
+      WebkitBackdropFilter: 'blur(4px)',
+      background: ts.circleAccent,
+      border: `1px solid ${ts.circleBorder}`,
+      boxShadow: `rgba(0,0,0,0.25) -8px 8px 16px 0px`,
+      transition: 'all 0.5s ease-in-out',
+    };
+
+    /* ── Rendered content depth layer ── */
+    const contentDepth = {
+      transformStyle: 'preserve-3d',
+      transform: 'translate3d(0,0,55px)',
+      position: 'relative',
+      zIndex: 2,
+    };
 
     return (
+      /* perspective wrapper — same role as .parent in Uiverse */
       <div
-        ref={ref}
-        id="engineeros-profile-card"
-        className={`${style.container} w-full max-w-2xl transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${className}`}
+        className={`pc-parent w-full max-w-2xl ${className}`}
+        style={{ perspective: '1200px' }}
       >
-        {/* Terminal Title Bar / Card Header */}
-        <div className={`flex items-center justify-between ${style.header}`}>
-          <div className="flex items-center gap-2">
-            {theme === 'terminal' ? (
-              <>
-                <div className="flex gap-1.5 mr-2">
-                  <span className="w-3 h-3 rounded-full bg-rose-500 inline-block" />
-                  <span className="w-3 h-3 rounded-full bg-amber-500 inline-block" />
-                  <span className="w-3 h-3 rounded-full bg-emerald-500 inline-block" />
-                </div>
-                <TerminalIcon className="w-4 h-4 text-emerald-400" />
-                <span className="text-xs text-emerald-400/90 font-mono">
-                  {identity.username ? `${identity.username}@engineeros:~$ id` : 'engineeros:~$ whoami'}
-                </span>
-              </>
-            ) : theme === 'blueprint' ? (
-              <div className="flex items-center gap-2">
-                <span className="text-cyan-500 font-bold text-xs">[SCHEMA // OS-CARD-V2]</span>
-                <span className="text-xs text-cyan-400/60">{'//'} SPEC: ENGINEERING PROFILE</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-lg bg-brand-600/30 border border-brand-500/40 flex items-center justify-center">
-                  <Cpu className="w-3.5 h-3.5 text-brand-400" />
-                </div>
-                <span className="text-xs font-semibold tracking-wider uppercase text-surface-400">
-                  EngineerOS Certified Card
-                </span>
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded font-mono bg-surface-900/80 border border-surface-700/50 text-surface-300">
-              <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              <span>{stats.streaks?.current || 0}d streak</span>
+        {/* 3D card body */}
+        <div
+          ref={ref}
+          id="engineeros-profile-card"
+          className="pc-card w-full rounded-3xl relative overflow-visible"
+          style={cardStyle}
+        >
+          {/* ── Layered glass circles — upper-right logo motif ── */}
+          <div
+            className="pc-logo"
+            style={{
+              position: 'absolute',
+              right: 0,
+              top: 0,
+              transformStyle: 'preserve-3d',
+              pointerEvents: 'none',
+              zIndex: 0,
+            }}
+            aria-hidden="true"
+          >
+            {/* circle 1 — outermost */}
+            <span
+              className="pc-circle pc-circle1"
+              style={{
+                ...circleBase,
+                width: '160px',
+                transform: 'translate3d(0,0,15px)',
+                top: '6px',
+                right: '6px',
+                transitionDelay: '0s',
+              }}
+            />
+            {/* circle 2 */}
+            <span
+              className="pc-circle pc-circle2"
+              style={{
+                ...circleBase,
+                width: '130px',
+                transform: 'translate3d(0,0,32px)',
+                top: '9px',
+                right: '9px',
+                transitionDelay: '0.1s',
+              }}
+            />
+            {/* circle 3 */}
+            <span
+              className="pc-circle pc-circle3"
+              style={{
+                ...circleBase,
+                width: '100px',
+                transform: 'translate3d(0,0,50px)',
+                top: '15px',
+                right: '15px',
+                transitionDelay: '0.2s',
+              }}
+            />
+            {/* circle 4 */}
+            <span
+              className="pc-circle pc-circle4"
+              style={{
+                ...circleBase,
+                width: '72px',
+                transform: 'translate3d(0,0,68px)',
+                top: '22px',
+                right: '22px',
+                transitionDelay: '0.3s',
+              }}
+            />
+            {/* circle 5 — innermost, holds OS emblem */}
+            <span
+              className="pc-circle pc-circle5"
+              style={{
+                ...circleBase,
+                width: '44px',
+                transform: 'translate3d(0,0,86px)',
+                top: '29px',
+                right: '29px',
+                transitionDelay: '0.4s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <span
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 900,
+                  fontFamily: 'monospace',
+                  color: ts.btnColor,
+                  letterSpacing: '-0.5px',
+                  userSelect: 'none',
+                }}
+              >
+                OS
+              </span>
             </span>
           </div>
-        </div>
 
-        {/* Card Body */}
-        <div className="p-6 space-y-6">
-          {/* Identity Section */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              {sections.showPhoto !== false ? (
-                <div className="relative shrink-0">
-                  <Avatar
-                    src={identity.avatarUrl}
-                    name={identity.name}
-                    size="xl"
-                    className="border-2 border-surface-700 shadow-md"
-                  />
-                  <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5 border-2 border-surface-950">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                  </div>
-                </div>
-              ) : (
-                <div className="w-14 h-14 rounded-xl bg-surface-800 flex items-center justify-center font-bold text-surface-300 text-lg border border-surface-700">
-                  {identity.name?.slice(0, 2).toUpperCase() || 'OS'}
-                </div>
-              )}
+          {/* ── Glass surface overlay ── */}
+          <div style={glassStyle} aria-hidden="true" />
 
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className={`text-xl font-bold ${style.cardTitle}`}>
-                    {identity.name || 'Engineer'}
-                  </h2>
-                  {identity.username && (
-                    <span className={`text-xs font-mono ${style.subtext}`}>
-                      @{identity.username}
+          {/* ═══════════════════════════════════════════════════
+              CARD CONTENT — elevated via translate3d
+              ═══════════════════════════════════════════════════ */}
+          <div style={contentDepth}>
+            {/* ── Header bar ── */}
+            <div
+              className="flex items-center justify-between px-5 py-3 border-b"
+              style={{ borderColor: ts.glassBorder }}
+            >
+              <div className="flex items-center gap-2">
+                {theme === 'terminal' ? (
+                  <>
+                    <div className="flex gap-1.5 mr-2">
+                      <span className="w-3 h-3 rounded-full bg-rose-500 inline-block" />
+                      <span className="w-3 h-3 rounded-full bg-amber-500 inline-block" />
+                      <span className="w-3 h-3 rounded-full bg-emerald-500 inline-block" />
+                    </div>
+                    <TerminalIcon className="w-4 h-4 text-emerald-400" />
+                    <span className="text-xs text-emerald-400/90 font-mono">
+                      {identity.username
+                        ? `${identity.username}@engineeros:~$ id`
+                        : 'engineeros:~$ whoami'}
                     </span>
+                  </>
+                ) : theme === 'blueprint' ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-cyan-500 font-bold text-xs">
+                      [SCHEMA // OS-CARD-V2]
+                    </span>
+                    <span className="text-xs text-cyan-400/60">
+                      {'// SPEC: ENGINEERING PROFILE'}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-6 h-6 rounded-lg flex items-center justify-center"
+                      style={{
+                        background: ts.btnBg,
+                        border: `1px solid ${ts.btnBorder}`,
+                      }}
+                    >
+                      <Cpu className="w-3.5 h-3.5" style={{ color: ts.btnColor }} />
+                    </div>
+                    <span className="text-xs font-semibold tracking-wider uppercase text-surface-400">
+                      EngineerOS Certified Card
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Streak pill */}
+              <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded font-mono bg-surface-900/80 border border-surface-700/50 text-surface-300">
+                <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                <span>{stats.streaks?.current || 0}d streak</span>
+              </span>
+            </div>
+
+            {/* ── Body ── */}
+            <div className="p-5 space-y-5">
+              {/* Identity */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  {sections.showPhoto !== false ? (
+                    <div className="relative shrink-0">
+                      <Avatar
+                        src={identity.avatarUrl}
+                        name={identity.name}
+                        size="xl"
+                        className="border-2 border-surface-700 shadow-md"
+                      />
+                      <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5 border-2 border-surface-950">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="w-14 h-14 rounded-xl bg-surface-800 flex items-center justify-center font-bold text-surface-300 text-lg border border-surface-700">
+                      {identity.name?.slice(0, 2).toUpperCase() || 'OS'}
+                    </div>
                   )}
 
-                {/* Linked GitHub Handle */}
-                {identity.githubHandle && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <a
-                      href={`https://github.com/${identity.githubHandle}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-surface-700 bg-surface-900/80 px-2.5 py-1 text-xs font-mono text-surface-200 transition-colors hover:border-surface-600 hover:text-white"
-                    >
-                      <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                        />
-                      </svg>
-                      <span>github.com/{identity.githubHandle}</span>
-                    </a>
+                  <div className="min-w-0">
+                    {/* Name + username */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className={`text-xl font-bold ${ts.cardTitle}`}>
+                        {identity.name || 'Engineer'}
+                      </h2>
+                      {identity.username && (
+                        <span className={`text-xs font-mono ${ts.subtext}`}>
+                          @{identity.username}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Alumni pill */}
+                    {identity.isAlumni && (
+                      <div className="mt-1">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-300 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-full">
+                          🎖️ Verified Alumni Mentor
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Headline */}
+                    {identity.headline && (
+                      <p className={`text-sm mt-0.5 line-clamp-2 ${ts.subtext}`}>
+                        {identity.headline}
+                      </p>
+                    )}
+
+                    {/* University row */}
+                    {sections.showUniversity !== false && identity.university && (
+                      <div className="flex items-center gap-2 text-xs mt-1.5 opacity-80 flex-wrap">
+                        <span className="inline-flex items-center gap-1">
+                          <GraduationCap className="w-3.5 h-3.5" />
+                          {identity.university}
+                        </span>
+                        {identity.branch && (
+                          <>
+                            <span>•</span>
+                            <span>{identity.branch}</span>
+                          </>
+                        )}
+                        {identity.semester && (
+                          <>
+                            <span>•</span>
+                            <span>Sem {identity.semester}</span>
+                          </>
+                        )}
+                        {identity.graduationYear && (
+                          <>
+                            <span>•</span>
+                            <span className="inline-flex items-center gap-0.5">
+                              <Calendar className="w-3 h-3" />
+                              &apos;{String(identity.graduationYear).slice(-2)}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    {/* GitHub handle */}
+                    {identity.githubHandle && (
+                      <div className="mt-2">
+                        <a
+                          href={`https://github.com/${identity.githubHandle}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-surface-700 bg-surface-900/80 px-2.5 py-1 text-xs font-mono text-surface-200 transition-colors hover:border-surface-600 hover:text-white"
+                        >
+                          <Github className="w-3.5 h-3.5" />
+                          <span>{identity.githubHandle}</span>
+                        </a>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
+              </div>
+
+              {/* 4 Core Pillars Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {/* Coding */}
+                <div className={ts.panel}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className={ts.metricLabel}>Coding</span>
+                    <Code2 className="w-4 h-4 opacity-70" />
+                  </div>
+                  <div className={`text-2xl ${ts.metricVal}`}>
+                    {stats.coding?.solved || 0}
+                  </div>
+                  <div className="text-[11px] opacity-75 mt-1 flex items-center gap-1">
+                    <span className="text-emerald-400 font-semibold">
+                      {stats.coding?.easy || 0}E
+                    </span>
+                    <span>/</span>
+                    <span className="text-amber-400 font-semibold">
+                      {stats.coding?.medium || 0}M
+                    </span>
+                    <span>/</span>
+                    <span className="text-rose-400 font-semibold">
+                      {stats.coding?.hard || 0}H
+                    </span>
+                  </div>
+                  {stats.coding?.accuracy > 0 && (
+                    <div className="text-[10px] opacity-60 mt-0.5">
+                      {stats.coding.accuracy}% Accuracy
+                    </div>
+                  )}
                 </div>
 
-                {/* Verified Alumni Badge Pill */}
-                {identity.isAlumni && (
-                  <div className="mt-1">
-                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-300 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-full">
-                      🎖️ Verified Alumni Mentor
-                    </span>
+                {/* GATE */}
+                {sections.showGate !== false && (
+                  <div className={ts.panel}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className={ts.metricLabel}>GATE Prep</span>
+                      <Award className="w-4 h-4 opacity-70" />
+                    </div>
+                    <div className={`text-2xl ${ts.metricVal}`}>
+                      {stats.gate?.bestScore
+                        ? `${stats.gate.bestScore}`
+                        : `${stats.gate?.testsTaken || 0}`}
+                    </div>
+                    <div className="text-[11px] opacity-75 mt-1">
+                      {stats.gate?.bestScore ? 'Best Score' : 'Mocks Taken'}
+                    </div>
+                    <div className="text-[10px] opacity-60 mt-0.5">
+                      {stats.gate?.accuracy || 0}% Accuracy
+                    </div>
                   </div>
                 )}
 
-                {/* Linked GitHub Handle */}
-                {identity.githubHandle && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <a
-                      href={`https://github.com/${identity.githubHandle}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-surface-700 bg-surface-900/80 px-2.5 py-1 text-xs font-mono text-surface-200 transition-colors hover:border-surface-600 hover:text-white"
-                    >
-                      <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                        />
-                      </svg>
-                      <span>github.com/{identity.githubHandle}</span>
-                    </a>
+                {/* Academics */}
+                <div className={ts.panel}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className={ts.metricLabel}>Curriculum</span>
+                    <BookOpen className="w-4 h-4 opacity-70" />
+                  </div>
+                  <div className={`text-2xl ${ts.metricVal}`}>
+                    {stats.academic?.syllabusProgress || 0}%
+                  </div>
+                  <div className="text-[11px] opacity-75 mt-1">
+                    {stats.academic?.subjectsEnrolled || 0} Subjects
+                  </div>
+                  <div className="text-[10px] opacity-60 mt-0.5">
+                    Syllabus Tracked
+                  </div>
+                </div>
+
+                {/* Interviews */}
+                {sections.showInterviews !== false && (
+                  <div className={ts.panel}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className={ts.metricLabel}>Readiness</span>
+                      <Sparkles className="w-4 h-4 opacity-70" />
+                    </div>
+                    <div className={`text-2xl ${ts.metricVal}`}>
+                      {stats.interviews?.averageScore
+                        ? `${stats.interviews.averageScore}/100`
+                        : `${stats.interviews?.completed || 0}`}
+                    </div>
+                    <div className="text-[11px] opacity-75 mt-1">
+                      {stats.interviews?.averageScore
+                        ? 'Mock Score'
+                        : 'Sessions Done'}
+                    </div>
+                    <div className="text-[10px] opacity-60 mt-0.5">
+                      AI Evaluated
+                    </div>
                   </div>
                 )}
-                {identity.headline && (
-                  <p className={`text-sm mt-0.5 line-clamp-2 ${style.subtext}`}>
-                    {identity.headline}
-                  </p>
-                )}
+              </div>
 
-                {/* Linked GitHub Handle */}
-                {identity.githubHandle && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <a
-                      href={`https://github.com/${identity.githubHandle}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-surface-700 bg-surface-900/80 px-2.5 py-1 text-xs font-mono text-surface-200 transition-colors hover:border-surface-600 hover:text-white"
-                    >
-                      <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                        />
-                      </svg>
-                      <span>github.com/{identity.githubHandle}</span>
-                    </a>
+              {/* Top Skills */}
+              {sections.showSkills !== false && topSkills.length > 0 && (
+                <div className="space-y-2">
+                  <div className="text-xs font-semibold uppercase tracking-wider opacity-70">
+                    Verified Proficiencies
                   </div>
-                )}
-
-                {sections.showUniversity !== false && identity.university && (
-                  <div className="flex items-center gap-2 text-xs mt-1.5 opacity-80 flex-wrap">
-                    <span className="inline-flex items-center gap-1">
-                      <GraduationCap className="w-3.5 h-3.5" />
-                      {identity.university}
-                    </span>
-                    {identity.branch && (
-                      <>
-                        <span>•</span>
-                        <span>{identity.branch}</span>
-                      </>
-                    )}
-
-                {/* Linked GitHub Handle */}
-                {identity.githubHandle && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <a
-                      href={`https://github.com/${identity.githubHandle}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-surface-700 bg-surface-900/80 px-2.5 py-1 text-xs font-mono text-surface-200 transition-colors hover:border-surface-600 hover:text-white"
-                    >
-                      <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                        />
-                      </svg>
-                      <span>github.com/{identity.githubHandle}</span>
-                    </a>
+                  <div className="flex flex-wrap gap-2">
+                    {topSkills.map(skill => (
+                      <span
+                        key={skill}
+                        className={`text-xs px-2.5 py-1 rounded-md font-mono ${ts.chip}`}
+                      >
+                        #{skill}
+                      </span>
+                    ))}
                   </div>
-                )}
-                    {identity.semester && (
-                      <>
-                        <span>•</span>
-                        <span>Sem {identity.semester}</span>
-                      </>
-                    )}
+                </div>
+              )}
 
-                {/* Linked GitHub Handle */}
-                {identity.githubHandle && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <a
-                      href={`https://github.com/${identity.githubHandle}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-surface-700 bg-surface-900/80 px-2.5 py-1 text-xs font-mono text-surface-200 transition-colors hover:border-surface-600 hover:text-white"
-                    >
-                      <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                        />
-                      </svg>
-                      <span>github.com/{identity.githubHandle}</span>
-                    </a>
+              {/* Earned Badges */}
+              {sections.showBadges !== false && badges.length > 0 && (
+                <div className="space-y-2">
+                  <div className="text-xs font-semibold uppercase tracking-wider opacity-70">
+                    Earned Credentials ({badges.length})
                   </div>
-                )}
-                    {identity.graduationYear && (
-                      <>
-                        <span>•</span>
-                        <span className="inline-flex items-center gap-0.5">
-                          <Calendar className="w-3 h-3" />
-                          &apos;{String(identity.graduationYear).slice(-2)}
+                  <div className="flex flex-wrap gap-2.5">
+                    {badges.slice(0, compact ? 3 : 5).map(b => (
+                      <div
+                        key={b.badgeId || b.name}
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs ${ts.badgeBorder}`}
+                      >
+                        <span className="text-sm">{b.icon || '🎖️'}</span>
+                        <span className="font-medium">{b.name}</span>
+                        <span className="text-[10px] uppercase opacity-70 font-mono">
+                          • {b.tier}
                         </span>
-                      </>
-                    )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-                {/* Linked GitHub Handle */}
-                {identity.githubHandle && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <a
-                      href={`https://github.com/${identity.githubHandle}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-surface-700 bg-surface-900/80 px-2.5 py-1 text-xs font-mono text-surface-200 transition-colors hover:border-surface-600 hover:text-white"
-                    >
-                      <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+              {/* Activity Heatmap */}
+              {sections.showHeatmap !== false && recentActivity.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs opacity-70">
+                    <span className="font-semibold uppercase tracking-wider">
+                      Consistency Stream (Last 30 Days)
+                    </span>
+                    <span className="font-mono">
+                      {recentActivity.reduce((acc, a) => acc + (a.count || 0), 0)} events
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1 overflow-x-auto py-1">
+                    {recentActivity.slice(-30).map(d => {
+                      const count = d.count || 0;
+                      const bgClass =
+                        count === 0
+                          ? 'bg-surface-800/40'
+                          : count <= 2
+                          ? 'bg-emerald-500/40'
+                          : count <= 5
+                          ? 'bg-emerald-500/70'
+                          : 'bg-emerald-400';
+                      return (
+                        <div
+                          key={d.date}
+                          title={`${d.date}: ${count} actions`}
+                          className={`h-4 w-2.5 rounded-sm shrink-0 ${bgClass}`}
                         />
-                      </svg>
-                      <span>github.com/{identity.githubHandle}</span>
-                    </a>
+                      );
+                    })}
                   </div>
-                )}
-                {identity.githubHandle && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <a
-                      href={'https://github.com/' + identity.githubHandle}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-surface-700 bg-surface-900/80 px-2.5 py-1 text-xs font-mono text-surface-200 transition-colors hover:border-surface-600 hover:text-white"
-                    >
-                      <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                        />
-                      </svg>
-                      <span>github.com/{identity.githubHandle}</span>
-                    </a>
-                  </div>
-                )}
-                  </div>
-                )}
-
-                {/* Linked GitHub Handle */}
-                {identity.githubHandle && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <a
-                      href={`https://github.com/${identity.githubHandle}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-surface-700 bg-surface-900/80 px-2.5 py-1 text-xs font-mono text-surface-200 transition-colors hover:border-surface-600 hover:text-white"
-                    >
-                      <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                        />
-                      </svg>
-                      <span>github.com/{identity.githubHandle}</span>
-                    </a>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* 4 Core Pillars Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {/* 1. Coding */}
-            <div className={style.panel}>
-              <div className="flex items-center justify-between mb-1.5">
-                <span className={style.metricLabel}>Coding</span>
-                <Code2 className="w-4 h-4 opacity-70" />
-              </div>
-              <div className={`text-2xl ${style.metricVal}`}>
-                {stats.coding?.solved || 0}
-              </div>
-              <div className="text-[11px] opacity-75 mt-1 flex items-center gap-1">
-                <span className="text-emerald-400 font-semibold">{stats.coding?.easy || 0}E</span>
-                <span>/</span>
-                <span className="text-amber-400 font-semibold">{stats.coding?.medium || 0}M</span>
-                <span>/</span>
-                <span className="text-rose-400 font-semibold">{stats.coding?.hard || 0}H</span>
-              </div>
-              {stats.coding?.accuracy > 0 && (
-                <div className="text-[10px] opacity-60 mt-0.5">
-                  {stats.coding.accuracy}% Accuracy
                 </div>
               )}
             </div>
 
-            {/* 2. GATE */}
-            {sections.showGate !== false && (
-              <div className={style.panel}>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className={style.metricLabel}>GATE Prep</span>
-                  <Award className="w-4 h-4 opacity-70" />
+            {/* ── Footer — elevated action buttons (Uiverse .bottom equivalent) ── */}
+            <div
+              className="pc-bottom flex items-center justify-between px-5 py-4 border-t"
+              style={{
+                borderColor: ts.glassBorder,
+                transformStyle: 'preserve-3d',
+                transform: 'translate3d(0,0,0)',
+                transition: 'transform 0.5s ease-in-out',
+              }}
+            >
+              <div className="flex items-center gap-3">
+                {/* EngineerOS emblem */}
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs text-white shrink-0"
+                  style={{
+                    background: ts.btnBg,
+                    border: `1px solid ${ts.btnBorder}`,
+                  }}
+                >
+                  OS
                 </div>
-                <div className={`text-2xl ${style.metricVal}`}>
-                  {stats.gate?.bestScore ? `${stats.gate.bestScore}` : `${stats.gate?.testsTaken || 0}`}
-                </div>
-                <div className="text-[11px] opacity-75 mt-1">
-                  {stats.gate?.bestScore ? 'Best Score' : 'Mocks Taken'}
-                </div>
-                <div className="text-[10px] opacity-60 mt-0.5">
-                  {stats.gate?.accuracy || 0}% Accuracy
-                </div>
-              </div>
-            )}
-
-            {/* 3. Academics */}
-            <div className={style.panel}>
-              <div className="flex items-center justify-between mb-1.5">
-                <span className={style.metricLabel}>Curriculum</span>
-                <BookOpen className="w-4 h-4 opacity-70" />
-              </div>
-              <div className={`text-2xl ${style.metricVal}`}>
-                {stats.academic?.syllabusProgress || 0}%
-              </div>
-              <div className="text-[11px] opacity-75 mt-1">
-                {stats.academic?.subjectsEnrolled || 0} Subjects
-              </div>
-              <div className="text-[10px] opacity-60 mt-0.5">
-                Syllabus Tracked
-              </div>
-            </div>
-
-            {/* 4. Interviews */}
-            {sections.showInterviews !== false && (
-              <div className={style.panel}>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className={style.metricLabel}>Readiness</span>
-                  <Sparkles className="w-4 h-4 opacity-70" />
-                </div>
-                <div className={`text-2xl ${style.metricVal}`}>
-                  {stats.interviews?.averageScore ? `${stats.interviews.averageScore}/100` : `${stats.interviews?.completed || 0}`}
-                </div>
-                <div className="text-[11px] opacity-75 mt-1">
-                  {stats.interviews?.averageScore ? 'Mock Score' : 'Sessions Done'}
-                </div>
-                <div className="text-[10px] opacity-60 mt-0.5">
-                  AI Evaluated
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Top Skills Tags */}
-          {sections.showSkills !== false && topSkills.length > 0 && (
-            <div className="space-y-2">
-              <div className="text-xs font-semibold uppercase tracking-wider opacity-70">
-                Verified Proficiencies
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {topSkills.map(skill => (
-                  <span
-                    key={skill}
-                    className={`text-xs px-2.5 py-1 rounded-md font-mono ${style.chip}`}
-                  >
-                    #{skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Earned Badges */}
-          {sections.showBadges !== false && badges.length > 0 && (
-            <div className="space-y-2">
-              <div className="text-xs font-semibold uppercase tracking-wider opacity-70">
-                Earned Credentials ({badges.length})
-              </div>
-              <div className="flex flex-wrap gap-2.5">
-                {badges.slice(0, compact ? 3 : 5).map(b => (
-                  <div
-                    key={b.badgeId || b.name}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs ${style.badgeBorder}`}
-                  >
-                    <span className="text-sm">{b.icon || '🎖️'}</span>
-                    <span className="font-medium">{b.name}</span>
-                    <span className="text-[10px] uppercase opacity-70 font-mono">
-                      • {b.tier}
-                    </span>
+                <div>
+                  <div className="text-xs font-semibold text-white tracking-wide">
+                    EngineerOS Authentic Card
                   </div>
-                ))}
+                  <div className="text-[11px] opacity-70 font-mono">
+                    engineeros.dev/u/{identity.username || 'user'}
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
 
-          {/* Mini Activity Heatmap Preview */}
-          {sections.showHeatmap !== false && recentActivity.length > 0 && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs opacity-70">
-                <span className="font-semibold uppercase tracking-wider">
-                  Consistency Stream (Last 30 Days)
-                </span>
-                <span className="font-mono">
-                  {recentActivity.reduce((acc, a) => acc + (a.count || 0), 0)} events
-                </span>
-              </div>
-              <div className="flex items-center gap-1 overflow-x-auto py-1">
-                {recentActivity.slice(-30).map(d => {
-                  const count = d.count || 0;
-                  const bgClass =
-                    count === 0
-                      ? 'bg-surface-800/40'
-                      : count <= 2
-                      ? 'bg-emerald-500/40'
-                      : count <= 5
-                      ? 'bg-emerald-500/70'
-                      : 'bg-emerald-400';
-                  return (
-                    <div
-                      key={d.date}
-                      title={`${d.date}: ${count} actions`}
-                      className={`h-4 w-2.5 rounded-sm shrink-0 ${bgClass}`}
+              {/* QR Code */}
+              {showQrCode && (
+                <div className="flex items-center gap-2 shrink-0">
+                  <div className="p-1 bg-white rounded-md shadow">
+                    <QRCodeSVG
+                      value={profileUrl}
+                      size={40}
+                      level="M"
+                      includeMargin={false}
                     />
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Verification Footer & QR Code */}
-        <div
-          className={`flex items-center justify-between px-6 py-4 ${style.footer}`}
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-surface-900 border border-surface-700/60 flex items-center justify-center font-bold text-xs text-white">
-              OS
-            </div>
-            <div>
-              <div className="text-xs font-semibold text-white tracking-wide">
-                EngineerOS Authentic Card
-              </div>
-              <div className="text-[11px] opacity-70 font-mono">
-                engineeros.dev/u/{identity.username || 'user'}
-              </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-
-          {showQrCode && (
-            <div className="flex items-center gap-2">
-              <div className="p-1 bg-white rounded-md shadow">
-                <QRCodeSVG
-                  value={profileUrl}
-                  size={40}
-                  level="M"
-                  includeMargin={false}
-                />
-              </div>
-            </div>
-          )}
         </div>
       </div>
     );

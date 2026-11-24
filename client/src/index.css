@@ -190,6 +190,20 @@ input:-webkit-autofill {
   }
 }
 
+/* ═══ 3D Medal Continuous Auto-Spin ═══ */
+@keyframes hex-medal-auto-spin {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+.hex-medal-auto-spin {
+  animation: hex-medal-auto-spin 7s linear infinite;
+}
+
 /* Custom developer-tools scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
@@ -265,4 +279,74 @@ input:-webkit-autofill {
 .dark .bg-grid-cyber {
   background-image: radial-gradient(rgba(255, 101, 0, 0.08) 1px, transparent 1px);
   background-size: 28px 28px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PROFILE CARD — 3D GLASSMORPHISM
+   From Uiverse.io by Smit-Prajapati (MIT License)
+   https://uiverse.io/Smit-Prajapati/smart-liger-5
+   Adapted for EngineerOS dark-orange engineering design system.
+   All selectors prefixed with .pc- to prevent collisions.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Perspective wrapper */
+.pc-parent {
+  perspective: 1200px;
+}
+
+/* Main 3D card */
+.pc-card {
+  transform-style: preserve-3d;
+  transition: transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+  will-change: transform;
+}
+
+/* Hover: tilt the whole card in 3D + deepen the shadow */
+.pc-parent:hover .pc-card {
+  transform: rotate3d(0.6, 1, 0, 20deg);
+  box-shadow:
+    rgba(255, 101, 0, 0.18) 28px 48px 24px -36px,
+    rgba(255, 101, 0, 0.08) 0px 24px 28px 0px !important;
+}
+
+/* Hover: elevate footer action zone */
+.pc-parent:hover .pc-bottom {
+  transform: translate3d(0, 0, 36px) !important;
+  box-shadow: rgba(0, 0, 0, 0.3) -4px 16px 10px 0px;
+}
+
+/* Hover: progressively deepen the logo circles */
+.pc-parent:hover .pc-circle1 {
+  transform: translate3d(0, 0, 24px) !important;
+}
+.pc-parent:hover .pc-circle2 {
+  transform: translate3d(0, 0, 50px) !important;
+  transition-delay: 0.05s;
+}
+.pc-parent:hover .pc-circle3 {
+  transform: translate3d(0, 0, 72px) !important;
+  transition-delay: 0.1s;
+}
+.pc-parent:hover .pc-circle4 {
+  transform: translate3d(0, 0, 96px) !important;
+  transition-delay: 0.15s;
+}
+.pc-parent:hover .pc-circle5 {
+  transform: translate3d(0, 0, 118px) !important;
+  transition-delay: 0.2s;
+}
+
+/* prefers-reduced-motion: disable all 3D transforms */
+@media (prefers-reduced-motion: reduce) {
+  .pc-card,
+  .pc-parent:hover .pc-card,
+  .pc-parent:hover .pc-bottom,
+  .pc-parent:hover .pc-circle1,
+  .pc-parent:hover .pc-circle2,
+  .pc-parent:hover .pc-circle3,
+  .pc-parent:hover .pc-circle4,
+  .pc-parent:hover .pc-circle5 {
+    transform: none !important;
+    transition: none !important;
+  }
 }
