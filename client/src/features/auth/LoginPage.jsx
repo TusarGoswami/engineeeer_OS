@@ -22,7 +22,7 @@ const AuthInput = forwardRef(
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
-          <label htmlFor={inputId} className="text-[13px] font-medium text-surface-100 dark:text-surface-200">
+          <label htmlFor={inputId} className="text-[13px] font-medium text-surface-100">
             {label}
           </label>
         )}
@@ -35,10 +35,11 @@ const AuthInput = forwardRef(
           <input
             id={inputId}
             ref={ref}
+            aria-invalid={error ? 'true' : undefined}
             className={[
-              'w-full rounded-[9px] border bg-auth-input px-3.5 py-2.5 text-sm text-surface-100',
-              'placeholder-surface-500 transition-all duration-200 outline-none',
-              'focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:focus:ring-1 dark:focus:ring-orange-500/50',
+              'w-full rounded-lg border bg-auth-input px-3.5 py-2.5 text-sm text-surface-100',
+              'placeholder-surface-500 transition-colors duration-150 outline-none',
+              'focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20',
               'disabled:opacity-55 disabled:cursor-not-allowed',
               LeftIcon ? 'pl-10' : '',
               RightIcon ? 'pr-10' : '',
@@ -123,10 +124,10 @@ export const LoginPage = () => {
       />
 
       {/* ── Login Card ── */}
-      <div className="rounded-[16px] border border-surface-700 bg-surface-850 px-7 py-8 shadow-[var(--shadow-elevated)] dark:shadow-2xl dark:shadow-black/60 sm:px-8 sm:py-8">
+      <div className="rounded-2xl border border-surface-700 bg-card px-6 py-7 shadow-[var(--shadow-elevated)] sm:px-8 sm:py-8">
         {/* Card heading */}
         <div className="mb-7">
-          <h2 className="text-[22px] font-bold tracking-tight text-surface-100">
+          <h2 className="font-display text-[22px] font-bold tracking-tight text-surface-100">
             Welcome back
           </h2>
           <p className="mt-1.5 text-sm leading-relaxed text-surface-400">
@@ -149,7 +150,7 @@ export const LoginPage = () => {
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-surface-700" />
           </div>
-          <div className="relative bg-surface-850 px-3 text-[11px] font-medium uppercase tracking-wider text-surface-400">
+          <div className="relative bg-card px-3 text-[11px] font-medium uppercase tracking-wider text-surface-400">
             Or continue with credentials
           </div>
         </div>
@@ -169,7 +170,7 @@ export const LoginPage = () => {
 
           {/* Password with connected label/id and visibility toggle */}
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="password" className="text-[13px] font-medium text-surface-100 dark:text-surface-200">
+            <label htmlFor="password" className="text-[13px] font-medium text-surface-100">
               Password
             </label>
             <div className="relative flex items-center">
@@ -180,10 +181,11 @@ export const LoginPage = () => {
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
+                aria-invalid={errors.password ? 'true' : undefined}
                 className={[
-                  'w-full rounded-[9px] border bg-auth-input px-3.5 py-2.5 pl-10 pr-10 text-sm text-surface-100',
-                  'placeholder-surface-500 transition-all duration-200 outline-none',
-                  'focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:focus:ring-1 dark:focus:ring-orange-500/50',
+                  'w-full rounded-lg border bg-auth-input px-3.5 py-2.5 pl-10 pr-10 text-sm text-surface-100',
+                  'placeholder-surface-500 transition-colors duration-150 outline-none',
+                  'focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20',
                   'disabled:opacity-55 disabled:cursor-not-allowed',
                   errors.password
                     ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/30'
@@ -198,7 +200,7 @@ export const LoginPage = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3.5 text-surface-400 transition-colors duration-150 hover:text-surface-100 dark:hover:text-surface-200 focus:outline-none focus-visible:ring-1 focus-visible:ring-orange-500"
+                className="absolute right-3.5 text-surface-400 transition-colors duration-150 hover:text-surface-100 rounded p-0.5"
                 aria-label={showPassword ? 'Hide text' : 'Show text'}
                 tabIndex={0}
               >
@@ -220,7 +222,7 @@ export const LoginPage = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="mt-1 flex w-full items-center justify-center gap-2 rounded-[9px] bg-brand-500 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:bg-brand-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-1 flex w-full items-center justify-center gap-2 rounded-lg bg-brand-500 py-2.5 text-sm font-semibold text-white shadow-xs transition-colors duration-150 hover:bg-brand-600 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? (
               <>
@@ -235,7 +237,7 @@ export const LoginPage = () => {
 
         {/* ── Quick Demo Logins — all handlers and credentials untouched ── */}
         <div className="mt-6 border-t border-surface-700 pt-5">
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-surface-500">
+          <p className="mb-3 font-mono text-[11px] font-semibold uppercase tracking-widest text-surface-400">
             Quick Demo Logins
           </p>
           <div className="grid grid-cols-3 gap-2">
@@ -243,7 +245,7 @@ export const LoginPage = () => {
             <button
               type="button"
               onClick={() => fillDemoAccount('student@engineeros.dev', 'Password123')}
-              className="rounded-[8px] border border-surface-600 dark:border-surface-700 bg-surface-900 dark:bg-surface-800 px-2 py-2 text-[12px] font-medium text-surface-100 dark:text-surface-200 transition-all duration-150 hover:border-surface-500 dark:hover:border-surface-600 hover:bg-surface-800 dark:hover:bg-surface-700 hover:text-surface-100 active:scale-[0.98]"
+              className="rounded-lg border border-surface-700 bg-elevated/70 px-2 py-2 text-[12px] font-medium text-surface-100 transition-colors duration-150 hover:border-surface-600 hover:bg-elevated active:scale-[0.99]"
             >
               Student
             </button>
@@ -252,7 +254,7 @@ export const LoginPage = () => {
             <button
               type="button"
               onClick={() => fillDemoAccount('senior@engineeros.dev', 'Password123')}
-              className="rounded-[8px] border border-surface-600 dark:border-surface-700 bg-surface-900 dark:bg-surface-800 px-2 py-2 text-[12px] font-medium text-surface-100 dark:text-surface-200 transition-all duration-150 hover:border-surface-500 dark:hover:border-surface-600 hover:bg-surface-800 dark:hover:bg-surface-700 hover:text-surface-100 active:scale-[0.98]"
+              className="rounded-lg border border-surface-700 bg-elevated/70 px-2 py-2 text-[12px] font-medium text-surface-100 transition-colors duration-150 hover:border-surface-600 hover:bg-elevated active:scale-[0.99]"
             >
               Senior
             </button>
@@ -261,7 +263,7 @@ export const LoginPage = () => {
             <button
               type="button"
               onClick={() => fillDemoAccount('admin@engineeros.dev', 'Password123')}
-              className="rounded-[8px] border border-surface-600 dark:border-surface-700 bg-surface-900 dark:bg-surface-800 px-2 py-2 text-[12px] font-medium text-surface-100 dark:text-surface-200 transition-all duration-150 hover:border-surface-500 dark:hover:border-surface-600 hover:bg-surface-800 dark:hover:bg-surface-700 hover:text-surface-100 active:scale-[0.98]"
+              className="rounded-lg border border-surface-700 bg-elevated/70 px-2 py-2 text-[12px] font-medium text-surface-100 transition-colors duration-150 hover:border-surface-600 hover:bg-elevated active:scale-[0.99]"
             >
               Admin
             </button>
@@ -269,22 +271,21 @@ export const LoginPage = () => {
 
           {/* Seed hint — only shown on server error, original logic preserved */}
           {serverError && (
-            <p className="mt-3 rounded-lg border border-surface-700 bg-surface-900 p-2.5 text-[11px] text-surface-400">
-              💡{' '}
+            <p className="mt-3 rounded-lg border border-surface-700 bg-elevated/60 p-2.5 text-[11px] text-surface-400">
               <span className="font-semibold text-surface-200">New machine or fresh clone?</span>{' '}
               Run{' '}
-              <code className="font-mono text-brand-700 dark:text-orange-500">npm run seed</code> in the terminal to
+              <code className="font-mono text-brand-700">npm run seed</code> in the terminal to
               load demo accounts.
             </p>
           )}
         </div>
 
         {/* ── Footer — original Link destination preserved ──────────────── */}
-        <p className="mt-6 text-center text-[13px] text-surface-500">
+        <p className="mt-6 text-center text-[13px] text-surface-400">
           Don&apos;t have an account?{' '}
           <Link
             to="/register"
-            className="font-semibold text-brand-700 dark:text-orange-500 transition-colors duration-150 hover:text-brand-600 dark:hover:text-orange-400"
+            className="font-semibold text-brand-700 transition-colors duration-150 hover:underline"
           >
             Create an account
           </Link>

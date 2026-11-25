@@ -86,12 +86,15 @@ export const ProfileCard = forwardRef(
       profile,
       themeOverride,
       compact = false,
+      orientation = 'landscape',
       showQrCode = true,
       className = '',
     },
     ref
   ) => {
     if (!profile) return null;
+
+    const isPortrait = orientation === 'portrait';
 
     const theme =
       themeOverride ||
@@ -246,17 +249,111 @@ export const ProfileCard = forwardRef(
       zIndex: 2,
     };
 
+    const ringSizes = isPortrait
+      ? ['148px', '118px', '90px', '64px', '38px']
+      : ['160px', '130px', '100px', '72px', '44px'];
+
+    const renderHeatmapBars = (barSizeClass) =>
+      recentActivity.slice(-30).map((d) => {
+        const count = d.count || 0;
+        const bgClass =
+          count === 0
+            ? 'bg-[#EDE9E4] dark:bg-white/[0.08]'
+            : count <= 2
+            ? 'bg-[#FFD0A8] dark:bg-[#FF8C42]/40'
+            : count <= 5
+            ? 'bg-[#FF8C42] dark:bg-[#FF6B35]/75'
+            : 'bg-[#E85D04] dark:bg-[#FF8C42]';
+        return (
+          <div
+            key={d.date}
+            title={`${d.date}: ${count} actions`}
+            className={`${barSizeClass} rounded-sm shrink-0 transition-colors ${bgClass}`}
+          />
+        );
+      });
+
+    const telemetryMetrics = [
+      {
+        key: 'coding',
+        label: 'Coding',
+        icon: Code2,
+        value: stats.coding?.solved || 0,
+        subtitle: (
+          <span className="inline-flex items-center gap-1 font-mono">
+            <span className="font-semibold text-[#E85D04] dark:text-[#FFB36B]">
+              {stats.coding?.easy || 0}E
+            </span>
+            <span style={{ color: 'var(--pc-text-muted)' }}>/</span>
+            <span className="font-semibold text-[#FF6B35] dark:text-[#FF8C42]">
+              {stats.coding?.medium || 0}M
+            </span>
+            <span style={{ color: 'var(--pc-text-muted)' }}>/</span>
+            <span className="font-semibold text-[#C2410C] dark:text-[#FF6B35]">
+              {stats.coding?.hard || 0}H
+            </span>
+            {stats.coding?.accuracy > 0 && (
+              <span style={{ color: 'var(--pc-text-muted)' }}>
+                · {stats.coding.accuracy}% Acc
+              </span>
+            )}
+          </span>
+        ),
+        visible: true,
+      },
+      {
+        key: 'gate',
+        label: 'GATE Prep',
+        icon: Award,
+        value: stats.gate?.bestScore
+          ? `${stats.gate.bestScore}`
+          : `${stats.gate?.testsTaken || 0}`,
+        subtitle: `${stats.gate?.bestScore ? 'Best Score' : 'Mocks Taken'} · ${
+          stats.gate?.accuracy || 0
+        }% Accuracy`,
+        visible: sections.showGate !== false,
+      },
+      {
+        key: 'curriculum',
+        label: 'Curriculum',
+        icon: BookOpen,
+        value: `${stats.academic?.syllabusProgress || 0}%`,
+        subtitle: `${stats.academic?.subjectsEnrolled || 0} Subjects · Syllabus Tracked`,
+        progress: Math.min(100, Math.max(0, stats.academic?.syllabusProgress || 0)),
+        visible: true,
+      },
+      {
+        key: 'readiness',
+        label: 'Readiness',
+        icon: Sparkles,
+        value: stats.interviews?.averageScore
+          ? `${stats.interviews.averageScore}/100`
+          : `${stats.interviews?.completed || 0}`,
+        subtitle: `${
+          stats.interviews?.averageScore ? 'Mock Score' : 'Sessions Done'
+        } · AI Evaluated`,
+        visible: sections.showInterviews !== false,
+      },
+    ].filter((item) => item.visible);
+
     return (
       /* perspective wrapper */
       <div
-        className={`pc-parent w-full max-w-2xl ${className}`}
+        className={`pc-parent ${
+          isPortrait
+            ? 'pc-parent-portrait w-full max-w-md xl:max-w-none h-full flex flex-col'
+            : 'w-full max-w-2xl'
+        } ${className}`}
         style={{ perspective: '1200px' }}
       >
         {/* 3D theme-aware card body (adapts via .pc-card & .dark .pc-card CSS vars) */}
         <div
           ref={ref}
           id="engineeros-profile-card"
-          className="pc-card w-full rounded-3xl relative overflow-visible"
+          data-orientation={orientation}
+          className={`pc-card w-full rounded-3xl relative overflow-visible ${
+            isPortrait ? 'pc-card-portrait flex-1 flex flex-col' : ''
+          }`}
         >
           {/* ── Layered orange-tinted circles — upper-right motif ── */}
           <div
@@ -275,7 +372,7 @@ export const ProfileCard = forwardRef(
               className="pc-circle pc-circle1"
               style={{
                 ...circleBase,
-                width: '160px',
+                width: ringSizes[0],
                 transform: 'translate3d(0,0,15px)',
                 top: '6px',
                 right: '6px',
@@ -286,7 +383,7 @@ export const ProfileCard = forwardRef(
               className="pc-circle pc-circle2"
               style={{
                 ...circleBase,
-                width: '130px',
+                width: ringSizes[1],
                 transform: 'translate3d(0,0,32px)',
                 top: '9px',
                 right: '9px',
@@ -297,7 +394,7 @@ export const ProfileCard = forwardRef(
               className="pc-circle pc-circle3"
               style={{
                 ...circleBase,
-                width: '100px',
+                width: ringSizes[2],
                 transform: 'translate3d(0,0,50px)',
                 top: '15px',
                 right: '15px',
@@ -308,7 +405,7 @@ export const ProfileCard = forwardRef(
               className="pc-circle pc-circle4"
               style={{
                 ...circleBase,
-                width: '72px',
+                width: ringSizes[3],
                 transform: 'translate3d(0,0,68px)',
                 top: '22px',
                 right: '22px',
@@ -319,7 +416,7 @@ export const ProfileCard = forwardRef(
               className="pc-circle pc-circle5"
               style={{
                 ...circleBase,
-                width: '44px',
+                width: ringSizes[4],
                 transform: 'translate3d(0,0,86px)',
                 top: '29px',
                 right: '29px',
@@ -350,10 +447,15 @@ export const ProfileCard = forwardRef(
           {/* ═══════════════════════════════════════════════════
               CARD CONTENT — elevated via translate3d
               ═══════════════════════════════════════════════════ */}
-          <div style={contentDepth}>
+          <div
+            style={contentDepth}
+            className={isPortrait ? 'flex-1 flex flex-col justify-between' : ''}
+          >
             {/* ── Header bar ── */}
             <div
-              className="flex items-center justify-between px-5 py-3 border-b"
+              className={`flex items-center justify-between px-5 border-b ${
+                isPortrait ? 'py-2.5 pr-16 shrink-0' : 'py-3'
+              }`}
               style={{ borderColor: 'var(--pc-border-subtle)' }}
             >
               <div className="flex items-center gap-2">
@@ -416,25 +518,325 @@ export const ProfileCard = forwardRef(
                 )}
               </div>
 
-              {/* Streak pill */}
-              <span
-                className="inline-flex items-center gap-1.5 text-xs px-2.5 py-0.5 rounded-full font-mono font-medium"
-                style={{
-                  background: 'var(--pc-surface)',
-                  border: '1px solid var(--pc-border)',
-                  color: 'var(--pc-text-primary)',
-                }}
-              >
-                <Flame
-                  className="w-3.5 h-3.5"
-                  style={{ color: 'var(--pc-accent)', fill: 'var(--pc-accent)' }}
-                />
-                <span>{stats.streaks?.current || 0}d streak</span>
-              </span>
+              {/* Streak pill (kept cleanly in Identity area in portrait mode so header clears the OS rings) */}
+              {!isPortrait && (
+                <span
+                  className="inline-flex items-center gap-1.5 text-xs px-2.5 py-0.5 rounded-full font-mono font-medium"
+                  style={{
+                    background: 'var(--pc-surface)',
+                    border: '1px solid var(--pc-border)',
+                    color: 'var(--pc-text-primary)',
+                  }}
+                >
+                  <Flame
+                    className="w-3.5 h-3.5"
+                    style={{ color: 'var(--pc-accent)', fill: 'var(--pc-accent)' }}
+                  />
+                  <span>{stats.streaks?.current || 0}d streak</span>
+                </span>
+              )}
             </div>
 
-            {/* ── Body ── */}
-            <div className="p-5 space-y-5">
+            {isPortrait ? (
+              /* ── Portrait Body — vertical identity pass distributed across full column height ── */
+              <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between gap-3">
+                {/* 1. Prominent Vertical Identity Showcase */}
+                <div className="space-y-2.5">
+                  <div className="flex items-center gap-3.5 pr-16">
+                    {sections.showPhoto !== false ? (
+                      <div className="relative shrink-0">
+                        <div
+                          className="rounded-full p-0.5"
+                          style={{
+                            border: '2px solid rgba(255, 140, 66, 0.55)',
+                            boxShadow: '0 0 0 3px rgba(255, 140, 66, 0.14)',
+                          }}
+                        >
+                          <Avatar
+                            src={identity.avatarUrl}
+                            name={identity.name}
+                            size="xl"
+                            className="!ring-0"
+                            fallbackClassName="!bg-gradient-to-br !from-[#FF8C42] !to-[#E85D04] !text-white !ring-0"
+                          />
+                        </div>
+                        <div
+                          className="absolute -bottom-0.5 -right-0.5 bg-[#E85D04] dark:bg-[#FF8C42] text-white rounded-full p-0.5 border-2 border-white dark:border-[#111315] shadow-sm"
+                          title="Verified Engineer"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        className="w-16 h-16 rounded-2xl flex items-center justify-center font-bold text-lg shrink-0"
+                        style={{
+                          background: 'var(--pc-surface)',
+                          color: 'var(--pc-accent)',
+                          border: '1.5px solid var(--pc-border)',
+                        }}
+                      >
+                        {identity.name?.slice(0, 2).toUpperCase() || 'OS'}
+                      </div>
+                    )}
+
+                    <div className="min-w-0 space-y-1">
+                      <h2
+                        className={`text-xl font-bold leading-tight truncate ${typo.titleClass}`}
+                        style={{ color: 'var(--pc-text-primary)' }}
+                      >
+                        {identity.name || 'Engineer'}
+                      </h2>
+
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {identity.username && (
+                          <span
+                            className="text-xs font-mono font-medium"
+                            style={{ color: 'var(--pc-accent)' }}
+                          >
+                            @{identity.username}
+                          </span>
+                        )}
+                        <span
+                          className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-mono font-medium"
+                          style={{
+                            background: 'var(--pc-surface)',
+                            border: '1px solid var(--pc-border)',
+                            color: 'var(--pc-text-primary)',
+                          }}
+                        >
+                          <Flame
+                            className="w-3 h-3"
+                            style={{ color: 'var(--pc-accent)', fill: 'var(--pc-accent)' }}
+                          />
+                          <span>{stats.streaks?.current || 0}d streak</span>
+                        </span>
+                      </div>
+
+                      {identity.isAlumni && (
+                        <div>
+                          <span
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                            style={{
+                              background: 'var(--pc-accent-bg)',
+                              border: '1px solid var(--pc-border)',
+                              color: 'var(--pc-accent-soft)',
+                            }}
+                          >
+                            <Award className="w-3 h-3 shrink-0" />
+                            Verified Alumni Mentor
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {identity.headline && (
+                    <p
+                      className="text-sm leading-snug line-clamp-2"
+                      style={{ color: 'var(--pc-text-secondary)' }}
+                    >
+                      {identity.headline}
+                    </p>
+                  )}
+
+                  {sections.showUniversity !== false && identity.university && (
+                    <div
+                      className="flex items-center gap-x-2 gap-y-1 text-xs flex-wrap"
+                      style={{ color: 'var(--pc-text-secondary)' }}
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        <GraduationCap
+                          className="w-3.5 h-3.5 shrink-0"
+                          style={{ color: 'var(--pc-accent)' }}
+                        />
+                        {identity.university}
+                      </span>
+                      {identity.branch && (
+                        <>
+                          <span style={{ color: 'var(--pc-text-muted)' }}>•</span>
+                          <span>{identity.branch}</span>
+                        </>
+                      )}
+                      {identity.semester && (
+                        <>
+                          <span style={{ color: 'var(--pc-text-muted)' }}>•</span>
+                          <span>Sem {identity.semester}</span>
+                        </>
+                      )}
+                      {identity.graduationYear && (
+                        <>
+                          <span style={{ color: 'var(--pc-text-muted)' }}>•</span>
+                          <span className="inline-flex items-center gap-0.5">
+                            <Calendar
+                              className="w-3 h-3"
+                              style={{ color: 'var(--pc-accent)' }}
+                            />
+                            &apos;{String(identity.graduationYear).slice(-2)}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {identity.githubHandle && (
+                    <div>
+                      <a
+                        href={`https://github.com/${identity.githubHandle}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="pc-link inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-mono"
+                      >
+                        <Github
+                          className="w-3.5 h-3.5"
+                          style={{ color: 'var(--pc-accent)' }}
+                        />
+                        <span>{identity.githubHandle}</span>
+                      </a>
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. Vertical Pass Telemetry Ledger */}
+                <div className={`pc-panel ${typo.panelRadius} overflow-hidden`}>
+                  {telemetryMetrics.map((metric, idx) => {
+                    const MetricIcon = metric.icon;
+                    return (
+                      <div
+                        key={metric.key}
+                        className="px-3.5 py-2 flex items-center justify-between gap-3"
+                        style={
+                          idx > 0
+                            ? { borderTop: '1px solid var(--pc-border-subtle)' }
+                            : undefined
+                        }
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                          <div
+                            className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                            style={{
+                              background: 'var(--pc-accent-bg)',
+                              border: '1px solid var(--pc-border-subtle)',
+                            }}
+                          >
+                            <MetricIcon
+                              className="w-3.5 h-3.5"
+                              style={{ color: 'var(--pc-accent)' }}
+                            />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div
+                              className="text-[11px] uppercase tracking-wider font-semibold"
+                              style={{ color: 'var(--pc-text-secondary)' }}
+                            >
+                              {metric.label}
+                            </div>
+                            <div
+                              className="text-[11px] truncate"
+                              style={{ color: 'var(--pc-text-muted)' }}
+                            >
+                              {metric.subtitle}
+                            </div>
+                            {typeof metric.progress === 'number' && (
+                              <div
+                                className="w-24 h-1 rounded-full overflow-hidden mt-1"
+                                style={{ background: 'var(--pc-accent-bg)' }}
+                              >
+                                <div
+                                  className="h-full rounded-full transition-all duration-500"
+                                  style={{
+                                    width: `${metric.progress}%`,
+                                    background: 'linear-gradient(90deg, #FF8C42, #E85D04)',
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div
+                          className="text-lg sm:text-xl font-mono font-bold tabular-nums shrink-0"
+                          style={{ color: 'var(--pc-text-primary)' }}
+                        >
+                          {metric.value}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* 3. Pass Proficiencies, Credentials & Consistency */}
+                {((sections.showSkills !== false && topSkills.length > 0) ||
+                  (sections.showBadges !== false && badges.length > 0) ||
+                  (sections.showHeatmap !== false && recentActivity.length > 0)) && (
+                  <div className="space-y-2.5">
+                    {sections.showSkills !== false && topSkills.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {topSkills.slice(0, 4).map((skill) => (
+                          <span
+                            key={skill}
+                            className={`text-[11px] px-2 py-0.5 ${typo.chipRadius} font-mono font-medium`}
+                            style={{
+                              background: 'var(--pc-surface-subtle)',
+                              border: '1px solid var(--pc-border)',
+                              color: 'var(--pc-accent-soft)',
+                            }}
+                          >
+                            #{skill}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {sections.showBadges !== false && badges.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {badges.slice(0, 3).map((b) => (
+                          <div
+                            key={b.badgeId || b.name}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px]"
+                            style={{
+                              background: 'var(--pc-surface)',
+                              border: '1px solid var(--pc-border)',
+                              color: 'var(--pc-text-primary)',
+                            }}
+                          >
+                            <span className="text-xs">{b.icon || '🎖️'}</span>
+                            <span className="font-medium truncate max-w-[140px]">{b.name}</span>
+                            <span
+                              className="text-[10px] uppercase font-mono font-semibold"
+                              style={{ color: 'var(--pc-accent)' }}
+                            >
+                              • {b.tier}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {sections.showHeatmap !== false && recentActivity.length > 0 && (
+                      <div className="space-y-1">
+                        <div
+                          className="flex items-center justify-between text-[10px]"
+                          style={{ color: 'var(--pc-text-secondary)' }}
+                        >
+                          <span className="font-semibold uppercase tracking-wider">
+                            30-Day Pulse
+                          </span>
+                          <span className="font-mono">
+                            {recentActivity.reduce((acc, a) => acc + (a.count || 0), 0)} events
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 overflow-x-auto py-0.5">
+                          {renderHeatmapBars('h-3 w-2')}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* ── Landscape Body (ProfilePage & PublicProfilePage) ── */
+              <div className="p-5 space-y-5">
               {/* Identity */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
@@ -498,14 +900,15 @@ export const ProfileCard = forwardRef(
                     {identity.isAlumni && (
                       <div className="mt-1.5">
                         <span
-                          className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full"
+                          className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full"
                           style={{
                             background: 'var(--pc-accent-bg)',
                             border: '1px solid var(--pc-border)',
                             color: 'var(--pc-accent-soft)',
                           }}
                         >
-                          🎖️ Verified Alumni Mentor
+                          <Award className="w-3 h-3 shrink-0" />
+                          Verified Alumni Mentor
                         </span>
                       </div>
                     )}
@@ -835,32 +1238,18 @@ export const ProfileCard = forwardRef(
                     </span>
                   </div>
                   <div className="flex items-center gap-1 overflow-x-auto py-1">
-                    {recentActivity.slice(-30).map(d => {
-                      const count = d.count || 0;
-                      const bgClass =
-                        count === 0
-                          ? 'bg-[#EDE9E4] dark:bg-white/[0.08]'
-                          : count <= 2
-                          ? 'bg-[#FFD0A8] dark:bg-[#FF8C42]/40'
-                          : count <= 5
-                          ? 'bg-[#FF8C42] dark:bg-[#FF6B35]/75'
-                          : 'bg-[#E85D04] dark:bg-[#FF8C42]';
-                      return (
-                        <div
-                          key={d.date}
-                          title={`${d.date}: ${count} actions`}
-                          className={`h-4 w-2.5 rounded-sm shrink-0 transition-colors ${bgClass}`}
-                        />
-                      );
-                    })}
+                    {renderHeatmapBars('h-4 w-2.5')}
                   </div>
                 </div>
               )}
-            </div>
+              </div>
+            )}
 
             {/* ── Footer — elevated action zone ── */}
             <div
-              className="pc-bottom flex items-center justify-between px-5 py-4 border-t"
+              className={`pc-bottom flex items-center justify-between gap-3 px-5 border-t shrink-0 ${
+                isPortrait ? 'py-3' : 'py-4'
+              }`}
               style={{
                 borderColor: 'var(--pc-border-subtle)',
                 transformStyle: 'preserve-3d',
@@ -907,7 +1296,7 @@ export const ProfileCard = forwardRef(
                   >
                     <QRCodeSVG
                       value={profileUrl}
-                      size={40}
+                      size={isPortrait ? 38 : 40}
                       level="M"
                       bgColor="#FFFFFF"
                       fgColor="#111315"

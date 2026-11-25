@@ -8,7 +8,11 @@ export const ProtectedRoute = ({ children, allowedRoles }) => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-8 bg-surface-950">
+      <div
+        role="status"
+        aria-label="Loading workspace session"
+        className="flex min-h-screen items-center justify-center p-8 bg-canvas"
+      >
         <div className="w-full max-w-md space-y-4">
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-40 w-full" />

@@ -4,6 +4,9 @@ import { twMerge } from 'tailwind-merge';
 
 const cn = (...inputs) => twMerge(clsx(inputs));
 
+/**
+ * Form input field with accessible label association, icons, helper text, and error states.
+ */
 export const Input = forwardRef(
   (
     {
@@ -30,32 +33,33 @@ export const Input = forwardRef(
         )}
         <div className="relative flex items-center">
           {LeftIcon && (
-            <div className="pointer-events-none absolute left-3.5 text-surface-400">
+            <div className="pointer-events-none absolute left-3 text-surface-400">
               <LeftIcon className="w-4 h-4" />
             </div>
           )}
           <input
             id={inputId}
             ref={ref}
+            aria-invalid={error ? 'true' : undefined}
             className={cn(
-              'w-full rounded-[9px] bg-auth-input border border-surface-600 dark:border-surface-700 text-surface-100 placeholder-surface-500 text-sm px-3.5 py-2.5 transition-all duration-200 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-1 dark:focus:ring-brand-500/50 disabled:opacity-55 disabled:cursor-not-allowed',
-              LeftIcon && 'pl-10',
-              RightIcon && 'pr-10',
-              error && 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/30',
+              'w-full rounded-lg bg-auth-input border border-surface-600 text-surface-100 placeholder:text-surface-500 text-sm px-3.5 py-2 transition-colors duration-150 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15 disabled:opacity-55 disabled:cursor-not-allowed',
+              LeftIcon && 'pl-9',
+              RightIcon && 'pr-9',
+              error && 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/20',
               className
             )}
             {...props}
           />
           {RightIcon && (
-            <div className="absolute right-3.5 flex items-center text-surface-400">
+            <div className="absolute right-3 flex items-center text-surface-400">
               <RightIcon className="w-4 h-4" />
             </div>
           )}
         </div>
         {error ? (
-          <p className="text-[12px] font-medium text-rose-600 dark:text-rose-400">{error}</p>
+          <p className="text-xs font-medium text-rose-600 dark:text-rose-400">{error}</p>
         ) : helperText ? (
-          <p className="text-[12px] text-surface-400">{helperText}</p>
+          <p className="text-xs text-surface-400">{helperText}</p>
         ) : null}
       </div>
     );

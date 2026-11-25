@@ -3,6 +3,9 @@ import { twMerge } from 'tailwind-merge';
 
 const cn = (...inputs) => twMerge(clsx(inputs));
 
+/**
+ * Accessible circular SVG completion ring using design-system semantic strokes.
+ */
 export const ProgressRing = ({
   progress = 0,
   size = 64,
@@ -20,11 +23,11 @@ export const ProgressRing = ({
 
   const colorVariants = {
     brand: 'text-brand-500',
-    compiler: 'text-emerald-600 dark:text-emerald-500',
+    compiler: 'badge-compiler',
     signal: 'text-amber-600 dark:text-amber-500',
     fault: 'text-rose-600 dark:text-rose-500',
-    violet: 'text-violet-600 dark:text-violet-500',
-    cyan: 'text-sky-600 dark:text-cyan-500',
+    violet: 'text-violet-600 dark:text-violet-400',
+    cyan: 'text-sky-600 dark:text-sky-400',
   };
 
   return (
@@ -38,17 +41,17 @@ export const ProgressRing = ({
       {...props}
     >
       <svg width={size} height={size} className="transform -rotate-90">
-        {/* Background Track */}
+        {/* Track */}
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          className="text-surface-700 dark:text-surface-800"
+          className="text-surface-700"
           strokeWidth={strokeWidth}
           stroke="currentColor"
           fill="transparent"
         />
-        {/* Animated Progress Indicator */}
+        {/* Active Indicator */}
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -64,16 +67,15 @@ export const ProgressRing = ({
       </svg>
       {showValue && (
         <span
-          className="absolute inset-0 flex items-center justify-center font-mono font-bold text-surface-100 tracking-tight"
+          className="absolute inset-0 flex items-center justify-center font-mono tabular-nums font-bold text-surface-100 tracking-tight"
           style={{ fontSize: Math.max(size * 0.22, 10) }}
         >
           {Math.round(normalizedProgress)}%
         </span>
       )}
-      {label && <span className="text-xs text-surface-400 mt-1 font-medium">{label}</span>}
+      {label && <span className="text-xs text-surface-400 mt-1.5 font-medium">{label}</span>}
     </div>
   );
 };
 
 export default ProgressRing;
-

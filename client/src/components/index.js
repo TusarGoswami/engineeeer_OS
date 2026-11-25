@@ -4,6 +4,7 @@ export { default as IconButton } from './IconButton.jsx';
 export { default as Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './Card.jsx';
 export { default as StatCard } from './StatCard.jsx';
 export { default as ProgressRing } from './ProgressRing.jsx';
+export { default as ProgressBar } from './ProgressBar.jsx';
 export { default as Heatmap } from './Heatmap.jsx';
 export { default as Avatar } from './Avatar.jsx';
 export { default as Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs.jsx';
@@ -19,6 +20,14 @@ export {
 } from './Table.jsx';
 export { default as Modal } from './Modal.jsx';
 export { default as Drawer } from './Drawer.jsx';
+export {
+  default as DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from './DropdownMenu.jsx';
 export { default as ToastProvider, useToast } from './Toast.jsx';
 export {
   default as Skeleton,
@@ -30,7 +39,12 @@ export {
 export { default as EmptyState } from './EmptyState.jsx';
 export { default as ErrorState } from './ErrorState.jsx';
 export { default as Input } from './Input.jsx';
+export { default as Select } from './Select.jsx';
+export { default as Textarea } from './Textarea.jsx';
 export { default as Tooltip } from './Tooltip.jsx';
 export { default as CommandPalette } from './CommandPalette.jsx';
 export { default as ProtectedRoute } from './ProtectedRoute.jsx';
 export { default as ThemeToggle } from './ThemeToggle.jsx';
+export { default as MetricStrip, MetricItem } from './MetricDisplay.jsx';
+export { default as ChartContainer, ChartTooltip, CHART_PALETTE } from './Chart.jsx';
+export { default as PageHeader } from './PageHeader.jsx';

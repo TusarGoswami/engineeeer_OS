@@ -9,10 +9,11 @@ import {
   Twitter,
   MessageCircle,
 } from 'lucide-react';
-import Modal from '../../../components/Modal.jsx';
-import Button from '../../../components/Button.jsx';
-import { useToast } from '../../../components/Toast.jsx';
+import { Modal, Button, useToast } from '../../../components/index.js';
 
+/**
+ * Modal for exporting EngineerOS profile card as PNG/clipboard image or sharing via URL and social intents.
+ */
 export const CardExportModal = ({
   isOpen,
   onClose,
@@ -36,6 +37,13 @@ export const CardExportModal = ({
 
   const shareText = `Check out my engineering portfolio & consistency stats on EngineerOS! #EngineerOS #BuildInPublic`;
 
+  const getExportBackground = () => {
+    if (typeof document !== 'undefined' && document.documentElement.classList.contains('dark')) {
+      return '#101820';
+    }
+    return '#F5F7F9';
+  };
+
   const handleDownloadPng = async () => {
     if (!cardElementRef.current) {
       showToast('Card element reference not found', 'error');
@@ -46,7 +54,7 @@ export const CardExportModal = ({
       const dataUrl = await toPng(cardElementRef.current, {
         cacheBust: true,
         pixelRatio: 2,
-        backgroundColor: '#0B0D11',
+        backgroundColor: getExportBackground(),
       });
       const link = document.createElement('a');
       link.download = `engineeros-${username}-card.png`;
@@ -67,7 +75,7 @@ export const CardExportModal = ({
       const blob = await toBlob(cardElementRef.current, {
         cacheBust: true,
         pixelRatio: 2,
-        backgroundColor: '#0B0D11',
+        backgroundColor: getExportBackground(),
       });
       if (blob && navigator.clipboard && window.ClipboardItem) {
         await navigator.clipboard.write([
@@ -136,11 +144,11 @@ export const CardExportModal = ({
       onClose={onClose}
       title="Share & Export Profile Card"
       description="Download high-resolution card or share your engineering journey online"
-      size="md"
+      maxWidth="max-w-md"
     >
-      <div className="space-y-6">
+      <div className="space-y-5">
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Button
             variant="primary"
             onClick={handleDownloadPng}
@@ -163,11 +171,11 @@ export const CardExportModal = ({
         </div>
 
         {/* Share Link Box */}
-        <div className="p-3.5 rounded-xl bg-surface-900 dark:bg-surface-950/80 border border-surface-700 dark:border-surface-800 space-y-2">
+        <div className="p-3.5 rounded-xl bg-elevated/70 border border-surface-700 space-y-2">
           <div className="flex items-center justify-between text-xs text-surface-400">
             <span>Direct Public Link</span>
             {visibility === 'unlisted' && (
-              <span className="text-amber-700 dark:text-amber-400 text-[10px] uppercase font-semibold">
+              <span className="text-brand-700 font-mono text-[10px] uppercase font-semibold">
                 Secret Token Included
               </span>
             )}
@@ -176,7 +184,8 @@ export const CardExportModal = ({
             <input
               readOnly
               value={shareUrl}
-              className="w-full text-xs font-mono bg-surface-850 dark:bg-surface-900 border border-surface-600 dark:border-surface-700/60 rounded-lg px-2.5 py-2 text-surface-200 dark:text-surface-300 select-all"
+              aria-label="Direct public link"
+              className="w-full min-w-0 text-xs font-mono bg-card border border-surface-600 rounded-lg px-2.5 py-2 text-surface-200 select-all focus:outline-none focus:border-brand-500"
             />
             <Button
               size="sm"
@@ -191,14 +200,14 @@ export const CardExportModal = ({
 
         {/* Social Sharing Intents */}
         <div className="space-y-2">
-          <label className="text-xs font-semibold text-surface-200 dark:text-surface-300 uppercase tracking-wider">
+          <span className="block font-mono text-[11px] font-semibold text-surface-300 uppercase tracking-wider">
             Share Directly
-          </label>
-          <div className="grid grid-cols-3 gap-2">
+          </span>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <button
               type="button"
               onClick={shareToLinkedIn}
-              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-surface-700 dark:border-surface-800 bg-surface-900 hover:bg-surface-800 dark:hover:bg-surface-800/80 text-surface-100 dark:text-surface-200 text-xs font-medium transition-colors"
+              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border border-surface-700 bg-elevated/60 hover:bg-elevated text-surface-100 text-xs font-medium transition-colors"
             >
               <Linkedin className="w-4 h-4 text-[#0A66C2]" />
               <span>LinkedIn</span>
@@ -207,7 +216,7 @@ export const CardExportModal = ({
             <button
               type="button"
               onClick={shareToTwitter}
-              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-surface-700 dark:border-surface-800 bg-surface-900 hover:bg-surface-800 dark:hover:bg-surface-800/80 text-surface-100 dark:text-surface-200 text-xs font-medium transition-colors"
+              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border border-surface-700 bg-elevated/60 hover:bg-elevated text-surface-100 text-xs font-medium transition-colors"
             >
               <Twitter className="w-4 h-4 text-sky-600 dark:text-sky-400" />
               <span>Twitter / X</span>
@@ -216,9 +225,9 @@ export const CardExportModal = ({
             <button
               type="button"
               onClick={shareToWhatsApp}
-              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-surface-700 dark:border-surface-800 bg-surface-900 hover:bg-surface-800 dark:hover:bg-surface-800/80 text-surface-100 dark:text-surface-200 text-xs font-medium transition-colors"
+              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border border-surface-700 bg-elevated/60 hover:bg-elevated text-surface-100 text-xs font-medium transition-colors"
             >
-              <MessageCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <MessageCircle className="w-4 h-4 badge-compiler" />
               <span>WhatsApp</span>
             </button>
           </div>
@@ -242,4 +251,3 @@ export const CardExportModal = ({
 };
 
 export default CardExportModal;
-

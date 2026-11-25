@@ -8,13 +8,20 @@ import {
   Check,
   Sparkles,
 } from 'lucide-react';
-import Drawer from '../../../components/Drawer.jsx';
-import Button from '../../../components/Button.jsx';
-import Input from '../../../components/Input.jsx';
-import { useToast } from '../../../components/Toast.jsx';
+import {
+  Drawer,
+  Button,
+  Input,
+  Textarea,
+  Badge,
+  useToast,
+} from '../../../components/index.js';
 import profileService from '../../../services/profile.service.js';
 import { THEMES } from './ProfileCard.jsx';
 
+/**
+ * Slide-over customization drawer for card aesthetic theme, handle/bio, visibility, and section toggles.
+ */
 export const CardCustomizerDrawer = ({
   isOpen,
   onClose,
@@ -26,7 +33,6 @@ export const CardCustomizerDrawer = ({
   const [isRotatingToken, setIsRotatingToken] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  // Form state initialized from profile
   const [theme, setTheme] = useState(
     profile?.profileSettings?.theme || profile?.theme || 'terminal'
   );
@@ -68,7 +74,7 @@ export const CardCustomizerDrawer = ({
       const res = await profileService.regenerateShareToken();
       showToast('Share token regenerated successfully', 'success');
       if (onProfileUpdated) {
-        onProfileUpdated(prev => ({
+        onProfileUpdated((prev) => ({
           ...prev,
           shareToken: res.shareToken,
         }));
@@ -80,8 +86,8 @@ export const CardCustomizerDrawer = ({
     }
   };
 
-  const handleToggleSection = key => {
-    setSections(prev => ({ ...prev, [key]: !prev[key] }));
+  const handleToggleSection = (key) => {
+    setSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const handleSave = async () => {
@@ -115,108 +121,113 @@ export const CardCustomizerDrawer = ({
       isOpen={isOpen}
       onClose={onClose}
       title="Customize Profile Card"
-      description="Personalize your theme, public visibility, and section disclosures"
-      size="md"
+      description="Personalize your aesthetic theme, public visibility, and section disclosures"
+      maxWidth="max-w-md"
+      footer={
+        <>
+          <Button variant="secondary" size="sm" onClick={onClose} disabled={isSaving}>
+            Cancel
+          </Button>
+          <Button variant="primary" size="sm" onClick={handleSave} isLoading={isSaving}>
+            Save Changes
+          </Button>
+        </>
+      }
     >
-      <div className="space-y-6 pb-6">
+      <div className="space-y-6">
         {/* Theme Picker */}
         <div className="space-y-3">
-          <label className="text-xs font-semibold text-surface-100 dark:text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
-            <Palette className="w-4 h-4 text-brand-600 dark:text-brand-400" />
-            Visual Aesthetics Theme
-          </label>
-          <div className="grid grid-cols-1 gap-2.5">
-            {Object.values(THEMES).map(t => (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => setTheme(t.id)}
-                className={`flex items-start text-left p-3 rounded-xl border transition-all ${
-                  theme === t.id
-                    ? 'border-brand-500 bg-brand-500/10 shadow-sm dark:shadow-md ring-1 ring-brand-500/50'
-                    : 'border-surface-700 dark:border-surface-800 bg-surface-900 dark:bg-surface-900/40 hover:border-surface-600 dark:hover:border-surface-700'
-                }`}
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-surface-100">{t.name}</span>
-                    {theme === t.id && (
-                      <span className="text-[10px] bg-brand-500 text-white px-1.5 py-0.5 rounded font-mono font-bold">
-                        ACTIVE
-                      </span>
-                    )}
+          <div className="font-mono text-[11px] font-semibold text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
+            <Palette className="w-3.5 h-3.5 text-brand-500" />
+            <span>Visual Aesthetics Theme</span>
+          </div>
+          <div className="grid grid-cols-1 gap-2">
+            {Object.values(THEMES).map((t) => {
+              const active = theme === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setTheme(t.id)}
+                  className={`flex items-start text-left p-3 rounded-xl border transition-colors ${
+                    active
+                      ? 'border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/35'
+                      : 'border-surface-700 bg-elevated/55 hover:border-surface-600'
+                  }`}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-semibold text-surface-100">{t.name}</span>
+                      {active && (
+                        <Badge variant="brand" size="sm">
+                          ACTIVE
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-surface-400 mt-0.5">{t.description}</p>
                   </div>
-                  <p className="text-xs text-surface-400 mt-0.5">{t.description}</p>
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Identity & Handle */}
         <div className="space-y-3 pt-4 border-t border-surface-700">
-          <label className="text-xs font-semibold text-surface-100 dark:text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-sky-600 dark:text-cyan-400" />
-            Handle & Bio
-          </label>
+          <div className="font-mono text-[11px] font-semibold text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-brand-500" />
+            <span>Handle & Bio</span>
+          </div>
           <div className="space-y-3">
             <Input
               label="Username / Public Handle"
               value={username}
-              onChange={e => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value)}
               placeholder="e.g. alexj"
               helperText="Must be 3-24 alphanumeric characters or underscores"
             />
-            <div className="space-y-1">
-              <label className="text-[13px] font-medium text-surface-100 dark:text-surface-300">
-                Headline / Tech Stack (Max 120 chars)
-              </label>
-              <textarea
-                value={headline}
-                onChange={e => setHeadline(e.target.value)}
-                maxLength={120}
-                rows={2}
-                className="w-full rounded-[9px] bg-auth-input dark:bg-surface-900 border border-surface-600 dark:border-surface-700 text-surface-100 text-sm p-3 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-0 placeholder-surface-500"
-                placeholder="Systems Engineer • Distributed Systems & DSA • Rust/Go"
-              />
-              <div className="text-right text-[11px] text-surface-500">
-                {headline.length}/120
-              </div>
-            </div>
+            <Textarea
+              label="Headline / Tech Stack (Max 120 chars)"
+              value={headline}
+              onChange={(e) => setHeadline(e.target.value)}
+              maxLength={120}
+              showCount
+              rows={2}
+              placeholder="Systems Engineer • Distributed Systems & DSA • Rust/Go"
+            />
           </div>
         </div>
 
         {/* Visibility Setting */}
         <div className="space-y-3 pt-4 border-t border-surface-700">
-          <label className="text-xs font-semibold text-surface-100 dark:text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
-            <Shield className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            Card Visibility & Privacy
-          </label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="font-mono text-[11px] font-semibold text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
+            <Shield className="w-3.5 h-3.5 badge-compiler" />
+            <span>Card Visibility & Privacy</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {[
               { id: 'public', label: 'Public', desc: 'Listed & searchable' },
               { id: 'unlisted', label: 'Unlisted', desc: 'Only via secret link' },
               { id: 'private', label: 'Private', desc: 'Only you can view' },
-            ].map(v => (
+            ].map((v) => (
               <button
                 key={v.id}
                 type="button"
                 onClick={() => setVisibility(v.id)}
-                className={`p-3 rounded-xl border text-center transition-all ${
+                className={`p-2.5 rounded-xl border text-left sm:text-center transition-colors ${
                   visibility === v.id
-                    ? 'border-brand-500 bg-brand-500/10 shadow-sm'
-                    : 'border-surface-700 bg-surface-900 dark:bg-surface-900/40 hover:border-surface-600'
+                    ? 'border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/35'
+                    : 'border-surface-700 bg-elevated/55 hover:border-surface-600'
                 }`}
               >
-                <div className="text-sm font-semibold text-surface-100 capitalize">{v.label}</div>
+                <div className="text-xs font-semibold text-surface-100 capitalize">{v.label}</div>
                 <div className="text-[10px] text-surface-400 mt-0.5">{v.desc}</div>
               </button>
             ))}
           </div>
 
-          {/* Share Link Box */}
           {visibility !== 'private' && (
-            <div className="p-3 rounded-xl bg-surface-900 border border-surface-700 space-y-2">
+            <div className="p-3 rounded-xl bg-elevated/70 border border-surface-700 space-y-2">
               <div className="flex items-center justify-between text-xs text-surface-400">
                 <span>Public Share Link</span>
                 {visibility === 'unlisted' && (
@@ -224,10 +235,10 @@ export const CardCustomizerDrawer = ({
                     type="button"
                     onClick={handleRotateToken}
                     disabled={isRotatingToken}
-                    className="text-brand-700 dark:text-brand-400 hover:text-brand-600 dark:hover:text-brand-300 inline-flex items-center gap-1 text-[11px]"
+                    className="text-brand-700 hover:underline inline-flex items-center gap-1 text-[11px] font-medium"
                   >
                     <RefreshCw className={`w-3 h-3 ${isRotatingToken ? 'animate-spin' : ''}`} />
-                    Rotate Token
+                    <span>Rotate Token</span>
                   </button>
                 )}
               </div>
@@ -235,7 +246,8 @@ export const CardCustomizerDrawer = ({
                 <input
                   readOnly
                   value={shareUrl}
-                  className="w-full text-xs font-mono bg-surface-850 border border-surface-600 dark:border-surface-700 rounded-lg px-2.5 py-1.5 text-surface-200 dark:text-surface-300 select-all"
+                  aria-label="Public share link"
+                  className="w-full min-w-0 text-xs font-mono bg-card border border-surface-600 rounded-lg px-2.5 py-1.5 text-surface-200 select-all focus:outline-none focus:border-brand-500"
                 />
                 <Button
                   size="sm"
@@ -250,13 +262,13 @@ export const CardCustomizerDrawer = ({
           )}
         </div>
 
-        {/* Section Disclosures */}
+        {/* Displayed Sections */}
         <div className="space-y-3 pt-4 border-t border-surface-700">
-          <label className="text-xs font-semibold text-surface-100 dark:text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
-            <Eye className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-            Displayed Sections
-          </label>
-          <div className="space-y-2">
+          <div className="font-mono text-[11px] font-semibold text-surface-200 uppercase tracking-wider flex items-center gap-1.5">
+            <Eye className="w-3.5 h-3.5 text-brand-500" />
+            <span>Displayed Sections</span>
+          </div>
+          <div className="space-y-1.5">
             {[
               { key: 'showHeatmap', label: 'Activity Heatmap & Streak Stream' },
               { key: 'showGate', label: 'GATE Examination Scores & Mocks' },
@@ -265,31 +277,21 @@ export const CardCustomizerDrawer = ({
               { key: 'showPhoto', label: 'Profile Photo / Avatar' },
               { key: 'showSkills', label: 'Verified Skills & Topic Tags' },
               { key: 'showBadges', label: 'Earned Platform Badges' },
-            ].map(item => (
+            ].map((item) => (
               <label
                 key={item.key}
-                className="flex items-center justify-between p-2.5 rounded-lg border border-surface-700 dark:border-surface-800/80 bg-surface-900 dark:bg-surface-900/30 hover:bg-surface-800 dark:hover:bg-surface-900/60 cursor-pointer"
+                className="flex items-center justify-between p-2.5 rounded-lg border border-surface-700 bg-elevated/45 hover:bg-elevated cursor-pointer transition-colors"
               >
-                <span className="text-xs font-medium text-surface-200 dark:text-surface-300">{item.label}</span>
+                <span className="text-xs font-medium text-surface-200">{item.label}</span>
                 <input
                   type="checkbox"
                   checked={sections[item.key]}
                   onChange={() => handleToggleSection(item.key)}
-                  className="w-4 h-4 rounded border-surface-600 dark:border-surface-700 text-brand-600 focus:ring-brand-500 bg-surface-850 dark:bg-surface-950 cursor-pointer"
+                  className="w-4 h-4 rounded border-surface-600 accent-brand-500 cursor-pointer"
                 />
               </label>
             ))}
           </div>
-        </div>
-
-        {/* Drawer Actions */}
-        <div className="flex items-center justify-end gap-2 pt-4 border-t border-surface-700 dark:border-surface-800">
-          <Button variant="secondary" onClick={onClose} disabled={isSaving}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleSave} isLoading={isSaving}>
-            Save Changes
-          </Button>
         </div>
       </div>
     </Drawer>
@@ -297,4 +299,3 @@ export const CardCustomizerDrawer = ({
 };
 
 export default CardCustomizerDrawer;
-

@@ -1,12 +1,9 @@
 import { useState, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
 import { Upload, ZoomIn, ZoomOut, Check, X, Image as ImageIcon } from 'lucide-react';
-import Modal from '../../../components/Modal.jsx';
-import Button from '../../../components/Button.jsx';
-import { useToast } from '../../../components/Toast.jsx';
+import { Modal, Button, useToast } from '../../../components/index.js';
 import profileService from '../../../services/profile.service.js';
 
-// Helper to create cropped image canvas
 const getCroppedImg = (imageSrc, pixelCrop) => {
   return new Promise((resolve, reject) => {
     const image = new Image();
@@ -30,7 +27,7 @@ const getCroppedImg = (imageSrc, pixelCrop) => {
       );
 
       canvas.toBlob(
-        blob => {
+        (blob) => {
           if (!blob) {
             reject(new Error('Canvas is empty'));
             return;
@@ -41,10 +38,13 @@ const getCroppedImg = (imageSrc, pixelCrop) => {
         0.92
       );
     };
-    image.onerror = error => reject(error);
+    image.onerror = (error) => reject(error);
   });
 };
 
+/**
+ * Interactive WebP avatar upload and round crop modal for the EngineerOS Card.
+ */
 export const AvatarCropperModal = ({ isOpen, onClose, onAvatarUpdated }) => {
   const [imageSrc, setImageSrc] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -57,7 +57,7 @@ export const AvatarCropperModal = ({ isOpen, onClose, onAvatarUpdated }) => {
     setCroppedAreaPixels(croppedPixels);
   }, []);
 
-  const handleFileChange = e => {
+  const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       if (file.size > 3 * 1024 * 1024) {
@@ -102,20 +102,20 @@ export const AvatarCropperModal = ({ isOpen, onClose, onAvatarUpdated }) => {
       onClose={handleClose}
       title="Update Profile Photo"
       description="Crop and adjust your avatar for your EngineerOS Card"
-      size="md"
+      maxWidth="max-w-md"
     >
       <div className="space-y-4">
         {!imageSrc ? (
-          <div className="flex flex-col items-center justify-center border-2 border-dashed border-surface-600 dark:border-surface-700 hover:border-brand-500 rounded-2xl p-8 transition-colors bg-surface-900">
-            <div className="w-16 h-16 rounded-full bg-surface-800 border border-surface-700 flex items-center justify-center text-surface-400 mb-4">
-              <ImageIcon className="w-8 h-8" />
+          <div className="flex flex-col items-center justify-center border-2 border-dashed border-surface-600 hover:border-brand-500 rounded-xl p-7 sm:p-8 transition-colors bg-elevated/55 text-center">
+            <div className="w-14 h-14 rounded-full bg-card border border-surface-700 flex items-center justify-center text-surface-400 mb-3.5">
+              <ImageIcon className="w-7 h-7" />
             </div>
-            <p className="text-sm font-medium text-surface-100 dark:text-surface-200 mb-1">
+            <p className="text-sm font-medium text-surface-100 mb-1">
               Choose an image from your computer
             </p>
             <p className="text-xs text-surface-400 mb-4">PNG, JPG, or WebP up to 3MB</p>
             <label className="cursor-pointer">
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-brand-500 hover:bg-brand-600 text-white transition-colors shadow-sm">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-brand-500 hover:bg-brand-600 text-white transition-colors shadow-xs">
                 <Upload className="w-4 h-4" /> Browse Photo
               </span>
               <input
@@ -128,7 +128,7 @@ export const AvatarCropperModal = ({ isOpen, onClose, onAvatarUpdated }) => {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="relative w-full h-64 bg-surface-900 rounded-2xl overflow-hidden border border-surface-700">
+            <div className="relative w-full h-64 bg-elevated rounded-xl overflow-hidden border border-surface-700">
               <Cropper
                 image={imageSrc}
                 crop={crop}
@@ -151,13 +151,13 @@ export const AvatarCropperModal = ({ isOpen, onClose, onAvatarUpdated }) => {
                 max={3}
                 step={0.05}
                 aria-label="Zoom"
-                onChange={e => setZoom(Number(e.target.value))}
-                className="w-full h-1.5 bg-surface-800 rounded-lg appearance-none cursor-pointer accent-brand-500"
+                onChange={(e) => setZoom(Number(e.target.value))}
+                className="w-full h-1.5 bg-elevated rounded-lg appearance-none cursor-pointer accent-brand-500"
               />
               <ZoomIn className="w-4 h-4 text-surface-400 shrink-0" />
             </div>
 
-            <div className="flex justify-between items-center pt-2 border-t border-surface-700">
+            <div className="flex flex-wrap justify-between items-center gap-2 pt-3 border-t border-surface-700">
               <Button
                 variant="ghost"
                 size="sm"
@@ -190,4 +190,3 @@ export const AvatarCropperModal = ({ isOpen, onClose, onAvatarUpdated }) => {
 };
 
 export default AvatarCropperModal;
-

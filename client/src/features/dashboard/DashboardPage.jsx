@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
@@ -16,20 +16,42 @@ import {
   Share2,
   Video,
   Users,
-  Compass,
   AlertCircle,
+  GraduationCap,
+  Terminal,
+  Target,
 } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+} from 'recharts';
 import { dashboardService } from '../../services/dashboard.service.js';
 import profileService from '../../services/profile.service.js';
-import { Card } from '../../components/Card.jsx';
-import { Button } from '../../components/Button.jsx';
-import { Badge } from '../../components/Badge.jsx';
-import { Heatmap } from '../../components/Heatmap.jsx';
-import { CardSkeleton, StatSkeleton } from '../../components/Skeleton.jsx';
-import { useToast } from '../../components/Toast.jsx';
+import {
+  Button,
+  Badge,
+  Card,
+  Heatmap,
+  ProgressRing,
+  ProgressBar,
+  ChartContainer,
+  ChartTooltip,
+  CHART_PALETTE,
+  CardSkeleton,
+  StatSkeleton,
+  Skeleton,
+  useToast,
+} from '../../components/index.js';
 import ProfileCard from '../profile/components/ProfileCard.jsx';
 import CardExportModal from '../profile/components/CardExportModal.jsx';
 
+/**
+ * Primary Engineering Command Center landing view aggregating progress telemetry,
+ * daily execution queue, consistency heatmap, workspaces, and study recommendations.
+ */
 export const DashboardPage = () => {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
@@ -97,461 +119,677 @@ export const DashboardPage = () => {
   const progressPercent = todayData?.percent || 0;
 
   const username = profile?.identity?.username || user?.username || 'user';
+  const university = profile?.identity?.university || user?.university;
+  const semester = profile?.identity?.semester || user?.semester;
+  const branch = profile?.identity?.branch || user?.branch;
+
+  const activeStreak = stats?.overallStreak || stats?.coding?.streak || 0;
+  const longestStreak = profile?.stats?.streaks?.longest || 0;
+  const codingSolved = stats?.coding?.solvedCount || 0;
+  const codingEasy = stats?.coding?.easyCount || 0;
+  const codingMedium = stats?.coding?.mediumCount || 0;
+  const codingHard = stats?.coding?.hardCount || 0;
+  const codingDenominator = Math.max(codingSolved, codingEasy + codingMedium + codingHard, 1);
+  const weakTopics = stats?.gate?.weakTopics || [];
+
+  const recentActivitySeries = useMemo(() => {
+    const map = new Map();
+    if (Array.isArray(heatmapData)) {
+      heatmapData.forEach((item) => {
+        if (item?.date) {
+          map.set(item.date.slice(0, 10), item.count || item.total || 0);
+        }
+      });
+    }
+    const days = [];
+    const today = new Date();
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const iso = d.toISOString().slice(0, 10);
+      days.push({
+        label: iso.slice(5),
+        activities: map.get(iso) || 0,
+      });
+    }
+    return days;
+  }, [heatmapData]);
 
   const getModuleBadgeColor = (module) => {
     switch (module) {
       case 'coding':
-        return 'emerald';
+        return 'compiler';
       case 'gate':
-        return 'cyan';
-      case 'academics':
         return 'brand';
+      case 'academics':
+        return 'surface';
       case 'interviews':
-        return 'purple';
+        return 'outline';
       default:
         return 'surface';
     }
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-10 pb-12">
-      {/* 1. Hero Section: EngineerOS Profile Card Showcase */}
-      <section>
-        {/* Main Greeting Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-          <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="text-xs font-semibold uppercase tracking-wider text-surface-400">
-                Operating System Dashboard
-              </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse" />
+    <div className="max-w-7xl mx-auto space-y-8 pb-12">
+      {/* ═══════════════════════════════════════════════════════════════════════
+          A. UNIFIED COMMAND CENTER HERO SECTION (Welcome + Focus | Authentic Card)
+          ═══════════════════════════════════════════════════════════════════════ */}
+      <section
+        aria-label="Engineering command center hero"
+        className="rounded-2xl border border-surface-700 bg-card shadow-[var(--shadow-card)]"
+      >
+        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.45fr)_minmax(360px,1fr)] gap-6 xl:gap-7 p-5 sm:p-6 xl:p-7 items-stretch">
+          {/* LEFT COLUMN (~55% desktop): Welcome Header + Today's Focus */}
+          <div className="flex flex-col space-y-5 min-w-0 pb-6 xl:pb-0 xl:pr-7 border-b xl:border-b-0 xl:border-r border-surface-700/75">
+            {/* Welcome & Identity Header */}
+            <header className="space-y-2.5">
+              <div className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-surface-400">
+                <span className="w-2 h-2 rounded-full bg-compiler-500 animate-pulse" aria-hidden="true" />
+                <span>~/command-center</span>
+                <span className="text-surface-600">·</span>
+                <span className="text-brand-700 font-semibold">{activeStreak}d active streak</span>
+              </div>
+
+              <div className="space-y-1.5">
+                <h1 className="font-display text-2xl sm:text-3xl font-bold text-surface-100 tracking-tight leading-tight">
+                  Welcome back, {user?.name?.split(' ')[0] || 'Engineer'}
+                </h1>
+                <p className="text-sm text-surface-400 leading-relaxed">
+                  Track coding telemetry, curriculum completion, GATE mocks &amp; interview readiness.
+                </p>
+              </div>
+
+              {(university || semester || branch) && (
+                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-xs text-surface-400 pt-0.5">
+                  {university && (
+                    <span className="inline-flex items-center gap-1.5 text-surface-200 font-medium">
+                      <GraduationCap className="w-3.5 h-3.5 text-brand-500 shrink-0" />
+                      <span>{university}</span>
+                    </span>
+                  )}
+                  {semester && (
+                    <span className="font-mono px-2 py-0.5 rounded-md bg-elevated border border-surface-700 text-surface-200">
+                      Sem {semester}
+                    </span>
+                  )}
+                  {branch && <span className="truncate max-w-xs sm:max-w-md">{branch}</span>}
+                </div>
+              )}
+
+              <div className="flex flex-wrap items-center gap-2 pt-1.5">
+                <Button
+                  size="sm"
+                  variant="primary"
+                  leftIcon={Share2}
+                  onClick={() => setIsExportOpen(true)}
+                >
+                  Share Card
+                </Button>
+                <Link to="/profile">
+                  <Button size="sm" variant="secondary" leftIcon={SlidersHorizontal}>
+                    Customize Card
+                  </Button>
+                </Link>
+                <Link to="/coding">
+                  <Button size="sm" variant="ghost" leftIcon={Terminal}>
+                    Solve DSA
+                  </Button>
+                </Link>
+                {username && (
+                  <a
+                    href={`/u/${username}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-mono text-xs font-medium bg-elevated/70 hover:bg-elevated text-surface-200 hover:text-surface-100 transition-colors border border-surface-700 hover:border-surface-600"
+                  >
+                    <span>/u/{username}</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-surface-400" />
+                  </a>
+                )}
+              </div>
+            </header>
+
+            {/* Today's Focus — Seamless Continuous Execution List */}
+            <div className="border-t border-surface-700/75 pt-5 space-y-3.5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-brand-500 shrink-0" aria-hidden="true" />
+                    <h2 className="font-display text-base sm:text-lg font-semibold text-surface-100 tracking-tight">
+                      Today&apos;s Focus
+                    </h2>
+                  </div>
+                  <p className="text-xs text-surface-400 mt-0.5">
+                    Prioritized tasks tailored to your curriculum, weak spots &amp; streak
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-1.5 font-mono tabular-nums text-xs text-surface-400 shrink-0 pt-0.5">
+                  <strong className="text-surface-100 font-semibold">
+                    {completedCount}/{totalTasks}
+                  </strong>
+                  <span>·</span>
+                  <span>{progressPercent}%</span>
+                </div>
+              </div>
+
+              <ProgressBar
+                value={progressPercent}
+                variant={progressPercent >= 100 ? 'compiler' : 'brand'}
+                size="sm"
+              />
+
+              {isTodayLoading ? (
+                <div className="space-y-2.5 pt-1">
+                  {[1, 2, 3].map((i) => (
+                    <StatSkeleton key={i} />
+                  ))}
+                </div>
+              ) : tasks.length === 0 ? (
+                <div className="rounded-xl border border-surface-700/70 bg-elevated/35 px-4 py-5 flex items-center gap-3">
+                  <CheckCircle2 className="w-5 h-5 badge-compiler shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-surface-100">You&apos;re all caught up</p>
+                    <p className="text-xs text-surface-400">
+                      All tasks completed or none scheduled for today.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <ul className="divide-y divide-surface-700/70 border-t border-b border-surface-700/70">
+                  {tasks.map((task) => {
+                    const isCompleted = task.status === 'completed';
+                    const isSnoozed = task.status === 'snoozed';
+
+                    return (
+                      <li
+                        key={task._id || task.taskId}
+                        className={`group flex items-center justify-between gap-3 py-3 px-2 transition-colors duration-150 ${
+                          isCompleted
+                            ? 'opacity-70 hover:bg-elevated/30'
+                            : isSnoozed
+                            ? 'opacity-80 hover:bg-elevated/35'
+                            : 'hover:bg-elevated/45'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleComplete(task)}
+                            aria-label={
+                              isCompleted ? `Mark ${task.title} incomplete` : `Complete ${task.title}`
+                            }
+                            className="p-1 -m-1 mt-0 text-surface-400 hover:badge-compiler transition-colors shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+                          >
+                            {isCompleted ? (
+                              <CheckCircle2 className="w-[18px] h-[18px] badge-compiler fill-compiler-500/15" />
+                            ) : (
+                              <Circle className="w-[18px] h-[18px]" />
+                            )}
+                          </button>
+
+                          <div className="min-w-0 flex-1 space-y-1">
+                            <h3
+                              className={`text-sm font-medium leading-snug ${
+                                isCompleted ? 'line-through text-surface-400' : 'text-surface-100'
+                              }`}
+                            >
+                              {task.title}
+                            </h3>
+
+                            <div className="flex flex-wrap items-center gap-2 text-xs">
+                              <Badge
+                                variant={getModuleBadgeColor(task.module)}
+                                size="sm"
+                                className="capitalize"
+                              >
+                                {task.module}
+                              </Badge>
+                              <span className="inline-flex items-center gap-1 text-[11px] font-mono text-surface-400 tabular-nums">
+                                <Clock className="w-3 h-3" aria-hidden="true" />
+                                {task.estimatedMinutes}m
+                              </span>
+                              {isSnoozed && (
+                                <span className="text-[11px] font-mono text-surface-400">
+                                  · Snoozed
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {!isCompleted && (
+                            <button
+                              type="button"
+                              onClick={() => handleSnooze(task)}
+                              title="Snooze for 4 hours"
+                              aria-label={`Snooze ${task.title}`}
+                              className="p-2 text-surface-400 hover:text-surface-100 rounded-lg hover:bg-elevated transition-colors"
+                            >
+                              <Moon className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+
+                          <Link to={task.actionUrl} className="shrink-0">
+                            <Button
+                              size="sm"
+                              variant={isCompleted ? 'ghost' : 'secondary'}
+                              rightIcon={ArrowRight}
+                              className="min-w-[82px] justify-between"
+                            >
+                              {isCompleted ? 'Review' : 'Start'}
+                            </Button>
+                          </Link>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </div>
-            <h1 className="text-[28px] sm:text-[32px] font-bold text-surface-100 tracking-tight leading-tight">
-              Welcome back, {user?.name?.split(' ')[0] || 'Engineer'}
-            </h1>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            <Link to="/profile">
-              <Button size="sm" variant="secondary" leftIcon={SlidersHorizontal}>
-                Customize Card
-              </Button>
-            </Link>
-            <Button
-              size="sm"
-              variant="primary"
-              leftIcon={Share2}
-              onClick={() => setIsExportOpen(true)}
-            >
-              Share Card
-            </Button>
-            {username && (
-              <a
-                href={`/u/${username}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-surface-850 hover:bg-surface-900 dark:bg-surface-800 dark:hover:bg-surface-700 text-surface-100 dark:text-surface-200 transition-colors border border-surface-600 dark:border-surface-700/80 shadow-2xs dark:shadow-none"
-              >
-                <span>/u/{username}</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+          {/* RIGHT COLUMN (~41–45% desktop): Portrait EngineerOS Authentic Card matching Left Column height */}
+          <div className="hero-profile-card-slot w-full min-w-0 flex items-stretch justify-center xl:justify-end">
+            {isProfileLoading ? (
+              <CardSkeleton lines={5} className="w-full max-w-md xl:max-w-none h-full" />
+            ) : (
+              <ProfileCard
+                ref={cardRef}
+                profile={profile}
+                orientation="portrait"
+                compact={false}
+                className="w-full"
+              />
             )}
           </div>
         </div>
-
-        {/* Hero Card Container */}
-        <div className="w-full flex justify-center">
-          {isProfileLoading ? (
-            <CardSkeleton />
-          ) : (
-            <ProfileCard
-              ref={cardRef}
-              profile={profile}
-              compact={false}
-              className="max-w-3xl"
-            />
-          )}
-        </div>
       </section>
 
-      {/* 2. "What Should I Do Today?" Action Panel */}
-      <section className="space-y-5">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-brand-500/10 text-brand-700 dark:text-brand-400 border border-brand-500/20">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-[20px] font-semibold text-surface-100 tracking-tight">
-                What Should I Do Today?
-              </h2>
-              <p className="text-xs text-surface-400">
-                Prioritized daily plan matching your curriculum, weak spots & active streak
-              </p>
-            </div>
-          </div>
-
-          {/* Daily Progress Tracker */}
-          <div className="flex items-center gap-3 bg-surface-850 border border-surface-700 rounded-xl px-3.5 py-2 shadow-[var(--shadow-card)] dark:shadow-none">
-            <div className="text-xs font-mono text-surface-200 dark:text-surface-300">
-              <span className="text-emerald-700 dark:text-emerald-400 font-bold">{completedCount}</span> / {totalTasks} Completed
-            </div>
-            <div className="w-24 h-2 rounded-full bg-surface-800 overflow-hidden">
-              <div
-                className="h-full bg-emerald-600 dark:bg-emerald-500 rounded-full transition-all duration-500"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
-            <span className="text-sm font-bold font-mono text-surface-300 dark:text-surface-400">{progressPercent}%</span>
-          </div>
-        </div>
-
-        {/* Tasks List */}
-        {isTodayLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <StatSkeleton key={i} />
-            ))}
-          </div>
-        ) : tasks.length === 0 ? (
-          <Card className="p-6 text-center text-surface-400 text-sm">
-            All tasks completed or none scheduled for today. Great job!
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tasks.map((task) => {
-              const isCompleted = task.status === 'completed';
-              const isSnoozed = task.status === 'snoozed';
-
-              return (
-                <div
-                  key={task._id || task.taskId}
-                  className={`flex flex-col justify-between p-4 rounded-2xl border transition-all duration-200 ${
-                    isCompleted
-                      ? 'bg-surface-900 dark:bg-surface-900/30 border-surface-700 dark:border-surface-800/50 opacity-65 dark:opacity-60'
-                      : isSnoozed
-                      ? 'bg-surface-900 dark:bg-surface-950/40 border-surface-700 dark:border-surface-800/50 opacity-75 dark:opacity-70'
-                      : 'bg-surface-850 border-surface-700 hover:border-surface-600 hover:-translate-y-0.5 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] dark:shadow-md'
-                  }`}
-                >
-                  <div className="space-y-2.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5">
-                        <Badge
-                          variant={getModuleBadgeColor(task.module)}
-                          size="sm"
-                          className="capitalize font-mono text-[10px]"
-                        >
-                          {task.module}
-                        </Badge>
-                        <span className="inline-flex items-center gap-1 text-[11px] font-mono text-surface-400">
-                          <Clock className="w-3 h-3" />
-                          {task.estimatedMinutes}m
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        {!isCompleted && (
-                          <button
-                            type="button"
-                            onClick={() => handleSnooze(task)}
-                            title="Snooze for 4 hours"
-                            className="p-1 text-surface-500 hover:text-surface-200 dark:hover:text-surface-300 rounded-lg hover:bg-surface-800 transition-colors"
-                          >
-                            <Moon className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => handleToggleComplete(task)}
-                          className="p-1 text-surface-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-                        >
-                          {isCompleted ? (
-                            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 fill-emerald-500/20" />
-                          ) : (
-                            <Circle className="w-5 h-5" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    <h3
-                      className={`text-sm font-semibold text-surface-100 leading-snug ${
-                        isCompleted ? 'line-through text-surface-400' : ''
-                      }`}
-                    >
-                      {task.title}
-                    </h3>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-surface-700 dark:border-surface-800/60 flex items-center justify-between gap-2">
-                    <Link to={task.actionUrl} className="flex-1">
-                      <Button
-                        size="sm"
-                        variant={isCompleted ? 'ghost' : 'secondary'}
-                        className="w-full justify-between text-xs"
-                        rightIcon={ArrowRight}
-                      >
-                        {isCompleted ? 'Review' : 'Start Task'}
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </section>
-
-      {/* 3. Consistency Stream (12-Month Heatmap) */}
+      {/* ═══════════════════════════════════════════════════════════════════════
+          D & F. CONSISTENCY STREAM, ACTIVITY HISTORY & RECOMMENDATIONS
+          ═══════════════════════════════════════════════════════════════════════ */}
       <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Flame className="w-5 h-5 text-[#EA580C] dark:text-[#F97316]" />
-            <h2 className="text-[20px] font-semibold text-[#202124] dark:text-[#F5F5F5] tracking-tight">
-              Annual Consistency Stream
-            </h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <Flame className="w-5 h-5 text-brand-500 shrink-0" />
+            <div>
+              <h2 className="font-display text-xl font-semibold text-surface-100 tracking-tight">
+                Annual Consistency Stream
+              </h2>
+            </div>
           </div>
+
           <div className="flex items-center gap-3 text-xs font-mono">
-            <span className="text-[#60646C] dark:text-[#A1A1AA]">
+            <span className="text-surface-400">
               Active Streak:{' '}
-              <strong className="text-[#C2410C] dark:text-[#FB923C]">
-                {stats?.overallStreak || stats?.coding?.streak || 0}d
-              </strong>
+              <strong className="text-brand-700 font-bold">{activeStreak}d</strong>
+            </span>
+            <span className="text-surface-600">·</span>
+            <span className="text-surface-400">
+              Best:{' '}
+              <strong className="badge-compiler font-bold">{longestStreak}d</strong>
             </span>
           </div>
         </div>
 
         <Card className="hm-card p-4 sm:p-5">
           {isHeatmapLoading ? (
-            <div className="h-32 w-full animate-pulse bg-[#F1F2F4] dark:bg-[#181B20] rounded-xl" />
+            <Skeleton className="h-32 w-full rounded-xl" />
           ) : (
             <Heatmap
               data={heatmapData || []}
               weeks={52}
-              currentStreak={stats?.overallStreak || stats?.coding?.streak || 0}
-              longestStreak={profile?.stats?.streaks?.longest || 0}
+              currentStreak={activeStreak}
+              longestStreak={longestStreak}
             />
           )}
         </Card>
+
+        {/* Activity Pulse Chart + Personalized Recommendations */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+          <div className="lg:col-span-7 min-w-0">
+            <ChartContainer
+              title="14-Day Activity History"
+              description="Recent logged contributions feeding your engineering streak"
+              height={176}
+              actions={
+                <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-brand-500/10 text-brand-700 border border-brand-500/20">
+                  Last 14 Days
+                </span>
+              }
+            >
+              <BarChart data={recentActivitySeries} margin={{ top: 6, right: 6, left: -24, bottom: 0 }}>
+                <CartesianGrid stroke={CHART_PALETTE.grid} strokeDasharray="3 3" vertical={false} />
+                <XAxis
+                  dataKey="label"
+                  tick={{ fill: CHART_PALETTE.axis, fontSize: 10, fontFamily: 'JetBrains Mono' }}
+                  axisLine={false}
+                  tickLine={false}
+                  interval={1}
+                />
+                <RechartsTooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(239, 107, 34, 0.08)' }} />
+                <Bar
+                  dataKey="activities"
+                  name="Contributions"
+                  fill={CHART_PALETTE.brand}
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={24}
+                />
+              </BarChart>
+            </ChartContainer>
+          </div>
+
+          <div className="lg:col-span-5 rounded-xl border border-surface-700 bg-card p-5 shadow-[var(--shadow-card)] flex flex-col justify-between gap-4 min-w-0">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Target className="w-4 h-4 text-brand-500 shrink-0" />
+                  <h3 className="font-display text-base font-semibold text-surface-100">
+                    Personalized Recommendations
+                  </h3>
+                </div>
+                <Badge variant={weakTopics.length > 0 ? 'brand' : 'compiler'} size="sm">
+                  {weakTopics.length > 0 ? 'Action Needed' : 'On Track'}
+                </Badge>
+              </div>
+
+              {weakTopics.length > 0 ? (
+                <div className="rounded-lg border border-brand-500/25 bg-brand-500/8 p-3.5 space-y-2.5">
+                  <div className="flex items-start gap-2.5">
+                    <AlertCircle className="w-4 h-4 text-brand-700 shrink-0 mt-0.5" />
+                    <div className="text-xs text-surface-200 leading-relaxed min-w-0">
+                      <strong className="text-surface-100">Targeted Diagnostic Notice:</strong> Your lowest accuracy topic is{' '}
+                      <span className="font-semibold underline text-brand-700">{weakTopics[0]}</span>. Revising this topic today can boost your mock percentile by up to 12%.
+                    </div>
+                  </div>
+                  {weakTopics.length > 1 && (
+                    <div className="flex flex-wrap gap-1.5 pl-6">
+                      {weakTopics.slice(1, 3).map((topic) => (
+                        <Badge key={topic} variant="outline" size="sm">
+                          {topic}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex flex-wrap items-center gap-2 pl-6 pt-0.5">
+                    <Link to={`/gate?topic=${encodeURIComponent(weakTopics[0])}`}>
+                      <Button size="sm" variant="primary" rightIcon={ArrowRight}>
+                        Review Topic
+                      </Button>
+                    </Link>
+                    <Link to="/ai-assistant">
+                      <Button size="sm" variant="secondary">
+                        Ask AI Tutor
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-lg border border-compiler-500/25 bg-compiler-500/8 p-3.5 text-xs text-surface-200 leading-relaxed">
+                  No critical GATE weak spots flagged right now. Keep alternating timed DSA sets with syllabus revision to extend your{' '}
+                  <strong className="font-mono badge-compiler">{activeStreak}d</strong> streak.
+                </div>
+              )}
+            </div>
+
+            <div className="pt-3 border-t border-surface-700 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <span className="text-surface-400">
+                Syllabus mastery:{' '}
+                <strong className="font-mono text-surface-100">
+                  {stats?.academics?.percentComplete || 0}%
+                </strong>
+              </span>
+              <Link
+                to="/academics"
+                className="inline-flex items-center gap-1 font-medium text-brand-700 hover:underline"
+              >
+                <span>Open weak-area study plan</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* 4. Module Telemetry Strip: 6 Focused Workspaces */}
+      {/* ═══════════════════════════════════════════════════════════════════════
+          E. ACADEMIC & SKILL WORKSPACES (Differentiated Composition)
+          ═══════════════════════════════════════════════════════════════════════ */}
       <section className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-          <h2 className="text-[20px] font-semibold text-surface-100 tracking-tight">
-            Academic & Skill Workspaces
-          </h2>
-          <span className="text-xs text-surface-400 mt-0.5">
-            Dedicated execution environments for each engineering pillar
-          </span>
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-1">
+          <div>
+            <h2 className="font-display text-xl font-semibold text-surface-100 tracking-tight">
+              Academic & Skill Workspaces
+            </h2>
+            <p className="text-xs text-surface-400 mt-0.5">
+              Dedicated execution environments across algorithms, exams, curriculum & mentorship
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Tile 1: Coding & DSA */}
-          <Card hover className="p-5 flex flex-col justify-between min-h-[200px]">
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 font-mono">
-                  Coding & DSA
-                </span>
-                <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-600/20 dark:border-emerald-500/20">
-                  <Code2 className="w-4 h-4" />
+        {/* Tier 1: Primary Technical Pillars (Asymmetric 7 + 5 Bento) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          {/* Left Featured Pillar: Coding & DSA */}
+          <div className="lg:col-span-7 rounded-xl border border-surface-700 bg-card p-6 shadow-[var(--shadow-card)] flex flex-col justify-between gap-6">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-lg bg-compiler-500/10 badge-compiler border border-compiler-500/25">
+                  <Code2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="font-mono text-[11px] font-semibold uppercase tracking-wider badge-compiler">
+                    Coding & DSA
+                  </span>
+                  <h3 className="font-display text-lg font-semibold text-surface-100">
+                    Algorithms & Problem Solving
+                  </h3>
                 </div>
               </div>
-              <div className="mt-4">
-                <div className="text-[28px] font-bold font-mono tracking-tight text-surface-100 leading-tight">
-                  {stats?.coding?.solvedCount || 0} <span className="text-base font-normal text-surface-400">Solved</span>
+              <Badge variant="compiler" size="md">
+                {stats?.coding?.accuracyRate || 0}% Accuracy
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 items-center">
+              <div className="sm:col-span-5">
+                <div className="font-mono tabular-nums text-4xl font-bold text-surface-100 tracking-tight">
+                  {codingSolved}
                 </div>
-                <div className="text-xs text-surface-400 mt-1.5 flex items-center gap-1.5 flex-wrap">
-                  <span className="text-emerald-700 dark:text-emerald-400 font-medium">{stats?.coding?.easyCount || 0}E</span>
-                  <span className="text-surface-500 dark:text-surface-600">/</span>
-                  <span className="text-amber-700 dark:text-amber-400 font-medium">{stats?.coding?.mediumCount || 0}M</span>
-                  <span className="text-surface-500 dark:text-surface-600">/</span>
-                  <span className="text-rose-700 dark:text-rose-400 font-medium">{stats?.coding?.hardCount || 0}H</span>
-                  <span className="text-surface-500 dark:text-surface-600">•</span>
-                  <span className="font-mono">{stats?.coding?.accuracyRate || 0}% Accuracy</span>
+                <p className="text-xs text-surface-400 mt-1">
+                  Problems verified in Judge0 sandbox
+                </p>
+              </div>
+              <div className="sm:col-span-7 space-y-2.5">
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs font-mono">
+                    <span className="badge-compiler font-medium">Easy ({codingEasy}E)</span>
+                    <span className="text-surface-400">{Math.round((codingEasy / codingDenominator) * 100)}%</span>
+                  </div>
+                  <ProgressBar value={(codingEasy / codingDenominator) * 100} variant="compiler" size="sm" />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs font-mono">
+                    <span className="text-brand-700 font-medium">Medium ({codingMedium}M)</span>
+                    <span className="text-surface-400">{Math.round((codingMedium / codingDenominator) * 100)}%</span>
+                  </div>
+                  <ProgressBar value={(codingMedium / codingDenominator) * 100} variant="brand" size="sm" />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs font-mono">
+                    <span className="text-surface-200 font-medium">Hard ({codingHard}H)</span>
+                    <span className="text-surface-400">{Math.round((codingHard / codingDenominator) * 100)}%</span>
+                  </div>
+                  <ProgressBar value={(codingHard / codingDenominator) * 100} variant="signal" size="sm" />
                 </div>
               </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-surface-700 dark:border-surface-800">
+
+            <div className="pt-4 border-t border-surface-700 flex flex-wrap items-center justify-between gap-3">
+              <span className="font-mono text-xs text-surface-400">
+                C++ · Python · Java · JavaScript
+              </span>
               <Link to="/coding">
-                <Button size="sm" variant="secondary" className="w-full justify-between" rightIcon={ArrowRight}>
+                <Button size="sm" variant="secondary" rightIcon={ArrowRight}>
                   Open Monaco Sandbox
                 </Button>
               </Link>
             </div>
-          </Card>
+          </div>
 
-          {/* Tile 2: GATE Examination */}
-          <Card hover className="p-5 flex flex-col justify-between min-h-[200px]">
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-sky-700 dark:text-cyan-400 font-mono">
-                  GATE Preparation
-                </span>
-                <div className="p-2 rounded-xl bg-sky-500/10 dark:bg-cyan-500/10 text-sky-700 dark:text-cyan-400 border border-sky-600/20 dark:border-cyan-500/20">
-                  <Compass className="w-4 h-4" />
+          {/* Right Column: GATE Preparation & Curriculum Hub */}
+          <div className="lg:col-span-5 flex flex-col gap-5">
+            {/* GATE Preparation */}
+            <div className="flex-1 rounded-xl border border-surface-700 bg-card p-5 shadow-[var(--shadow-card)] flex flex-col justify-between gap-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-1 min-w-0">
+                  <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-brand-700">
+                    GATE Preparation
+                  </span>
+                  <div className="font-mono tabular-nums text-2xl font-bold text-surface-100">
+                    {stats?.gate?.averageScore ? `${stats.gate.averageScore}` : `${stats?.gate?.testsAttempted || 0}`}
+                    <span className="text-sm font-normal text-surface-400 ml-1">
+                      {stats?.gate?.averageScore ? '/100 Avg Score' : ' Mocks Attempted'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-surface-400 truncate">
+                    {weakTopics.length > 0
+                      ? `Weak Area: ${weakTopics[0]}`
+                      : 'Diagnostic & Full-Length CBT Mocks'}
+                  </p>
                 </div>
+                <ProgressRing
+                  progress={Math.min(Math.round(stats?.gate?.averageScore || 0), 100)}
+                  size={60}
+                  strokeWidth={5}
+                  variant="brand"
+                />
               </div>
-              <div className="mt-4">
-                <div className="text-[28px] font-bold font-mono tracking-tight text-surface-100 leading-tight">
-                  {stats?.gate?.averageScore ? `${stats.gate.averageScore}` : `${stats?.gate?.testsAttempted || 0}`}
-                  <span className="text-base font-normal text-surface-400 ml-1">
-                    {stats?.gate?.averageScore ? '/100' : ' Mocks'}
+
+              <div className="pt-3 border-t border-surface-700 flex justify-end">
+                <Link to="/gate" className="w-full">
+                  <Button size="sm" variant="secondary" className="w-full justify-between" rightIcon={ArrowRight}>
+                    Take GATE Mock
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Curriculum Hub */}
+            <div className="flex-1 rounded-xl border border-surface-700 bg-card p-5 shadow-[var(--shadow-card)] flex flex-col justify-between gap-4">
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-mono text-[11px] font-semibold uppercase tracking-wider badge-compiler">
+                    Curriculum Hub
+                  </span>
+                  <BookOpen className="w-4 h-4 badge-compiler shrink-0" />
+                </div>
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="font-mono tabular-nums text-2xl font-bold text-surface-100">
+                    {stats?.academics?.percentComplete || 0}% Complete
+                  </span>
+                  <span className="text-xs font-mono text-surface-400">
+                    {stats?.academics?.completedTopics || 0}/{stats?.academics?.totalTopics || 0} Topics
                   </span>
                 </div>
-                <div className="text-xs text-surface-400 mt-1.5 truncate">
-                  {stats?.gate?.weakTopics?.length > 0 ? (
-                    <span className="text-amber-700 dark:text-amber-400 font-medium">Weak Area: {stats.gate.weakTopics[0]}</span>
-                  ) : (
-                    'Diagnostic & Full Mock Tests'
-                  )}
-                </div>
+                <ProgressBar
+                  value={stats?.academics?.percentComplete || 0}
+                  variant="compiler"
+                  size="md"
+                />
               </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-surface-700 dark:border-surface-800">
-              <Link to="/gate">
-                <Button size="sm" variant="secondary" className="w-full justify-between" rightIcon={ArrowRight}>
-                  Take GATE Mock
-                </Button>
-              </Link>
-            </div>
-          </Card>
 
-          {/* Tile 3: Academics & Syllabus */}
-          <Card hover className="p-5 flex flex-col justify-between min-h-[200px]">
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-400 font-mono">
-                  Curriculum Hub
-                </span>
-                <div className="p-2 rounded-xl bg-brand-500/10 text-brand-700 dark:text-brand-400 border border-brand-500/20">
-                  <BookOpen className="w-4 h-4" />
-                </div>
-              </div>
-              <div className="mt-4">
-                <div className="text-[28px] font-bold font-mono tracking-tight text-surface-100 leading-tight">
-                  {stats?.academics?.percentComplete || 0}<span className="text-base font-normal text-surface-400">% Complete</span>
-                </div>
-                <div className="text-xs text-surface-400 mt-1.5">
-                  {stats?.academics?.completedTopics || 0} of {stats?.academics?.totalTopics || 0} Topics Mastered
-                </div>
+              <div className="pt-3 border-t border-surface-700">
+                <Link to="/academics" className="w-full">
+                  <Button size="sm" variant="secondary" className="w-full justify-between" rightIcon={ArrowRight}>
+                    Browse Curriculum
+                  </Button>
+                </Link>
               </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-surface-700 dark:border-surface-800">
-              <Link to="/academics">
-                <Button size="sm" variant="secondary" className="w-full justify-between" rightIcon={ArrowRight}>
-                  Browse Curriculum
-                </Button>
-              </Link>
-            </div>
-          </Card>
+          </div>
+        </div>
 
-          {/* Tile 4: AI Learning Copilot */}
-          <Card hover className="p-5 flex flex-col justify-between min-h-[200px]">
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-purple-700 dark:text-purple-400 font-mono">
-                  AI Assistant
-                </span>
-                <div className="p-2 rounded-xl bg-purple-500/10 text-purple-700 dark:text-purple-400 border border-purple-600/20 dark:border-purple-500/20">
-                  <Sparkles className="w-4 h-4" />
-                </div>
-              </div>
-              <div className="mt-4">
-                <div className="text-[22px] font-bold font-mono tracking-tight text-surface-100 leading-tight">
-                  Contextual AI
-                </div>
-                <div className="text-xs text-surface-400 mt-1.5 leading-relaxed">
-                  Instant step-by-step breakdown & code debugging
-                </div>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-surface-700 dark:border-surface-800">
-              <Link to="/ai-assistant">
-                <Button size="sm" variant="secondary" className="w-full justify-between" rightIcon={ArrowRight}>
-                  Open AI Chat
-                </Button>
-              </Link>
-            </div>
-          </Card>
-
-          {/* Tile 5: AI Mock Interviews */}
-          <Card hover className="p-5 flex flex-col justify-between min-h-[200px]">
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400 font-mono">
+        {/* Tier 2: Interactive Studios & Community Rail */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Mock Interviews */}
+          <Card variant="default" className="p-4 sm:p-5 flex flex-col justify-between gap-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1 min-w-0">
+                <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-brand-700">
                   Mock Interviews
                 </span>
-                <div className="p-2 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-600/20 dark:border-amber-500/20">
-                  <Video className="w-4 h-4" />
+                <div className="font-mono tabular-nums text-2xl font-bold text-surface-100">
+                  {stats?.interviews?.averageReadinessScore || 75}
+                  <span className="text-sm font-normal text-surface-400">/100</span>
                 </div>
-              </div>
-              <div className="mt-4">
-                <div className="text-[28px] font-bold font-mono tracking-tight text-surface-100 leading-tight">
-                  {stats?.interviews?.averageReadinessScore || 75}<span className="text-base font-normal text-surface-400">/100</span>
-                </div>
-                <div className="text-xs text-surface-400 mt-1.5">
+                <p className="text-xs text-surface-400">
                   {stats?.interviews?.sessionsCompleted || 0} Sessions Evaluated
-                </div>
+                </p>
+              </div>
+              <div className="p-2 rounded-lg bg-brand-500/10 text-brand-700 border border-brand-500/20 shrink-0">
+                <Video className="w-4 h-4" />
               </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-surface-700 dark:border-surface-800">
-              <Link to="/interviews">
-                <Button size="sm" variant="secondary" className="w-full justify-between" rightIcon={ArrowRight}>
-                  Start Interview Session
-                </Button>
-              </Link>
-            </div>
+            <Link to="/interviews">
+              <Button size="sm" variant="secondary" className="w-full justify-between" rightIcon={ArrowRight}>
+                Start Interview Session
+              </Button>
+            </Link>
           </Card>
 
-          {/* Tile 6: Senior Mentorship & Community */}
-          <Card hover className="p-5 flex flex-col justify-between min-h-[200px]">
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-rose-700 dark:text-rose-400 font-mono">
+          {/* AI Assistant */}
+          <Card variant="default" className="p-4 sm:p-5 flex flex-col justify-between gap-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1 min-w-0">
+                <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-surface-400">
+                  AI Assistant
+                </span>
+                <h3 className="font-display text-lg font-semibold text-surface-100">
+                  Contextual AI
+                </h3>
+                <p className="text-xs text-surface-400 leading-relaxed">
+                  Instant syllabus breakdown, citations & code debugging
+                </p>
+              </div>
+              <div className="p-2 rounded-lg bg-elevated text-brand-500 border border-surface-700 shrink-0">
+                <Sparkles className="w-4 h-4" />
+              </div>
+            </div>
+            <Link to="/ai-assistant">
+              <Button size="sm" variant="secondary" className="w-full justify-between" rightIcon={ArrowRight}>
+                Open AI Chat
+              </Button>
+            </Link>
+          </Card>
+
+          {/* Senior Network */}
+          <Card variant="default" className="p-4 sm:p-5 flex flex-col justify-between gap-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1 min-w-0">
+                <span className="font-mono text-[11px] font-semibold uppercase tracking-wider badge-compiler">
                   Senior Network
                 </span>
-                <div className="p-2 rounded-xl bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-600/20 dark:border-rose-500/20">
-                  <Users className="w-4 h-4" />
-                </div>
-              </div>
-              <div className="mt-4">
-                <div className="text-[22px] font-bold font-mono tracking-tight text-surface-100 leading-tight">
+                <h3 className="font-display text-lg font-semibold text-surface-100">
                   Ask a Senior
-                </div>
-                <div className="text-xs text-surface-400 mt-1.5 leading-relaxed">
+                </h3>
+                <p className="text-xs text-surface-400 leading-relaxed">
                   Peer discussions, career guidance & alumni advice
-                </div>
+                </p>
+              </div>
+              <div className="p-2 rounded-lg bg-compiler-500/10 badge-compiler border border-compiler-500/25 shrink-0">
+                <Users className="w-4 h-4" />
               </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-surface-700 dark:border-surface-800">
-              <Link to="/community">
-                <Button size="sm" variant="secondary" className="w-full justify-between" rightIcon={ArrowRight}>
-                  Enter Community
-                </Button>
-              </Link>
-            </div>
+            <Link to="/community">
+              <Button size="sm" variant="secondary" className="w-full justify-between" rightIcon={ArrowRight}>
+                Enter Community
+              </Button>
+            </Link>
           </Card>
         </div>
       </section>
-
-      {/* 5. Diagnostic Callout / Focus Recommendation */}
-      {stats?.gate?.weakTopics?.length > 0 && (
-        <div className="flex items-center gap-3 p-4 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-900 dark:text-amber-300">
-          <AlertCircle className="w-5 h-5 shrink-0 text-amber-700 dark:text-amber-400" />
-          <div className="flex-1 text-xs">
-            <strong>Targeted Diagnostic Notice:</strong> Your lowest accuracy topic is{' '}
-            <span className="underline font-semibold">{stats.gate.weakTopics[0]}</span>. Revising this topic today can boost your mock percentile by up to 12%.
-          </div>
-          <Link to={`/gate?topic=${encodeURIComponent(stats.gate.weakTopics[0])}`}>
-            <Button size="sm" variant="secondary">
-              Review Topic
-            </Button>
-          </Link>
-        </div>
-      )}
 
       {/* Card Export Modal */}
       <CardExportModal

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import DashboardPage from '../DashboardPage.jsx';
@@ -93,6 +93,10 @@ const mockToday = {
 };
 
 describe('Redesigned DashboardPage Component (Phase 7)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('renders Hero Profile Card, What Should I Do Today panel, Heatmap and 6 Workspace Tiles', async () => {
     profileService.getOwnerProfile.mockResolvedValue(mockProfile);
     dashboardService.getSummary.mockResolvedValue({
@@ -125,17 +129,38 @@ describe('Redesigned DashboardPage Component (Phase 7)', () => {
       </QueryClientProvider>
     );
 
-    // 1. Check Hero Welcome & Profile Card
+    // 1. Check unified Hero Section (Welcome + Today's Focus | Preserved Authentic Card & no external 4-KPI strip)
     await waitFor(() => {
       expect(screen.getByText('Alex Johnson')).toBeInTheDocument();
       expect(screen.getByText('@alexj')).toBeInTheDocument();
     });
+    const heroSection = screen.getByRole('region', { name: /Engineering command center hero/i });
+    expect(within(heroSection).getByText(/Welcome back, Alex/i)).toBeInTheDocument();
+    expect(
+      within(heroSection).getByText(
+        /Track coding telemetry, curriculum completion, GATE mocks & interview readiness\./i
+      )
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Problems Solved')).not.toBeInTheDocument();
+    expect(screen.queryByText('Syllabus Progress')).not.toBeInTheDocument();
+    const authenticCard = heroSection.querySelector('#engineeros-profile-card');
+    expect(authenticCard).toHaveAttribute('data-orientation', 'portrait');
+    expect(authenticCard).toHaveClass('pc-card-portrait');
+    expect(within(heroSection).getByText('Coding')).toBeInTheDocument();
+    expect(within(heroSection).getByText('GATE Prep')).toBeInTheDocument();
+    expect(within(heroSection).getByText('Curriculum')).toBeInTheDocument();
+    expect(within(heroSection).getByText('Readiness')).toBeInTheDocument();
+    expect(within(heroSection).getByText('EngineerOS Authentic Card')).toBeInTheDocument();
 
-    // 2. Check "What Should I Do Today?" section
-    expect(screen.getByText('What Should I Do Today?')).toBeInTheDocument();
-    expect(screen.getByText('Daily Challenge: Two Sum')).toBeInTheDocument();
-    expect(screen.getByText('Review Computer Networks Notes')).toBeInTheDocument();
-    expect(screen.getByText('Take GATE Mock: Data Structures')).toBeInTheDocument();
+    // 2. Check unified "Today's Focus" section inside the Hero
+    expect(within(heroSection).getByText("Today's Focus")).toBeInTheDocument();
+    expect(within(heroSection).getByText('1/3')).toBeInTheDocument();
+    expect(within(heroSection).getByText('33%')).toBeInTheDocument();
+    expect(within(heroSection).getByText('Daily Challenge: Two Sum')).toBeInTheDocument();
+    expect(within(heroSection).getByText('Review Computer Networks Notes')).toBeInTheDocument();
+    expect(within(heroSection).getByText('Take GATE Mock: Data Structures')).toBeInTheDocument();
+    const codingLink = within(heroSection).getByText('Daily Challenge: Two Sum').closest('li')?.querySelector('a');
+    expect(codingLink).toHaveAttribute('href', '/coding');
 
     // 3. Check Consistency Heatmap
     expect(screen.getByText('Annual Consistency Stream')).toBeInTheDocument();
@@ -147,6 +172,74 @@ describe('Redesigned DashboardPage Component (Phase 7)', () => {
     expect(screen.getByText('AI Assistant')).toBeInTheDocument();
     expect(screen.getByText('Mock Interviews')).toBeInTheDocument();
     expect(screen.getByText('Senior Network')).toBeInTheDocument();
+
+    // 5. Check academic context and weak-topic diagnostic banner
+    expect(screen.getAllByText('Apex Institute of Technology').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Sem 6').length).toBeGreaterThan(0);
+    expect(screen.getByText(/Targeted Diagnostic Notice/i)).toBeInTheDocument();
+  });
+
+  it('supports task completion, snooze, workspace navigation links, and Share Card modal', async () => {
+    profileService.getOwnerProfile.mockResolvedValue(mockProfile);
+    dashboardService.getSummary.mockResolvedValue({
+      user: mockProfile.identity,
+      stats: {
+        coding: { solvedCount: 42, easyCount: 20, mediumCount: 18, hardCount: 4, accuracyRate: 84 },
+        gate: { testsAttempted: 5, averageScore: 68.5, weakTopics: ['Computer Networks'] },
+        academics: { percentComplete: 65, completedTopics: 13, totalTopics: 20 },
+        interviews: { sessionsCompleted: 3, averageReadinessScore: 82 },
+        overallStreak: 14,
+      },
+    });
+    dashboardService.getTodayTasks.mockResolvedValue(mockToday);
+    dashboardService.getHeatmap.mockResolvedValue([]);
+    dashboardService.updateTask.mockResolvedValue({ status: 'completed' });
+
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <BrowserRouter>
+            <DashboardPage />
+          </BrowserRouter>
+        </ToastProvider>
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Daily Challenge: Two Sum')).toBeInTheDocument();
+    });
+
+    // Complete task
+    fireEvent.click(screen.getByRole('button', { name: /Complete Daily Challenge: Two Sum/i }));
+    await waitFor(() => {
+      expect(dashboardService.updateTask).toHaveBeenCalledWith('task-1', 'completed');
+    });
+
+    // Snooze task
+    fireEvent.click(screen.getByRole('button', { name: /Snooze Take GATE Mock: Data Structures/i }));
+    await waitFor(() => {
+      expect(dashboardService.updateTask).toHaveBeenCalledWith('task-3', 'snoozed');
+    });
+
+    // Workspace navigation destinations preserved
+    expect(screen.getByText('Open Monaco Sandbox').closest('a')).toHaveAttribute('href', '/coding');
+    expect(screen.getByText('Take GATE Mock').closest('a')).toHaveAttribute('href', '/gate');
+    expect(screen.getByText('Browse Curriculum').closest('a')).toHaveAttribute('href', '/academics');
+    expect(screen.getByText('Open AI Chat').closest('a')).toHaveAttribute('href', '/ai-assistant');
+    expect(screen.getByText('Start Interview Session').closest('a')).toHaveAttribute('href', '/interviews');
+    expect(screen.getByText('Enter Community').closest('a')).toHaveAttribute('href', '/community');
+    expect(screen.getByText('Review Topic').closest('a')).toHaveAttribute(
+      'href',
+      '/gate?topic=Computer%20Networks'
+    );
+
+    // Share Card button opens export modal
+    fireEvent.click(screen.getByRole('button', { name: /Share Card/i }));
+    expect(screen.getByText(/Download PNG/i)).toBeInTheDocument();
   });
 });
 

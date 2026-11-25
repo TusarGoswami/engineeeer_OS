@@ -6,27 +6,27 @@ export default {
     extend: {
       colors: {
         brand: {
-          50: '#fff7ed',
-          100: '#ffedd5',
-          200: '#fed7aa',
-          300: '#fdba74',
-          400: '#fb923c',
-          500: 'rgb(var(--color-brand-rgb) / <alpha-value>)', // Primary Brand Accent
+          50: '#fff5ee',
+          100: '#ffe7d6',
+          200: '#fdcbab',
+          300: '#fba775',
+          400: '#f58342',
+          500: 'rgb(var(--color-brand-rgb) / <alpha-value>)', // Primary Brand Orange (#EF6B22)
           600: 'rgb(var(--color-brand-hover-rgb) / <alpha-value>)', // Hover Accent
-          700: '#c2410c',
-          800: '#9a3412',
-          900: '#7c2d12',
-          950: '#431407',
+          700: 'rgb(var(--color-brand-text-rgb) / <alpha-value>)', // Accessible Brand Text
+          800: '#9c3c0e',
+          900: '#7c300f',
+          950: '#431605',
         },
         orange: {
-          50: '#fff7ed',
-          100: '#ffedd5',
-          200: '#fed7aa',
-          300: '#fdba74',
-          400: '#fb923c',
+          50: '#fff5ee',
+          100: '#ffe7d6',
+          200: '#fdcbab',
+          300: '#fba775',
+          400: '#f58342',
           500: 'rgb(var(--color-brand-rgb) / <alpha-value>)',
           600: 'rgb(var(--color-brand-hover-rgb) / <alpha-value>)',
-          700: '#c2410c',
+          700: 'rgb(var(--color-brand-text-rgb) / <alpha-value>)',
         },
         auth: {
           bg: 'rgb(var(--bg-canvas-rgb) / <alpha-value>)',
@@ -44,9 +44,9 @@ export default {
           600: 'rgb(var(--surface-600-rgb) / <alpha-value>)', // Strong borders
           700: 'rgb(var(--surface-700-rgb) / <alpha-value>)', // Standard borders
           750: 'rgb(var(--surface-750-rgb) / <alpha-value>)', // Subtle divider / hover
-          800: 'rgb(var(--surface-800-rgb) / <alpha-value>)', // Elevated / hover / tertiary bg
+          800: 'rgb(var(--surface-800-rgb) / <alpha-value>)', // Elevated surface
           850: 'rgb(var(--surface-850-rgb) / <alpha-value>)', // Card background
-          900: 'rgb(var(--surface-900-rgb) / <alpha-value>)', // Secondary panel / dark sidebar bg
+          900: 'rgb(var(--surface-900-rgb) / <alpha-value>)', // Secondary elevated surface
           950: 'rgb(var(--surface-950-rgb) / <alpha-value>)', // Main canvas background
         },
         canvas: 'rgb(var(--bg-canvas-rgb) / <alpha-value>)',
@@ -56,8 +56,11 @@ export default {
         elevated: 'rgb(var(--bg-elevated-rgb) / <alpha-value>)',
         panel: 'rgb(var(--bg-surface-rgb) / <alpha-value>)',
         compiler: {
-          500: '#10b981', // Emerald / Compiler Green
-          600: '#059669',
+          500: 'rgb(var(--color-compiler-rgb) / <alpha-value>)',
+          600: '#09825f',
+        },
+        success: {
+          500: 'rgb(var(--color-compiler-rgb) / <alpha-value>)',
         },
         signal: {
           500: '#f59e0b', // Amber / Signal Amber
@@ -86,6 +89,7 @@ export default {
         'card-dark': '0 4px 20px -2px rgba(0, 0, 0, 0.4)',
       },
       fontFamily: {
+        display: ['Manrope', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'Menlo', 'monospace'],
       },

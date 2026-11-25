@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { BADGE_CATALOGUE } from './badgeCatalogueClient.js';
 import { Modal } from '../../../components/Modal.jsx';
+import { ProgressBar } from '../../../components/ProgressBar.jsx';
 import { useTheme } from '../../../context/ThemeContext.jsx';
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -162,11 +163,12 @@ const TILT_AMPLITUDE = 15;    // max degrees of hover tilt
    ═══════════════════════════════════════════════════════════════════════ */
 const useReducedMotion = () => {
   const [prefersReduced, setPrefersReduced] = useState(() => {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   });
 
   useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     const handler = () => setPrefersReduced(mq.matches);
     mq.addEventListener('change', handler);
@@ -776,15 +778,16 @@ const AchievementBadgeCard = ({ badge, isUnlocked, onClick }) => {
   return (
     <button
       ref={cardRef}
+      type="button"
       onClick={onClick}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className={`group flex flex-col items-center gap-2 p-3 sm:p-4 rounded-2xl
-        transition-all duration-300 ease-out cursor-pointer
-        focus:outline-none focus-visible:ring-2 ${tierCfg.ringColor} focus-visible:ring-offset-2 focus-visible:ring-offset-transparent
+      className={`group flex flex-col items-center gap-2 p-3 sm:p-4 rounded-xl border
+        transition-all duration-200 ease-out cursor-pointer
+        focus:outline-none focus-visible:ring-2 ${tierCfg.ringColor} focus-visible:ring-offset-2 focus-visible:ring-offset-canvas
         ${isUnlocked
-          ? `bg-surface-850 dark:bg-surface-900/40 dark:hover:bg-surface-800/60 border border-surface-700 dark:border-surface-700/40 hover:border-surface-600 dark:hover:border-surface-600/60 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] dark:shadow-lg ${tierCfg.glow} ${tierCfg.glowHover} dark:hover:shadow-xl hover:-translate-y-1`
-          : 'bg-surface-900 dark:bg-surface-900/20 border border-surface-700 dark:border-surface-800/30 hover:bg-surface-800/60 dark:hover:bg-surface-900/30 opacity-70 dark:opacity-60 hover:opacity-85'
+          ? `bg-card hover:bg-elevated/55 border-surface-700 hover:border-surface-600 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] hover:-translate-y-0.5`
+          : 'bg-elevated/45 border-surface-700/80 hover:bg-elevated/70 opacity-70 hover:opacity-90'
         }`}
       aria-label={`${badge.name} — ${isUnlocked ? 'Unlocked' : 'Locked'} ${tierCfg.label} badge`}
     >
@@ -801,15 +804,15 @@ const AchievementBadgeCard = ({ badge, isUnlocked, onClick }) => {
       </div>
 
       {/* Badge Name */}
-      <span className={`text-[11px] sm:text-xs font-semibold text-center leading-tight
-        ${isUnlocked ? 'text-surface-100' : 'text-surface-500'}`}
+      <span className={`text-xs font-semibold text-center leading-tight
+        ${isUnlocked ? 'text-surface-100' : 'text-surface-400'}`}
       >
         {badge.name}
       </span>
 
       {/* Tier Pill */}
-      <span className={`text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full border
-        ${isUnlocked ? tierCfg.accentBg : 'bg-surface-800/40 border-surface-700/30 text-surface-500'}`}
+      <span className={`text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-md border
+        ${isUnlocked ? tierCfg.accentBg : 'bg-elevated border-surface-700 text-surface-400'}`}
       >
         {tierCfg.label}
       </span>
@@ -822,9 +825,6 @@ const AchievementBadgeCard = ({ badge, isUnlocked, onClick }) => {
    BADGE DETAIL MODAL — large 3D badge with auto-spin + details
    ═══════════════════════════════════════════════════════════════════════ */
 const BadgeDetailModal = ({ badge, isUnlocked, earnedDate, isOpen, onClose }) => {
-  if (!badge) return null;
-  const tierCfg = TIER_CONFIG[badge.tier] || TIER_CONFIG.bronze;
-
   const modalBadgeRef = useRef(null);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const rafId = useRef(null);
@@ -864,6 +864,9 @@ const BadgeDetailModal = ({ badge, isUnlocked, earnedDate, isOpen, onClose }) =>
     [],
   );
 
+  if (!badge) return null;
+  const tierCfg = TIER_CONFIG[badge.tier] || TIER_CONFIG.bronze;
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-sm">
       <div className="flex flex-col items-center gap-4 py-2">
@@ -886,14 +889,14 @@ const BadgeDetailModal = ({ badge, isUnlocked, earnedDate, isOpen, onClose }) =>
         </div>
 
         {/* Badge Name */}
-        <h3 className={`text-lg font-bold tracking-tight text-center
+        <h3 className={`font-display text-lg font-bold tracking-tight text-center
           ${isUnlocked ? 'text-surface-100' : 'text-surface-400'}`}
         >
           {badge.name}
         </h3>
 
         {/* Tier pill */}
-        <span className={`text-[10px] font-mono font-bold uppercase px-3 py-1 rounded-full border ${tierCfg.accentBg}`}>
+        <span className={`text-[10px] font-mono font-bold uppercase px-3 py-1 rounded-md border ${tierCfg.accentBg}`}>
           {tierCfg.label} Tier
         </span>
 
@@ -903,26 +906,26 @@ const BadgeDetailModal = ({ badge, isUnlocked, earnedDate, isOpen, onClose }) =>
         </p>
 
         {/* Category */}
-        <div className="text-[10px] font-mono uppercase tracking-wider text-surface-500">
+        <div className="text-[10px] font-mono uppercase tracking-wider text-surface-400">
           {badge.category}
         </div>
 
         {/* Status */}
         {isUnlocked ? (
-          <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-600/25 dark:border-emerald-500/20 px-3 py-1.5 rounded-xl">
+          <div className="flex items-center gap-2 badge-compiler bg-compiler-500/10 border border-compiler-500/25 px-3 py-1.5 rounded-lg">
             <Trophy className="w-3.5 h-3.5" />
             <span className="text-xs font-semibold">Unlocked</span>
             {earnedDate && (
               <>
-                <span className="text-emerald-500/40">•</span>
-                <span className="text-[10px] font-mono text-emerald-700/80 dark:text-emerald-400/80">
+                <span className="opacity-40">•</span>
+                <span className="text-[10px] font-mono opacity-85">
                   {new Date(earnedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </span>
               </>
             )}
           </div>
         ) : (
-          <div className="flex items-center gap-2 text-surface-500 bg-surface-900 dark:bg-surface-800/40 border border-surface-700 dark:border-surface-700/30 px-3 py-1.5 rounded-xl">
+          <div className="flex items-center gap-2 text-surface-400 bg-elevated border border-surface-700 px-3 py-1.5 rounded-lg">
             <Lock className="w-3.5 h-3.5" />
             <span className="text-xs font-semibold">Locked</span>
           </div>
@@ -964,36 +967,33 @@ export const AchievementGallery = ({ earnedBadges = [] }) => {
   return (
     <div className="space-y-6">
       {/* Section Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-600/25 dark:border-amber-500/20">
-            <Trophy className="w-5 h-5 text-amber-700 dark:text-amber-400" />
+          <div className="p-2 rounded-lg bg-brand-500/10 border border-brand-500/25">
+            <Trophy className="w-5 h-5 text-brand-500" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-surface-100 tracking-tight">
+            <h2 className="font-display text-lg font-bold text-surface-100 tracking-tight">
               Achievement Vault
             </h2>
-            <p className="text-xs text-surface-400 mt-0.5">
+            <p className="text-xs text-surface-400 mt-0.5 font-mono">
               {unlocked.length} of {allBadges.length} badges unlocked
             </p>
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-3">
-          <div className="w-32 h-2 rounded-full bg-surface-700 dark:bg-surface-800 overflow-hidden">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-amber-600 to-amber-400 transition-all duration-500"
-              style={{ width: `${allBadges.length > 0 ? (unlocked.length / allBadges.length) * 100 : 0}%` }}
-            />
-          </div>
-          <span className="text-[11px] font-mono text-surface-400">
-            {allBadges.length > 0 ? Math.round((unlocked.length / allBadges.length) * 100) : 0}%
-          </span>
+        <div className="w-full sm:w-44">
+          <ProgressBar
+            value={allBadges.length > 0 ? (unlocked.length / allBadges.length) * 100 : 0}
+            variant="brand"
+            size="sm"
+            showValue
+          />
         </div>
       </div>
 
       {/* Badge Grid */}
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
         {sorted.map(badge => (
           <AchievementBadgeCard
             key={badge.badgeId}

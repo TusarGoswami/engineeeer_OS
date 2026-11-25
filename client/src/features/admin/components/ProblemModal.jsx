@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Modal } from '../../../components/Modal.jsx';
-import { Button } from '../../../components/Button.jsx';
-import { Input } from '../../../components/Input.jsx';
 import { Plus, Trash2, CheckCircle2 } from 'lucide-react';
+import { Modal, Button, Input, Select } from '../../../components/index.js';
 
+/**
+ * Algorithm challenge authoring and edit modal with sample and hidden grader test cases.
+ */
 export const ProblemModal = ({ isOpen, onClose, problem, onSave }) => {
   const isEditing = Boolean(problem?._id);
 
@@ -14,9 +15,13 @@ export const ProblemModal = ({ isOpen, onClose, problem, onSave }) => {
   const [timeLimitMs, setTimeLimitMs] = useState(2000);
   const [memoryLimitKb, setMemoryLimitKb] = useState(256000);
   const [statement, setStatement] = useState('');
-  const [starterPython, setStarterPython] = useState('# Write your solution here\ndef solve():\n    pass\n');
+  const [starterPython, setStarterPython] = useState(
+    '# Write your solution here\ndef solve():\n    pass\n'
+  );
   const [sampleCases, setSampleCases] = useState([{ input: '', output: '', explanation: '' }]);
-  const [hiddenCases, setHiddenCases] = useState([{ input: '', expectedOutput: '', isHidden: true }]);
+  const [hiddenCases, setHiddenCases] = useState([
+    { input: '', expectedOutput: '', isHidden: true },
+  ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -30,8 +35,16 @@ export const ProblemModal = ({ isOpen, onClose, problem, onSave }) => {
       setMemoryLimitKb(problem.constraints?.memoryLimitKb || 256000);
       setStatement(problem.statementMarkdown || '');
       setStarterPython(problem.starterCode?.python || '');
-      setSampleCases(problem.sampleTestCases?.length ? problem.sampleTestCases : [{ input: '', output: '', explanation: '' }]);
-      setHiddenCases(problem.testCases?.length ? problem.testCases : [{ input: '', expectedOutput: '', isHidden: true }]);
+      setSampleCases(
+        problem.sampleTestCases?.length
+          ? problem.sampleTestCases
+          : [{ input: '', output: '', explanation: '' }]
+      );
+      setHiddenCases(
+        problem.testCases?.length
+          ? problem.testCases
+          : [{ input: '', expectedOutput: '', isHidden: true }]
+      );
     } else {
       setTitle('');
       setSlug('');
@@ -91,7 +104,10 @@ export const ProblemModal = ({ isOpen, onClose, problem, onSave }) => {
         title: title.trim(),
         slug: slug.trim(),
         difficulty,
-        tags: tags.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean),
+        tags: tags
+          .split(',')
+          .map((t) => t.trim().toLowerCase())
+          .filter(Boolean),
         statementMarkdown: statement.trim(),
         constraints: {
           timeLimitMs: Number(timeLimitMs),
@@ -103,10 +119,17 @@ export const ProblemModal = ({ isOpen, onClose, problem, onSave }) => {
         sampleTestCases: sampleCases.filter((c) => c.input && c.output),
       };
 
-      await onSave(payload, hiddenCases.filter((c) => c.input && c.expectedOutput));
+      await onSave(
+        payload,
+        hiddenCases.filter((c) => c.input && c.expectedOutput)
+      );
       onClose();
     } catch (err) {
-      setError(err.response?.data?.error?.message || 'Failed to save problem');
+      setError(
+        err.response?.data?.error?.message ||
+          err.response?.data?.message ||
+          'Failed to save problem'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -121,13 +144,14 @@ export const ProblemModal = ({ isOpen, onClose, problem, onSave }) => {
     >
       <form onSubmit={handleSubmit} className="space-y-5 text-xs">
         {error && (
-          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400">
+          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/25 text-rose-700 dark:text-rose-400">
             {error}
           </div>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
+            id="problem-title"
             label="Problem Title"
             value={title}
             onChange={handleTitleChange}
@@ -136,6 +160,7 @@ export const ProblemModal = ({ isOpen, onClose, problem, onSave }) => {
           />
 
           <Input
+            id="problem-slug"
             label="URL Slug (Unique)"
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
@@ -145,20 +170,20 @@ export const ProblemModal = ({ isOpen, onClose, problem, onSave }) => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-surface-300 font-medium mb-1">Difficulty</label>
-            <select
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value)}
-              className="w-full h-9 rounded-xl bg-surface-950 border border-surface-800 text-surface-200 px-3 focus:outline-none focus:border-brand-500"
-            >
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-            </select>
-          </div>
+          <Select
+            id="problem-difficulty"
+            label="Difficulty"
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value)}
+            options={[
+              { value: 'easy', label: 'Easy' },
+              { value: 'medium', label: 'Medium' },
+              { value: 'hard', label: 'Hard' },
+            ]}
+          />
 
           <Input
+            id="problem-tags"
             label="Topic Tags (comma-separated)"
             value={tags}
             onChange={(e) => setTags(e.target.value)}
@@ -166,50 +191,81 @@ export const ProblemModal = ({ isOpen, onClose, problem, onSave }) => {
           />
 
           <Input
-            label="Time Limit (ms) • Recommended 2000ms"
+            id="problem-time-limit"
+            label="Time Limit (ms)"
             type="number"
             value={timeLimitMs}
             onChange={(e) => setTimeLimitMs(e.target.value)}
           />
         </div>
 
-        <div>
-          <label className="block text-surface-300 font-medium mb-1">Problem Statement (Markdown)</label>
+        <div className="space-y-1.5">
+          <label
+            htmlFor="problem-statement"
+            className="block text-[13px] font-medium text-surface-100"
+          >
+            Problem Statement (Markdown)
+          </label>
           <textarea
+            id="problem-statement"
             rows={5}
             value={statement}
             onChange={(e) => setStatement(e.target.value)}
             placeholder="Write full problem description, input/output specifications, and constraints..."
-            className="w-full p-3 rounded-xl bg-surface-950 border border-surface-800 text-surface-200 font-mono text-xs focus:outline-none focus:border-brand-500"
+            className="w-full p-3 rounded-lg bg-auth-input border border-surface-600 text-surface-100 placeholder:text-surface-500 font-mono text-xs focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15"
             required
           />
         </div>
 
-        <div>
-          <label className="block text-surface-300 font-medium mb-1">Starter Code Template (Python)</label>
+        <div className="space-y-1.5">
+          <label
+            htmlFor="problem-starter-python"
+            className="block text-[13px] font-medium text-surface-100"
+          >
+            Starter Code Template (Python)
+          </label>
           <textarea
+            id="problem-starter-python"
             rows={4}
             value={starterPython}
             onChange={(e) => setStarterPython(e.target.value)}
-            className="w-full p-3 rounded-xl bg-surface-950 border border-surface-800 text-surface-200 font-mono text-xs focus:outline-none focus:border-brand-500"
+            className="w-full p-3 rounded-lg bg-auth-input border border-surface-600 text-surface-100 font-mono text-xs focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15"
           />
         </div>
 
         {/* Sample Test Cases */}
-        <div className="space-y-3 pt-3 border-t border-surface-800">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-surface-200">Sample Test Cases (Visible in Description)</span>
-            <Button type="button" variant="outline" size="sm" onClick={handleAddSample} className="gap-1 text-[11px]">
-              <Plus className="w-3 h-3" /> Add Sample
+        <div className="space-y-3 pt-3 border-t border-surface-700">
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-semibold text-surface-100">
+              Sample Test Cases (Visible in Description)
+            </span>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              leftIcon={Plus}
+              onClick={handleAddSample}
+            >
+              Add Sample
             </Button>
           </div>
 
           {sampleCases.map((c, idx) => (
-            <div key={idx} className="p-3 rounded-xl bg-surface-950/60 border border-surface-800 space-y-2">
+            <div
+              key={idx}
+              className="p-3 rounded-xl bg-elevated/60 border border-surface-700 space-y-2"
+            >
               <div className="flex items-center justify-between">
-                <span className="text-surface-400 font-mono text-[11px]">Sample #{idx + 1}</span>
+                <span className="text-surface-400 font-mono text-[11px]">
+                  Sample #{idx + 1}
+                </span>
                 {sampleCases.length > 1 && (
-                  <button type="button" onClick={() => handleRemoveSample(idx)} className="text-rose-400 hover:text-rose-300">
+                  <button
+                    type="button"
+                    aria-label={`Remove sample case ${idx + 1}`}
+                    onClick={() => handleRemoveSample(idx)}
+                    className="p-1 rounded text-rose-700 dark:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                  >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 )}
@@ -217,6 +273,7 @@ export const ProblemModal = ({ isOpen, onClose, problem, onSave }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <textarea
                   rows={2}
+                  aria-label={`Sample ${idx + 1} input`}
                   placeholder="Input"
                   value={c.input}
                   onChange={(e) => {
@@ -224,10 +281,11 @@ export const ProblemModal = ({ isOpen, onClose, problem, onSave }) => {
                     next[idx].input = e.target.value;
                     setSampleCases(next);
                   }}
-                  className="w-full p-2 rounded-lg bg-surface-900 border border-surface-800 font-mono text-xs"
+                  className="w-full p-2.5 rounded-lg bg-auth-input border border-surface-600 text-surface-100 font-mono text-xs focus:outline-none focus:border-brand-500"
                 />
                 <textarea
                   rows={2}
+                  aria-label={`Sample ${idx + 1} expected output`}
                   placeholder="Expected Output"
                   value={c.output}
                   onChange={(e) => {
@@ -235,7 +293,7 @@ export const ProblemModal = ({ isOpen, onClose, problem, onSave }) => {
                     next[idx].output = e.target.value;
                     setSampleCases(next);
                   }}
-                  className="w-full p-2 rounded-lg bg-surface-900 border border-surface-800 font-mono text-xs"
+                  className="w-full p-2.5 rounded-lg bg-auth-input border border-surface-600 text-surface-100 font-mono text-xs focus:outline-none focus:border-brand-500"
                 />
               </div>
             </div>
@@ -243,20 +301,38 @@ export const ProblemModal = ({ isOpen, onClose, problem, onSave }) => {
         </div>
 
         {/* Hidden Test Cases */}
-        <div className="space-y-3 pt-3 border-t border-surface-800">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-surface-200">Hidden Evaluation Test Cases (Sandbox Grader)</span>
-            <Button type="button" variant="outline" size="sm" onClick={handleAddHiddenCase} className="gap-1 text-[11px]">
-              <Plus className="w-3 h-3" /> Add Hidden Case
+        <div className="space-y-3 pt-3 border-t border-surface-700">
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-semibold text-surface-100">
+              Hidden Evaluation Test Cases (Sandbox Grader)
+            </span>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              leftIcon={Plus}
+              onClick={handleAddHiddenCase}
+            >
+              Add Hidden Case
             </Button>
           </div>
 
           {hiddenCases.map((c, idx) => (
-            <div key={idx} className="p-3 rounded-xl bg-surface-950/60 border border-surface-800 space-y-2">
+            <div
+              key={idx}
+              className="p-3 rounded-xl bg-elevated/60 border border-surface-700 space-y-2"
+            >
               <div className="flex items-center justify-between">
-                <span className="text-surface-400 font-mono text-[11px]">Hidden Case #{idx + 1}</span>
+                <span className="text-surface-400 font-mono text-[11px]">
+                  Hidden Case #{idx + 1}
+                </span>
                 {hiddenCases.length > 1 && (
-                  <button type="button" onClick={() => handleRemoveHiddenCase(idx)} className="text-rose-400 hover:text-rose-300">
+                  <button
+                    type="button"
+                    aria-label={`Remove hidden case ${idx + 1}`}
+                    onClick={() => handleRemoveHiddenCase(idx)}
+                    className="p-1 rounded text-rose-700 dark:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                  >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 )}
@@ -264,6 +340,7 @@ export const ProblemModal = ({ isOpen, onClose, problem, onSave }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <textarea
                   rows={2}
+                  aria-label={`Hidden case ${idx + 1} input`}
                   placeholder="Secret Input"
                   value={c.input}
                   onChange={(e) => {
@@ -271,10 +348,11 @@ export const ProblemModal = ({ isOpen, onClose, problem, onSave }) => {
                     next[idx].input = e.target.value;
                     setHiddenCases(next);
                   }}
-                  className="w-full p-2 rounded-lg bg-surface-900 border border-surface-800 font-mono text-xs"
+                  className="w-full p-2.5 rounded-lg bg-auth-input border border-surface-600 text-surface-100 font-mono text-xs focus:outline-none focus:border-brand-500"
                 />
                 <textarea
                   rows={2}
+                  aria-label={`Hidden case ${idx + 1} expected output`}
                   placeholder="Expected Secret Output"
                   value={c.expectedOutput}
                   onChange={(e) => {
@@ -282,20 +360,25 @@ export const ProblemModal = ({ isOpen, onClose, problem, onSave }) => {
                     next[idx].expectedOutput = e.target.value;
                     setHiddenCases(next);
                   }}
-                  className="w-full p-2 rounded-lg bg-surface-900 border border-surface-800 font-mono text-xs"
+                  className="w-full p-2.5 rounded-lg bg-auth-input border border-surface-600 text-surface-100 font-mono text-xs focus:outline-none focus:border-brand-500"
                 />
               </div>
             </div>
           ))}
         </div>
 
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-surface-800">
-          <Button type="button" variant="outline" onClick={onClose}>
+        <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-surface-700">
+          <Button type="button" variant="secondary" size="sm" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" variant="primary" isLoading={isSubmitting} className="gap-2">
-            <CheckCircle2 className="w-4 h-4" />
-            <span>{isEditing ? 'Save Changes' : 'Publish Problem'}</span>
+          <Button
+            type="submit"
+            variant="primary"
+            size="sm"
+            isLoading={isSubmitting}
+            leftIcon={CheckCircle2}
+          >
+            {isEditing ? 'Save Changes' : 'Publish Problem'}
           </Button>
         </div>
       </form>

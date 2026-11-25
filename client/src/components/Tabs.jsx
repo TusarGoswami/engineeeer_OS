@@ -6,6 +6,9 @@ const cn = (...inputs) => twMerge(clsx(inputs));
 
 const TabsContext = createContext(null);
 
+/**
+ * Controlled or uncontrolled tabbed interface with horizontally scrollable trigger rail.
+ */
 export const Tabs = ({
   defaultValue,
   value,
@@ -35,7 +38,7 @@ export const TabsList = ({ children, className = '' }) => {
     <div
       role="tablist"
       className={cn(
-        'inline-flex items-center gap-1 rounded-xl bg-surface-800 dark:bg-surface-900 p-1 border border-surface-700 text-surface-300 dark:text-surface-400',
+        'inline-flex max-w-full overflow-x-auto scrollbar-none items-center gap-1 rounded-xl bg-elevated p-1 border border-surface-700 text-surface-400',
         className
       )}
     >
@@ -59,10 +62,10 @@ export const TabsTrigger = ({ value, children, disabled = false, className = '' 
       disabled={disabled}
       onClick={() => handleValueChange(value)}
       className={cn(
-        'inline-flex items-center justify-center whitespace-nowrap rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all focus:outline-none focus:ring-1 focus:ring-brand-500 disabled:opacity-40 disabled:cursor-not-allowed',
+        'inline-flex items-center justify-center whitespace-nowrap rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 disabled:opacity-40 disabled:cursor-not-allowed',
         isSelected
-          ? 'bg-surface-850 dark:bg-surface-800 text-surface-100 font-semibold shadow-sm border border-surface-700'
-          : 'hover:text-surface-100 hover:bg-surface-850/60 dark:hover:bg-surface-800/50 text-surface-300 dark:text-surface-400',
+          ? 'bg-card text-surface-100 font-semibold shadow-2xs border border-surface-700'
+          : 'hover:text-surface-100 hover:bg-card/60 text-surface-400 border border-transparent',
         className
       )}
     >

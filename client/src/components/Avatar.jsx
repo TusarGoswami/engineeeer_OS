@@ -4,6 +4,9 @@ import { twMerge } from 'tailwind-merge';
 
 const cn = (...inputs) => twMerge(clsx(inputs));
 
+/**
+ * User avatar with deterministic monogram fallback and semantic presence indicator.
+ */
 export const Avatar = ({
   src,
   alt = '',
@@ -20,7 +23,6 @@ export const Avatar = ({
     setHasError(false);
   }, [src]);
 
-  // Generate initials (e.g. "Alex Chen" -> "AC", "Tusar" -> "TU")
   const getInitials = (str) => {
     if (!str || typeof str !== 'string') return '?';
     const parts = str.trim().split(/\s+/);
@@ -28,7 +30,6 @@ export const Avatar = ({
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
 
-  // Consistent background hue from name string
   const getHue = (str) => {
     let hash = 0;
     for (let i = 0; i < (str || '').length; i++) {
@@ -36,8 +37,8 @@ export const Avatar = ({
     }
     const colors = [
       'bg-brand-500 text-white',
-      'bg-emerald-600 text-white',
-      'bg-sky-500 text-slate-900 font-bold',
+      'bg-compiler-500 text-white',
+      'bg-sky-600 text-white',
       'bg-amber-600 text-white',
       'bg-rose-600 text-white',
       'bg-violet-600 text-white',
@@ -64,7 +65,7 @@ export const Avatar = ({
   };
 
   const statusColors = {
-    online: 'bg-emerald-500 ring-canvas',
+    online: 'bg-compiler-500 ring-canvas',
     offline: 'bg-surface-400 ring-canvas',
     busy: 'bg-rose-500 ring-canvas',
   };

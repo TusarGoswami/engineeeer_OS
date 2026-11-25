@@ -70,12 +70,12 @@ export const OAuthButtons = ({ onError }) => {
         type="button"
         onClick={handleGoogleClick}
         disabled={!!loadingProvider}
-        className="flex w-full items-center justify-center gap-3 rounded-[9px] border border-surface-600 dark:border-surface-700 bg-surface-900 dark:bg-surface-800 px-4 py-2.5 text-sm font-semibold text-surface-100 transition-all duration-150 hover:border-surface-500 dark:hover:border-surface-600 hover:bg-surface-800 dark:hover:bg-surface-750 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-3 rounded-lg border border-surface-700 bg-elevated/70 px-4 py-2.5 text-sm font-semibold text-surface-100 transition-colors duration-150 hover:border-surface-600 hover:bg-elevated active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loadingProvider === 'google' ? (
           <Loader2 className="h-4 w-4 animate-spin text-surface-400" />
         ) : (
-          <svg className="h-4 w-4" viewBox="0 0 24 24">
+          <svg className="h-4 w-4" aria-hidden="true" viewBox="0 0 24 24">
             <path
               fill="#4285F4"
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -102,12 +102,12 @@ export const OAuthButtons = ({ onError }) => {
         type="button"
         onClick={handleGitHubClick}
         disabled={!!loadingProvider}
-        className="flex w-full items-center justify-center gap-3 rounded-[9px] border border-surface-600 dark:border-surface-700 bg-surface-900 dark:bg-surface-800 px-4 py-2.5 text-sm font-semibold text-surface-100 transition-all duration-150 hover:border-surface-500 dark:hover:border-surface-600 hover:bg-surface-800 dark:hover:bg-surface-750 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-3 rounded-lg border border-surface-700 bg-elevated/70 px-4 py-2.5 text-sm font-semibold text-surface-100 transition-colors duration-150 hover:border-surface-600 hover:bg-elevated active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loadingProvider === 'github' ? (
           <Loader2 className="h-4 w-4 animate-spin text-surface-400" />
         ) : (
-          <svg className="h-4 w-4 fill-current text-surface-100" viewBox="0 0 24 24">
+          <svg className="h-4 w-4 fill-current text-surface-100" aria-hidden="true" viewBox="0 0 24 24">
             <path
               fillRule="evenodd"
               clipRule="evenodd"

@@ -9,10 +9,11 @@ import {
 import profileService from '../../services/profile.service.js';
 import ProfileCard from './components/ProfileCard.jsx';
 import CardExportModal from './components/CardExportModal.jsx';
-import Button from '../../components/Button.jsx';
-import { CardSkeleton } from '../../components/Skeleton.jsx';
-import ThemeToggle from '../../components/ThemeToggle.jsx';
+import { Button, Card, CardSkeleton, ThemeToggle } from '../../components/index.js';
 
+/**
+ * Publicly shareable EngineerOS card route (/u/:username) supporting unlisted ?token access.
+ */
 export const PublicProfilePage = () => {
   const { username } = useParams();
   const [searchParams] = useSearchParams();
@@ -34,10 +35,8 @@ export const PublicProfilePage = () => {
         const data = await profileService.getPublicProfile(username, token);
         if (isMounted) {
           setProfile(data);
-          // Set page title
           document.title = `${data.name || username} | EngineerOS Profile`;
 
-          // Handle noindex for unlisted profiles
           if (data.profileSettings?.visibility === 'unlisted') {
             let metaRobots = document.querySelector('meta[name="robots"]');
             if (!metaRobots) {
@@ -68,21 +67,23 @@ export const PublicProfilePage = () => {
   }, [username, token]);
 
   return (
-    <div className="min-h-screen bg-surface-950 text-surface-100 flex flex-col justify-between selection:bg-brand-500 selection:text-white">
-      {/* Top Banner */}
-      <header className="border-b border-surface-700 dark:border-surface-700/80 bg-navbar/95 dark:bg-surface-950/70 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+    <div className="min-h-screen bg-canvas text-surface-100 flex flex-col justify-between selection:bg-brand-500 selection:text-white bg-grid-cyber">
+      {/* Top Navbar */}
+      <header className="border-b border-surface-700 bg-navbar/95 backdrop-blur-sm sticky top-0 z-40">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
           <Link
             to="/"
-            className="flex items-center gap-2.5 font-bold text-surface-100 text-sm hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2.5 font-display font-bold text-surface-100 text-sm hover:opacity-90 transition-opacity"
           >
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center font-bold text-xs text-white shadow-sm dark:shadow-md shadow-brand-500/25">
+            <div className="w-7 h-7 rounded-lg bg-brand-500 flex items-center justify-center font-display font-bold text-xs text-white shadow-xs">
               OS
             </div>
-            <span>Engineer<span className="text-brand-500">OS</span></span>
+            <span>
+              Engineer<span className="text-brand-500">OS</span>
+            </span>
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <ThemeToggle size="sm" />
             <Link to="/register">
               <Button size="sm" variant="primary" leftIcon={Sparkles}>
@@ -93,18 +94,18 @@ export const PublicProfilePage = () => {
         </div>
       </header>
 
-      {/* Main Content Area */}
+      {/* Main Content */}
       <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 md:p-10">
         {loading ? (
-          <div className="w-full max-w-2xl space-y-4">
-            <CardSkeleton />
+          <div className="w-full max-w-3xl">
+            <CardSkeleton lines={5} />
           </div>
         ) : error ? (
-          <div className="w-full max-w-md mx-auto text-center p-8 rounded-2xl bg-surface-850 dark:bg-surface-900/60 border border-surface-700 dark:border-surface-800 shadow-[var(--shadow-elevated)] dark:shadow-2xl backdrop-blur-md space-y-4">
-            <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
-              <Lock className="w-6 h-6" />
+          <Card className="w-full max-w-md mx-auto text-center p-7 sm:p-8 shadow-[var(--shadow-elevated)] space-y-4">
+            <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/25 text-rose-700 dark:text-rose-400 flex items-center justify-center mx-auto">
+              <Lock className="w-5 h-5" />
             </div>
-            <h2 className="text-lg font-bold text-surface-100">Profile Restricted</h2>
+            <h2 className="font-display text-lg font-bold text-surface-100">Profile Restricted</h2>
             <p className="text-sm text-surface-400 leading-relaxed">{error}</p>
             <div className="pt-2">
               <Link to="/">
@@ -113,14 +114,13 @@ export const PublicProfilePage = () => {
                 </Button>
               </Link>
             </div>
-          </div>
+          </Card>
         ) : profile ? (
-          <div className="w-full max-w-2xl space-y-4">
-            {/* Action Bar */}
-            <div className="flex items-center justify-between px-2">
+          <div className="w-full max-w-3xl space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 px-1">
               <span className="text-xs text-surface-400">
                 Viewing public profile of{' '}
-                <strong className="text-surface-200">@{username}</strong>
+                <strong className="font-mono text-surface-200">@{username}</strong>
               </span>
               <Button
                 size="sm"
@@ -132,12 +132,10 @@ export const PublicProfilePage = () => {
               </Button>
             </div>
 
-            {/* Profile Card */}
             <div className="flex justify-center">
-              <ProfileCard ref={cardRef} profile={profile} />
+              <ProfileCard ref={cardRef} profile={profile} className="w-full" />
             </div>
 
-            {/* Export Modal */}
             <CardExportModal
               isOpen={isExportOpen}
               onClose={() => setIsExportOpen(false)}
@@ -149,14 +147,11 @@ export const PublicProfilePage = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-surface-700 dark:border-surface-800/80 bg-navbar/60 dark:bg-surface-950/40 py-6 text-center text-xs text-surface-500">
-        <p>
-          EngineerOS — The Complete Operating System for Engineering Students
-        </p>
+      <footer className="border-t border-surface-700 bg-navbar/70 py-5 text-center font-mono text-xs text-surface-400">
+        <p>EngineerOS — The Complete Operating System for Engineering Students</p>
       </footer>
     </div>
   );
 };
 
 export default PublicProfilePage;
-

@@ -24,6 +24,18 @@ import {
   Tooltip,
   CommandPalette,
   ThemeToggle,
+  Select,
+  Textarea,
+  ProgressBar,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  MetricStrip,
+  MetricItem,
+  ChartContainer,
+  ChartTooltip,
+  PageHeader,
 } from '../index.js';
 import { ToastProvider, useToast } from '../Toast.jsx';
 import { ThemeProvider } from '../../context/ThemeContext.jsx';
@@ -283,6 +295,79 @@ describe('Shared Component Library (Phase 7 Design System)', () => {
     fireEvent.click(triggerBtn);
 
     expect(screen.getByText('All sample test cases passed!')).toBeInTheDocument();
+  });
+
+  it('renders Select and Textarea with labels, counts, and error states', () => {
+    render(
+      <div>
+        <Select
+          label="Programming Language"
+          options={[
+            { value: 'cpp', label: 'C++' },
+            { value: 'python', label: 'Python' },
+          ]}
+          error="Please pick a language"
+        />
+        <Textarea label="Bio" maxLength={120} value="Systems" showCount onChange={() => {}} />
+      </div>
+    );
+    expect(screen.getByLabelText(/Programming Language/i)).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByText('Please pick a language')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Bio/i)).toBeInTheDocument();
+    expect(screen.getByText('7/120')).toBeInTheDocument();
+  });
+
+  it('renders ProgressBar, MetricStrip, PageHeader, ChartContainer, and ChartTooltip', () => {
+    render(
+      <BrowserRouter>
+        <PageHeader
+          eyebrow="~/dashboard"
+          title="Command Center"
+          description="Daily telemetry"
+          breadcrumbs={[{ label: 'Home', to: '/' }, { label: 'Dashboard' }]}
+        />
+        <ProgressBar value={65} label="Curriculum" showValue />
+        <MetricStrip>
+          <MetricItem label="Solved" value="42" delta="+4" />
+        </MetricStrip>
+        <ChartContainer title="Activity Trend" height={180}>
+          <div>Chart Canvas</div>
+        </ChartContainer>
+        <ChartTooltip active={true} label="Mon" payload={[{ name: 'Problems', value: 6 }]} />
+      </BrowserRouter>
+    );
+    expect(screen.getByRole('heading', { name: 'Command Center' })).toBeInTheDocument();
+    expect(screen.getByRole('progressbar', { name: 'Curriculum' })).toHaveAttribute('aria-valuenow', '65');
+    expect(screen.getByText('65%')).toBeInTheDocument();
+    expect(screen.getByText('42')).toBeInTheDocument();
+    expect(screen.getByText('Activity Trend')).toBeInTheDocument();
+    expect(screen.getByText('Chart Canvas')).toBeInTheDocument();
+    expect(screen.getByText('Mon')).toBeInTheDocument();
+  });
+
+  it('opens DropdownMenu and closes on Escape or item selection', () => {
+    const handleAction = vi.fn();
+    render(
+      <DropdownMenu>
+        <DropdownMenuTrigger>Actions</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onSelect={handleAction}>Duplicate</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+
+    const trigger = screen.getByRole('button', { name: /Actions/i });
+    fireEvent.click(trigger);
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('menuitem', { name: /Duplicate/i }));
+    expect(handleAction).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+
+    fireEvent.click(trigger);
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });
 });
 

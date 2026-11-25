@@ -42,7 +42,7 @@ const AuthInput = forwardRef(
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
-          <label htmlFor={inputId} className="text-[13px] font-medium text-surface-100 dark:text-surface-200">
+          <label htmlFor={inputId} className="text-[13px] font-medium text-surface-100">
             {label}
           </label>
         )}
@@ -55,10 +55,11 @@ const AuthInput = forwardRef(
           <input
             id={inputId}
             ref={ref}
+            aria-invalid={error ? 'true' : undefined}
             className={[
-              'w-full rounded-[9px] border bg-auth-input px-3.5 py-2.5 text-sm text-surface-100',
-              'placeholder-surface-500 transition-all duration-200 outline-none',
-              'focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:focus:ring-1 dark:focus:ring-orange-500/50',
+              'w-full rounded-lg border bg-auth-input px-3.5 py-2.5 text-sm text-surface-100',
+              'placeholder-surface-500 transition-colors duration-150 outline-none',
+              'focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20',
               'disabled:opacity-55 disabled:cursor-not-allowed',
               LeftIcon ? 'pl-10' : '',
               RightIcon ? 'pr-10' : '',
@@ -93,7 +94,7 @@ const AuthSelect = forwardRef(
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
-          <label htmlFor={selectId} className="text-[13px] font-medium text-surface-100 dark:text-surface-200">
+          <label htmlFor={selectId} className="text-[13px] font-medium text-surface-100">
             {label}
           </label>
         )}
@@ -101,10 +102,11 @@ const AuthSelect = forwardRef(
           <select
             id={selectId}
             ref={ref}
+            aria-invalid={error ? 'true' : undefined}
             className={[
-              'w-full appearance-none rounded-[9px] border bg-auth-input px-3.5 py-2.5 pr-9 text-sm text-surface-100',
-              'transition-all duration-200 outline-none cursor-pointer',
-              'focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:focus:ring-1 dark:focus:ring-orange-500/50',
+              'w-full appearance-none rounded-lg border bg-auth-input px-3.5 py-2.5 pr-9 text-sm text-surface-100',
+              'transition-colors duration-150 outline-none cursor-pointer',
+              'focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20',
               'disabled:opacity-55 disabled:cursor-not-allowed',
               error
                 ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/30'
@@ -183,10 +185,10 @@ export const RegisterPage = () => {
       />
 
       {/* ── Signup Card ── */}
-      <div className="rounded-[16px] border border-surface-700 bg-surface-850 px-7 py-7 shadow-[var(--shadow-elevated)] dark:shadow-2xl dark:shadow-black/60 sm:px-8 sm:py-8">
+      <div className="rounded-2xl border border-surface-700 bg-card px-6 py-7 shadow-[var(--shadow-elevated)] sm:px-8 sm:py-8">
         {/* Card heading */}
         <div className="mb-6">
-          <h2 className="text-[22px] font-bold tracking-tight text-surface-100">
+          <h2 className="font-display text-[22px] font-bold tracking-tight text-surface-100">
             Create your account
           </h2>
           <p className="mt-1.5 text-sm leading-relaxed text-surface-400">
@@ -209,7 +211,7 @@ export const RegisterPage = () => {
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-surface-700" />
           </div>
-          <div className="relative bg-surface-850 px-3 text-[11px] font-medium uppercase tracking-wider text-surface-400">
+          <div className="relative bg-card px-3 text-[11px] font-medium uppercase tracking-wider text-surface-400">
             Or register with email
           </div>
         </div>
@@ -240,11 +242,11 @@ export const RegisterPage = () => {
           {/* Password with requirement hint and visibility toggle */}
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <label htmlFor="password" className="text-[13px] font-medium text-surface-100 dark:text-surface-200">
+              <label htmlFor="password" className="text-[13px] font-medium text-surface-100">
                 Password
               </label>
-              <span className="text-[11px] text-surface-500">
-                min 8 chars, 1 uppercase, 1 digit
+              <span className="font-mono text-[10px] text-surface-400">
+                min 8 chars · 1 uppercase · 1 digit
               </span>
             </div>
             <div className="relative flex items-center">
@@ -255,10 +257,11 @@ export const RegisterPage = () => {
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
+                aria-invalid={errors.password ? 'true' : undefined}
                 className={[
-                  'w-full rounded-[9px] border bg-auth-input px-3.5 py-2.5 pl-10 pr-10 text-sm text-surface-100',
-                  'placeholder-surface-500 transition-all duration-200 outline-none',
-                  'focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:focus:ring-1 dark:focus:ring-orange-500/50',
+                  'w-full rounded-lg border bg-auth-input px-3.5 py-2.5 pl-10 pr-10 text-sm text-surface-100',
+                  'placeholder-surface-500 transition-colors duration-150 outline-none',
+                  'focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20',
                   'disabled:opacity-55 disabled:cursor-not-allowed',
                   errors.password
                     ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/30'
@@ -273,7 +276,7 @@ export const RegisterPage = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3.5 text-surface-400 transition-colors duration-150 hover:text-surface-100 dark:hover:text-surface-200 focus:outline-none focus-visible:ring-1 focus-visible:ring-orange-500"
+                className="absolute right-3.5 text-surface-400 transition-colors duration-150 hover:text-surface-100 rounded p-0.5"
                 aria-label={showPassword ? 'Hide text' : 'Show text'}
                 tabIndex={0}
               >
@@ -321,7 +324,7 @@ export const RegisterPage = () => {
               {...register('semester')}
             >
               {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
-                <option key={s} value={s} className="bg-surface-850 text-surface-100">
+                <option key={s} value={s} className="bg-card text-surface-100">
                   Semester {s}
                 </option>
               ))}
@@ -333,10 +336,10 @@ export const RegisterPage = () => {
               error={errors.role?.message}
               {...register('role')}
             >
-              <option value="student" className="bg-surface-850 text-surface-100">
+              <option value="student" className="bg-card text-surface-100">
                 Student
               </option>
-              <option value="senior" className="bg-surface-850 text-surface-100">
+              <option value="senior" className="bg-card text-surface-100">
                 Senior / Peer Mentor
               </option>
             </AuthSelect>
@@ -346,7 +349,7 @@ export const RegisterPage = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-[9px] bg-brand-500 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:bg-brand-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-brand-500 py-2.5 text-sm font-semibold text-white shadow-xs transition-colors duration-150 hover:bg-brand-600 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? (
               <>
@@ -360,11 +363,11 @@ export const RegisterPage = () => {
         </form>
 
         {/* ── Footer Link ── */}
-        <p className="mt-5 text-center text-[13px] text-surface-500">
+        <p className="mt-5 text-center text-[13px] text-surface-400">
           Already have an account?{' '}
           <Link
             to="/login"
-            className="font-semibold text-brand-700 dark:text-orange-500 transition-colors duration-150 hover:text-brand-600 dark:hover:text-orange-400"
+            className="font-semibold text-brand-700 transition-colors duration-150 hover:underline"
           >
             Sign In
           </Link>

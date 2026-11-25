@@ -2,32 +2,35 @@ import api from './api.js';
 
 export const communityService = {
   async getPosts(params = {}) {
-    const res = await api.get('/community/posts', { params });
+    const res = await api.get('/community', { params });
     return res.data;
   },
 
   async createPost(postData) {
-    const res = await api.post('/community/posts', postData);
+    const res = await api.post('/community', postData);
     return res.data;
   },
 
   async getPostById(id) {
-    const res = await api.get(`/community/posts/${id}`);
+    const res = await api.get(`/community/${id}`);
     return res.data;
   },
 
   async getReplies(postId) {
-    const res = await api.get(`/community/posts/${postId}/replies`);
-    return res.data;
+    const res = await api.get(`/community/${postId}`);
+    return {
+      success: res.data?.success ?? true,
+      data: res.data?.data?.replies || [],
+    };
   },
 
   async addReply(postId, replyData) {
-    const res = await api.post(`/community/posts/${postId}/replies`, replyData);
+    const res = await api.post(`/community/${postId}/replies`, replyData);
     return res.data;
   },
 
   async upvotePost(id) {
-    const res = await api.post(`/community/posts/${id}/upvote`);
+    const res = await api.post(`/community/${id}/upvote`);
     return res.data;
   },
 
@@ -36,8 +39,8 @@ export const communityService = {
     return res.data;
   },
 
-  async acceptReply(replyId) {
-    const res = await api.post(`/community/replies/${replyId}/accept`);
+  async acceptReply(postId, replyId) {
+    const res = await api.post(`/community/${postId}/replies/${replyId}/accept`);
     return res.data;
   },
 };

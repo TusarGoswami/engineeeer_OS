@@ -1,10 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Modal } from '../../../components/Modal.jsx';
-import { Button } from '../../../components/Button.jsx';
-import { Input } from '../../../components/Input.jsx';
 import { ShieldCheck, Plus, Trash2, CheckCircle2 } from 'lucide-react';
+import { Modal, Button, Input, Select } from '../../../components/index.js';
 
-export const AssessmentModal = ({ isOpen, onClose, assessment, subjects = [], onSave }) => {
+/**
+ * Assessment builder modal supporting anti-cheat rules and multiple-choice question bank editing.
+ */
+export const AssessmentModal = ({
+  isOpen,
+  onClose,
+  assessment,
+  subjects = [],
+  onSave,
+}) => {
   const isEditing = Boolean(assessment?._id);
 
   const [title, setTitle] = useState('');
@@ -134,11 +141,23 @@ export const AssessmentModal = ({ isOpen, onClose, assessment, subjects = [], on
       await onSave(payload);
       onClose();
     } catch (err) {
-      setError(err.response?.data?.error?.message || 'Failed to save assessment');
+      setError(
+        err.response?.data?.error?.message ||
+          err.response?.data?.message ||
+          'Failed to save assessment'
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const subjectOptions = [
+    { value: '', label: 'General Engineering Assessment' },
+    ...subjects.map((sub) => ({
+      value: sub._id,
+      label: `${sub.code} — ${sub.name} (Sem ${sub.semester})`,
+    })),
+  ];
 
   return (
     <Modal
@@ -149,13 +168,14 @@ export const AssessmentModal = ({ isOpen, onClose, assessment, subjects = [], on
     >
       <form onSubmit={handleSubmit} className="space-y-5 text-xs">
         {error && (
-          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400">
+          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/25 text-rose-700 dark:text-rose-400">
             {error}
           </div>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
+            id="assessment-title"
             label="Exam Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -163,36 +183,35 @@ export const AssessmentModal = ({ isOpen, onClose, assessment, subjects = [], on
             required
           />
 
-          <div>
-            <label className="block text-surface-300 font-medium mb-1">Target Subject</label>
-            <select
-              value={subjectId}
-              onChange={(e) => setSubjectId(e.target.value)}
-              className="w-full h-9 rounded-xl bg-surface-950 border border-surface-800 text-surface-200 px-3 focus:outline-none focus:border-brand-500"
-            >
-              <option value="">General Engineering Assessment</option>
-              {subjects.map((sub) => (
-                <option key={sub._id} value={sub._id}>
-                  {sub.code} — {sub.name} (Sem {sub.semester})
-                </option>
-              ))}
-            </select>
-          </div>
+          <Select
+            id="assessment-subject"
+            label="Target Subject"
+            value={subjectId}
+            onChange={(e) => setSubjectId(e.target.value)}
+            options={subjectOptions}
+          />
         </div>
 
-        <div>
-          <label className="block text-surface-300 font-medium mb-1">Exam Instructions / Overview</label>
+        <div className="space-y-1.5">
+          <label
+            htmlFor="assessment-description"
+            className="block text-[13px] font-medium text-surface-100"
+          >
+            Exam Instructions / Overview
+          </label>
           <textarea
+            id="assessment-description"
             rows={2}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Instructions displayed to students before launching exam room..."
-            className="w-full p-2.5 rounded-xl bg-surface-950 border border-surface-800 text-surface-200 text-xs focus:outline-none focus:border-brand-500"
+            className="w-full p-2.5 rounded-lg bg-auth-input border border-surface-600 text-surface-100 placeholder:text-surface-500 text-xs focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15"
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
+            id="assessment-duration"
             label="Duration (Minutes)"
             type="number"
             value={durationMinutes}
@@ -201,6 +220,7 @@ export const AssessmentModal = ({ isOpen, onClose, assessment, subjects = [], on
           />
 
           <Input
+            id="assessment-marks"
             label="Total Marks"
             type="number"
             value={totalMarks}
@@ -210,19 +230,19 @@ export const AssessmentModal = ({ isOpen, onClose, assessment, subjects = [], on
         </div>
 
         {/* Anti-Cheat Proctoring Rules */}
-        <div className="p-4 rounded-xl bg-surface-950/70 border border-surface-800 space-y-3">
-          <div className="flex items-center gap-2 text-surface-200 font-semibold">
-            <ShieldCheck className="w-4 h-4 text-brand-400" />
-            <span>Anti-Cheat & Proctoring Rules</span>
+        <div className="p-4 rounded-xl bg-elevated/60 border border-surface-700 space-y-3">
+          <div className="flex items-center gap-2 text-surface-100 font-semibold">
+            <ShieldCheck className="w-4 h-4 text-brand-700" />
+            <span>Anti-Cheat &amp; Proctoring Rules</span>
           </div>
 
-          <div className="flex flex-wrap gap-6 text-surface-300">
+          <div className="flex flex-wrap gap-6 text-surface-200">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 checked={fullScreenRequired}
                 onChange={(e) => setFullScreenRequired(e.target.checked)}
-                className="rounded border-surface-700 bg-surface-900 text-brand-500 focus:ring-0"
+                className="rounded border-surface-600 bg-auth-input text-brand-500 focus:ring-brand-500"
               />
               <span>Require Fullscreen Mode (Audit Esc exits)</span>
             </label>
@@ -232,28 +252,46 @@ export const AssessmentModal = ({ isOpen, onClose, assessment, subjects = [], on
                 type="checkbox"
                 checked={trackTabSwitches}
                 onChange={(e) => setTrackTabSwitches(e.target.checked)}
-                className="rounded border-surface-700 bg-surface-900 text-brand-500 focus:ring-0"
+                className="rounded border-surface-600 bg-auth-input text-brand-500 focus:ring-brand-500"
               />
-              <span>Track Tab Switching & Window Blur</span>
+              <span>Track Tab Switching &amp; Window Blur</span>
             </label>
           </div>
         </div>
 
         {/* Questions Builder */}
-        <div className="space-y-4 pt-3 border-t border-surface-800">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-surface-200">Exam Questions ({questions.length}) • Proctored Assessment</span>
-            <Button type="button" variant="outline" size="sm" onClick={handleAddQuestion} className="gap-1 text-[11px]">
-              <Plus className="w-3 h-3" /> Add Question
+        <div className="space-y-4 pt-3 border-t border-surface-700">
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-semibold text-surface-100">
+              Exam Questions ({questions.length}) · Proctored Assessment
+            </span>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              leftIcon={Plus}
+              onClick={handleAddQuestion}
+            >
+              Add Question
             </Button>
           </div>
 
           {questions.map((q, qIdx) => (
-            <div key={qIdx} className="p-4 rounded-xl bg-surface-950 border border-surface-800 space-y-3">
+            <div
+              key={qIdx}
+              className="p-4 rounded-xl bg-elevated/45 border border-surface-700 space-y-3"
+            >
               <div className="flex items-center justify-between">
-                <span className="text-brand-400 font-mono font-semibold">Question #{qIdx + 1}</span>
+                <span className="text-brand-700 font-mono font-semibold">
+                  Question #{qIdx + 1}
+                </span>
                 {questions.length > 1 && (
-                  <button type="button" onClick={() => handleRemoveQuestion(qIdx)} className="text-rose-400 hover:text-rose-300">
+                  <button
+                    type="button"
+                    aria-label={`Remove question ${qIdx + 1}`}
+                    onClick={() => handleRemoveQuestion(qIdx)}
+                    className="p-1 rounded text-rose-700 dark:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                  >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 )}
@@ -288,12 +326,16 @@ export const AssessmentModal = ({ isOpen, onClose, assessment, subjects = [], on
               </div>
 
               {/* Options */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1">
                 {q.options?.map((opt, optIdx) => (
-                  <div key={opt.id} className="flex items-center gap-2 bg-surface-900 p-2 rounded-lg border border-surface-800">
-                    <span className="font-bold text-surface-400 w-4">{opt.id}</span>
+                  <div
+                    key={opt.id}
+                    className="flex items-center gap-2 bg-card p-2 rounded-lg border border-surface-700"
+                  >
+                    <span className="font-mono font-bold text-surface-400 w-4">{opt.id}</span>
                     <input
                       type="text"
+                      aria-label={`Question ${qIdx + 1} Option ${opt.id}`}
                       placeholder={`Option ${opt.id}`}
                       value={opt.text}
                       onChange={(e) => {
@@ -301,11 +343,12 @@ export const AssessmentModal = ({ isOpen, onClose, assessment, subjects = [], on
                         next[qIdx].options[optIdx].text = e.target.value;
                         setQuestions(next);
                       }}
-                      className="w-full bg-transparent border-0 text-surface-200 text-xs focus:outline-none"
+                      className="w-full bg-transparent border-0 text-surface-100 placeholder:text-surface-500 text-xs focus:outline-none"
                     />
                     <input
                       type="radio"
                       name={`correct-${qIdx}`}
+                      aria-label={`Mark Question ${qIdx + 1} Option ${opt.id} as correct`}
                       checked={q.correctOptions?.includes(opt.id)}
                       onChange={() => {
                         const next = [...questions];
@@ -313,7 +356,7 @@ export const AssessmentModal = ({ isOpen, onClose, assessment, subjects = [], on
                         setQuestions(next);
                       }}
                       title="Mark as correct answer"
-                      className="text-brand-500 focus:ring-0 cursor-pointer"
+                      className="text-brand-500 focus:ring-brand-500 cursor-pointer"
                     />
                   </div>
                 ))}
@@ -322,13 +365,18 @@ export const AssessmentModal = ({ isOpen, onClose, assessment, subjects = [], on
           ))}
         </div>
 
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-surface-800">
-          <Button type="button" variant="outline" onClick={onClose}>
+        <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-surface-700">
+          <Button type="button" variant="secondary" size="sm" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" variant="primary" isLoading={isSubmitting} className="gap-2">
-            <CheckCircle2 className="w-4 h-4" />
-            <span>{isEditing ? 'Save Changes' : 'Schedule Assessment'}</span>
+          <Button
+            type="submit"
+            variant="primary"
+            size="sm"
+            isLoading={isSubmitting}
+            leftIcon={CheckCircle2}
+          >
+            {isEditing ? 'Save Changes' : 'Schedule Assessment'}
           </Button>
         </div>
       </form>

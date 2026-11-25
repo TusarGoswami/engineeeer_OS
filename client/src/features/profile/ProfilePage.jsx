@@ -22,37 +22,45 @@ import {
   CardDescription,
   CardContent,
   CardFooter,
-} from '../../components/Card.jsx';
-import { Input } from '../../components/Input.jsx';
-import { Button } from '../../components/Button.jsx';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/Tabs.jsx';
-import { Heatmap } from '../../components/Heatmap.jsx';
-import { useToast } from '../../components/Toast.jsx';
+  Input,
+  Select,
+  Textarea,
+  Button,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  Heatmap,
+  PageHeader,
+  CardSkeleton,
+  useToast,
+} from '../../components/index.js';
 import ProfileCard from './components/ProfileCard.jsx';
 import CardCustomizerDrawer from './components/CardCustomizerDrawer.jsx';
 import AvatarCropperModal from './components/AvatarCropperModal.jsx';
 import CardExportModal from './components/CardExportModal.jsx';
 import { AchievementGallery } from './components/AchievementGallery.jsx';
 
+/**
+ * Profile & Settings workspace for managing visual EngineerOS card, academic profile metadata,
+ * unlocked achievement vault, GDPR data export, and 52-week consistency telemetry.
+ */
 export const ProfilePage = () => {
   const { user, updateUser } = useAuth();
   const { showToast } = useToast();
   const cardRef = useRef(null);
 
-  // Modals & Drawers state
   const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
   const [isCropperOpen, setIsCropperOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isExportingData, setIsExportingData] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Profile data from backend
   const [profileData, setProfileData] = useState(null);
   const [badges, setBadges] = useState([]);
   const [heatmapData, setHeatmapData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Form for Personal & Academic details
   const {
     register,
     handleSubmit,
@@ -105,7 +113,7 @@ export const ProfilePage = () => {
     loadProfile();
   }, []);
 
-  const onPersonalSubmit = async values => {
+  const onPersonalSubmit = async (values) => {
     setSuccessMsg('');
     try {
       await updateUser({
@@ -120,7 +128,6 @@ export const ProfilePage = () => {
         },
       });
 
-      // Also sync snapshot name/headline
       await profileService.updateOwnerProfile({
         headline: values.bio?.slice(0, 120),
       });
@@ -158,7 +165,7 @@ export const ProfilePage = () => {
 
   const handleAvatarUpdated = (result) => {
     if (result?.avatarUrl) {
-      setProfileData(prev => {
+      setProfileData((prev) => {
         if (!prev) return prev;
         return {
           ...prev,
@@ -179,21 +186,14 @@ export const ProfilePage = () => {
     profileData?.identity?.username || user?.username || user?.email?.split('@')[0];
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-12">
-      {/* Top Profile Card Showcase Section */}
-      <div className="flex flex-col items-center space-y-4">
-        <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 pb-2">
-          <div>
-            <h1 className="text-2xl font-bold text-surface-100 tracking-tight">
-              My EngineerOS Card
-            </h1>
-            <p className="text-sm text-surface-400">
-              Your verified visual passport for engineering consistency & achievements
-            </p>
-          </div>
-
-          {/* Action Toolbar */}
-          <div className="flex items-center gap-2 flex-wrap">
+    <div className="max-w-6xl mx-auto space-y-8 pb-12">
+      {/* Header & Showcase Toolbar */}
+      <PageHeader
+        eyebrow="~/profile-settings"
+        title="My EngineerOS Card"
+        description="Your verified visual passport for engineering consistency, achievements, and career identity"
+        actions={
+          <>
             <Button
               variant="secondary"
               size="sm"
@@ -223,41 +223,43 @@ export const ProfilePage = () => {
                 href={`/u/${username}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-surface-900 hover:bg-surface-800 dark:bg-surface-800 dark:hover:bg-surface-700 text-surface-100 dark:text-surface-200 transition-colors border border-surface-600 dark:border-surface-700/80"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-xs font-medium bg-card hover:bg-elevated text-surface-200 hover:text-surface-100 transition-colors border border-surface-700 hover:border-surface-600 shadow-2xs"
               >
                 <span>Live View</span>
-                <ExternalLink className="w-3.5 h-3.5" />
+                <ExternalLink className="w-3.5 h-3.5 text-surface-400" />
               </a>
             )}
-          </div>
-        </div>
+          </>
+        }
+      />
 
-        {/* Live Card Preview */}
-        <div className="w-full flex justify-center py-2">
-          {loading ? (
-            <div className="w-full max-w-2xl h-80 rounded-2xl bg-surface-850/80 dark:bg-surface-900/40 border border-surface-700 dark:border-surface-800 animate-pulse" />
-          ) : (
-            <ProfileCard
-              ref={cardRef}
-              profile={profileData}
-              className="max-w-2xl"
-            />
-          )}
-        </div>
+      {/* Signature Card Showcase */}
+      <div className="w-full flex justify-center">
+        {loading ? (
+          <CardSkeleton className="w-full max-w-3xl" lines={5} />
+        ) : (
+          <ProfileCard
+            ref={cardRef}
+            profile={profileData}
+            className="w-full max-w-3xl"
+          />
+        )}
       </div>
 
       {/* Management Tabs */}
       <Tabs defaultValue="academic" className="w-full">
-        <TabsList className="grid grid-cols-3 max-w-md mx-auto mb-6">
-          <TabsTrigger value="academic">Academic & Info</TabsTrigger>
-          <TabsTrigger value="badges">Badges ({badges.length})</TabsTrigger>
-          <TabsTrigger value="telemetry">Activity Stream</TabsTrigger>
-        </TabsList>
+        <div className="flex justify-center mb-6">
+          <TabsList>
+            <TabsTrigger value="academic">Academic & Info</TabsTrigger>
+            <TabsTrigger value="badges">Badges ({badges.length})</TabsTrigger>
+            <TabsTrigger value="telemetry">Activity Stream</TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* Tab 1: Academic & Personal Form */}
         <TabsContent value="academic" className="space-y-6">
           {successMsg && (
-            <div className="flex items-center gap-2 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 text-sm">
+            <div className="flex items-center gap-2 p-3.5 rounded-xl bg-compiler-500/10 border border-compiler-500/25 badge-compiler text-sm font-medium">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{successMsg}</span>
             </div>
@@ -284,21 +286,13 @@ export const ProfilePage = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input label="Branch / Major" {...register('branch')} />
-                  <div className="flex flex-col space-y-1.5">
-                    <label className="text-[13px] font-medium text-surface-100 dark:text-surface-300">
-                      Current Semester
-                    </label>
-                    <select
-                      className="w-full rounded-[9px] bg-auth-input dark:bg-surface-950/80 border border-surface-600 dark:border-surface-800 text-surface-100 text-sm px-3.5 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-0"
-                      {...register('semester')}
-                    >
-                      {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
-                        <option key={s} value={s}>
-                          Semester {s}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <Select label="Current Semester" {...register('semester')}>
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
+                      <option key={s} value={s}>
+                        Semester {s}
+                      </option>
+                    ))}
+                  </Select>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -315,20 +309,15 @@ export const ProfilePage = () => {
                   />
                 </div>
 
-                <div className="flex flex-col space-y-1.5">
-                  <label className="text-[13px] font-medium text-surface-100 dark:text-surface-300">
-                    Headline / Bio (Max 120 chars)
-                  </label>
-                  <textarea
-                    rows={2}
-                    maxLength={120}
-                    className="w-full rounded-[9px] bg-auth-input dark:bg-surface-950/80 border border-surface-600 dark:border-surface-800 text-surface-100 text-sm p-3 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-0 placeholder-surface-500"
-                    placeholder="Distributed Systems Enthusiast • 300+ LeetCode Solved"
-                    {...register('bio')}
-                  />
-                </div>
+                <Textarea
+                  label="Headline / Bio (Max 120 chars)"
+                  rows={2}
+                  maxLength={120}
+                  placeholder="Distributed Systems Enthusiast • 300+ LeetCode Solved"
+                  {...register('bio')}
+                />
 
-                <CardFooter className="px-0 pb-0 flex items-center justify-between">
+                <CardFooter className="px-0 pb-0 flex flex-wrap items-center justify-between gap-3">
                   <Button
                     type="submit"
                     variant="primary"
@@ -362,18 +351,18 @@ export const ProfilePage = () => {
         <TabsContent value="telemetry" className="space-y-4">
           <Card className="hm-card">
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <CardTitle className="flex items-center gap-2 text-[var(--hm-text-primary)]">
-                    <Flame className="w-5 h-5 text-[var(--hm-accent)]" />
+                    <Flame className="w-5 h-5 text-[var(--hm-accent)] shrink-0" />
                     <span>Annual Activity Stream</span>
                   </CardTitle>
                   <CardDescription className="text-[var(--hm-text-secondary)]">
                     All coding, GATE tests, academic learning, and mock interviews logged across 52 weeks
                   </CardDescription>
                 </div>
-                <div className="text-right">
-                  <div className="text-lg font-bold font-mono text-[var(--hm-accent-strong)]">
+                <div className="text-left sm:text-right">
+                  <div className="text-lg font-bold font-mono tabular-nums text-[var(--hm-accent-strong)]">
                     {profileData?.stats?.streaks?.current || 0} Days
                   </div>
                   <div className="text-xs text-[var(--hm-text-secondary)]">Current Streak</div>
@@ -397,7 +386,7 @@ export const ProfilePage = () => {
         isOpen={isCustomizerOpen}
         onClose={() => setIsCustomizerOpen(false)}
         profile={profileData}
-        onProfileUpdated={updated => setProfileData(updated)}
+        onProfileUpdated={(updated) => setProfileData(updated)}
       />
 
       <AvatarCropperModal

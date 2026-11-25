@@ -1,29 +1,63 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { academicsService } from '../../services/academics.service.js';
-import { Card, CardTitle, CardDescription } from '../../components/Card.jsx';
-import { Badge } from '../../components/Badge.jsx';
-import { Modal } from '../../components/Modal.jsx';
-import { Skeleton } from '../../components/Skeleton.jsx';
-import { EmptyState } from '../../components/EmptyState.jsx';
-import { ProgressRing } from '../../components/ProgressRing.jsx';
+import { dashboardService } from '../../services/dashboard.service.js';
 import {
-  GraduationCap,
+  PageHeader,
+  MetricStrip,
+  MetricItem,
+  Card,
+  CardTitle,
+  CardDescription,
+  Badge,
+  Button,
+  Input,
+  Select,
+  Skeleton,
+  EmptyState,
+  ProgressRing,
+  useToast,
+} from '../../components/index.js';
+import { SubjectDetailWorkspace } from './components/SubjectDetailWorkspace.jsx';
+import { ResourcePreviewModal } from './components/ResourcePreviewModal.jsx';
+import {
   BookOpen,
-  CheckCircle,
-  Circle,
-  FileText,
   Search,
-  ExternalLink,
+  Layers,
   Clock,
-  Eye,
-  Download,
-  Sparkles,
+  GraduationCap,
+  CheckCircle2,
+  ArrowRight,
+  BookmarkCheck,
 } from 'lucide-react';
 
+const DEFAULT_BRANCHES = [
+  'Computer Science and Engineering',
+  'Information Technology',
+  'Electronics and Communication',
+  'Mechanical Engineering',
+];
+
+/**
+ * Splits syllabusOutline into compact unit preview pills for subject overview cards.
+ */
+function extractPreviewUnits(outline = '') {
+  if (!outline || typeof outline !== 'string') return [];
+  return outline
+    .split(/[•|\n]+/)
+    .map((u) => u.trim())
+    .filter(Boolean)
+    .slice(0, 2);
+}
+
+/**
+ * Main Academic Curriculum Hub with Semester & Branch discovery, structured overview cards,
+ * and integrated Subject/Syllabus/Topic Detail Workspace.
+ */
 export const AcademicsPage = () => {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const queryClient = useQueryClient();
 
   const [selectedSemester, setSelectedSemester] = useState(user?.semester || 1);
@@ -34,8 +68,17 @@ export const AcademicsPage = () => {
   const [activeSubject, setActiveSubject] = useState(null);
   const [activeTab, setActiveTab] = useState('topics'); // 'topics' | 'resources'
   const [previewResource, setPreviewResource] = useState(null);
+  const [togglingTopicId, setTogglingTopicId] = useState(null);
 
-  // Query: Fetch subjects
+  const branchOptions = useMemo(() => {
+    const base = [...DEFAULT_BRANCHES];
+    if (user?.branch && !base.includes(user.branch)) {
+      base.unshift(user.branch);
+    }
+    return base.map((b) => ({ value: b, label: b }));
+  }, [user?.branch]);
+
+  // Query: Fetch subjects for semester, branch & search
   const { data: subjectsData, isLoading } = useQuery({
     queryKey: ['academics-subjects', selectedSemester, selectedBranch, searchQuery],
     queryFn: () =>
@@ -46,394 +89,379 @@ export const AcademicsPage = () => {
       }),
   });
 
-  // Query: Fetch active subject details & progress
+  // Query: Non-blocking curriculum summary telemetry for real overall topic completion
+  const { data: dashboardSummary } = useQuery({
+    queryKey: ['dashboard-summary'],
+    queryFn: async () => {
+      try {
+        return await dashboardService.getSummary();
+      } catch {
+        return null;
+      }
+    },
+    staleTime: 60 * 1000,
+  });
+
+  // Query: Fetch active subject details & completed topic IDs
   const { data: subjectDetails, isLoading: isDetailsLoading } = useQuery({
     queryKey: ['academics-subject-details', activeSubject?._id],
     queryFn: () => academicsService.getSubjectById(activeSubject._id),
     enabled: !!activeSubject?._id,
   });
 
-  // Query: Fetch subject resources
-  const { data: subjectResources } = useQuery({
+  // Query: Fetch subject resources (enabled whenever a subject is active so topic inspector & resources tab stay in sync)
+  const { data: subjectResources, isLoading: isResourcesLoading } = useQuery({
     queryKey: ['academics-subject-resources', activeSubject?._id],
     queryFn: () => academicsService.getResources(activeSubject._id),
-    enabled: !!activeSubject?._id && activeTab === 'resources',
+    enabled: !!activeSubject?._id,
   });
 
-  // Mutation: Toggle topic completion
+  // Mutation: Toggle topic completion and sync progress caches immediately
   const toggleMutation = useMutation({
-    mutationFn: ({ subjectId, topicId }) => academicsService.toggleTopic(subjectId, topicId),
-    onSuccess: () => {
+    mutationFn: ({ subjectId, topicId }) => {
+      setTogglingTopicId(topicId);
+      return academicsService.toggleTopic(subjectId, topicId);
+    },
+    onSuccess: (updatedProgress, variables) => {
+      queryClient.setQueryData(
+        ['academics-subject-details', variables.subjectId],
+        (prev) =>
+          prev
+            ? {
+                ...prev,
+                completedTopicIds: updatedProgress?.completedTopicIds ?? prev.completedTopicIds,
+                completionPercentage:
+                  updatedProgress?.completionPercentage ?? prev.completionPercentage,
+              }
+            : prev
+      );
       queryClient.invalidateQueries({
         queryKey: ['academics-subject-details', activeSubject?._id],
       });
       queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });
     },
+    onError: (err) => {
+      showToast(err?.response?.data?.message || 'Failed to update topic progress', 'error');
+    },
+    onSettled: () => {
+      setTogglingTopicId(null);
+    },
   });
 
-  const subjects = subjectsData?.data || [];
+  const subjects = useMemo(() => subjectsData?.data || [], [subjectsData?.data]);
+
+  const semesterMetrics = useMemo(() => {
+    const totalCredits = subjects.reduce((sum, s) => sum + (s.credits || 4), 0);
+    const totalTopics = subjects.reduce((sum, s) => sum + (s.topics?.length || 0), 0);
+    const totalHours = subjects.reduce(
+      (sum, s) =>
+        sum + (s.topics || []).reduce((tSum, t) => tSum + (t.estimatedHours || 2), 0),
+      0
+    );
+    return { totalCredits, totalTopics, totalHours };
+  }, [subjects]);
+
+  const openSubjectWorkspace = (subject) => {
+    setActiveSubject(subject);
+    setActiveTab('topics');
+  };
+
+  const overallAcademics = dashboardSummary?.stats?.academics || dashboardSummary?.academics;
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-surface-700 dark:border-surface-800">
-        <div>
-          <h1 className="text-[26px] font-bold tracking-tight text-surface-100 flex items-center gap-2.5">
-            <GraduationCap className="w-6 h-6 text-brand-700 dark:text-brand-400" />
-            <span>Academic Curriculum Hub</span>
-          </h1>
-          <p className="text-sm text-surface-400 mt-1">
-            Structured syllabus, verified lecture notes, and PYQs for{' '}
-            {user?.university || 'Engineering University'}.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <select
-            value={selectedBranch}
-            onChange={e => setSelectedBranch(e.target.value)}
-            className="rounded-xl bg-surface-850 dark:bg-surface-900 border border-surface-600 dark:border-surface-800 text-xs text-surface-100 dark:text-surface-200 px-3 py-2 focus:outline-none focus:border-brand-500"
-          >
-            <option value="Computer Science and Engineering">
-              Computer Science and Engineering
-            </option>
-            <option value="Information Technology">Information Technology</option>
-            <option value="Electronics and Communication">Electronics and Communication</option>
-            <option value="Mechanical Engineering">Mechanical Engineering</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Semester Tab Switcher */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map(sem => (
-          <button
-            key={sem}
-            onClick={() => setSelectedSemester(sem)}
-            className={`px-4 py-2 rounded-xl text-xs font-medium transition-all select-none whitespace-nowrap min-w-[100px] text-center justify-center border ${
-              selectedSemester === sem
-                ? 'bg-brand-500 dark:bg-brand-600 border-brand-500 text-white shadow-sm dark:shadow-md shadow-brand-600/20'
-                : 'bg-surface-850 dark:bg-surface-900/60 border-surface-700 dark:border-transparent text-surface-300 dark:text-surface-400 hover:text-surface-100 hover:bg-surface-800'
-            }`}
-          >
-            Semester {sem}
-            {sem === user?.semester && (
-              <span
-                className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] ${
-                  selectedSemester === sem
-                    ? 'bg-white/20 text-white'
-                    : 'bg-brand-500/15 text-brand-700 dark:bg-brand-400/20 dark:text-brand-300'
-                }`}
-              >
-                Current
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
-
-      {/* Search Input */}
-      <div className="relative max-w-md">
-        <Search className="w-4 h-4 absolute left-3.5 top-2.5 text-surface-500" />
-        <input
-          type="text"
-          placeholder="Search subjects or syllabus topics..."
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 rounded-xl bg-surface-850 dark:bg-surface-900/80 border border-surface-600 dark:border-surface-800 text-xs text-surface-100 placeholder-surface-500 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-0"
-        />
-      </div>
-
-      {/* Subjects Grid */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <Skeleton key={i} className="h-48 w-full" />
-          ))}
-        </div>
-      ) : subjects.length === 0 ? (
-        <EmptyState
-          icon={BookOpen}
-          title="No subjects found"
-          description={`No curriculum entries recorded for Semester ${selectedSemester} in ${selectedBranch}.`}
+    <>
+      {activeSubject ? (
+        <SubjectDetailWorkspace
+          subject={activeSubject}
+          subjectDetails={subjectDetails}
+          isDetailsLoading={isDetailsLoading}
+          subjectResources={subjectResources || []}
+          isResourcesLoading={isResourcesLoading}
+          siblingSubjects={subjects}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          selectedSemester={selectedSemester}
+          onSelectSubject={openSubjectWorkspace}
+          onBack={() => setActiveSubject(null)}
+          onToggleTopic={(topicId) =>
+            toggleMutation.mutate({
+              subjectId: activeSubject._id,
+              topicId,
+            })
+          }
+          isToggling={toggleMutation.isPending}
+          togglingTopicId={togglingTopicId}
+          onPreviewResource={(res) => setPreviewResource(res)}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {subjects.map(subject => {
-            const topicCount = subject.topics?.length || 0;
+        <div className="space-y-6 max-w-7xl mx-auto pb-12">
+          {/* Page Header & Branch Selector */}
+          <PageHeader
+            eyebrow={`~/academics · ${user?.university || 'Engineering University'} Curriculum`}
+            title="Academic Curriculum Hub"
+            description="Structured semester syllabi, verified lecture notes, PYQ archives, and topic completion tracking."
+            actions={
+              <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+                {user?.semester && selectedSemester !== user.semester && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setSelectedSemester(user.semester)}
+                  >
+                    Jump to Sem {user.semester}
+                  </Button>
+                )}
+                <div className="w-full sm:w-64">
+                  <Select
+                    aria-label="Engineering branch"
+                    value={selectedBranch}
+                    onChange={(e) => setSelectedBranch(e.target.value)}
+                    leftIcon={Layers}
+                    options={branchOptions}
+                  />
+                </div>
+              </div>
+            }
+          />
 
-            return (
-              <Card
-                key={subject._id}
-                hover
-                className="flex flex-col justify-between border-surface-700 dark:border-surface-800/80 bg-surface-850 dark:bg-surface-900/50 cursor-pointer min-h-[200px] group"
-                onClick={() => {
-                  setActiveSubject(subject);
-                  setActiveTab('topics');
-                }}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant="brand">{subject.code}</Badge>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-surface-400 font-medium">
-                        {subject.credits || 4} Credits
+          {/* Academic Telemetry Strip */}
+          <MetricStrip>
+            <MetricItem
+              label="Semester Subjects"
+              value={subjects.length}
+              subvalue={`Semester ${selectedSemester} · ${semesterMetrics.totalCredits} Credits`}
+              icon={BookOpen}
+            />
+            <MetricItem
+              label="Syllabus Topics"
+              value={semesterMetrics.totalTopics}
+              subvalue={`${semesterMetrics.totalHours}h est. study time`}
+              icon={GraduationCap}
+              accent="brand"
+            />
+            <MetricItem
+              label="Academic Branch"
+              value={selectedBranch.split(' ')[0]}
+              subvalue={selectedBranch}
+              icon={Layers}
+            />
+            <MetricItem
+              label="Overall Curriculum"
+              value={
+                overallAcademics
+                  ? `${overallAcademics.percentComplete || 0}%`
+                  : `${semesterMetrics.totalHours}h`
+              }
+              subvalue={
+                overallAcademics
+                  ? `${overallAcademics.completedTopics || 0}/${overallAcademics.totalTopics || 0} topics completed`
+                  : 'Semester syllabus scope'
+              }
+              icon={CheckCircle2}
+              accent="compiler"
+            />
+          </MetricStrip>
+
+          {/* Semester Navigation & Subject Discovery Controls */}
+          <Card className="p-4 sm:p-5 space-y-4">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-surface-400">
+                Select Semester
+              </span>
+              {user?.semester && (
+                <span className="font-mono text-[11px] text-surface-400">
+                  Enrolled: <strong className="text-surface-100">Semester {user.semester}</strong>
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => {
+                const isSelected = selectedSemester === sem;
+                const isCurrentUserSem = sem === user?.semester;
+
+                return (
+                  <button
+                    key={sem}
+                    type="button"
+                    aria-pressed={isSelected}
+                    onClick={() => setSelectedSemester(sem)}
+                    className={`px-3.5 py-2 rounded-lg text-xs font-medium transition-colors select-none whitespace-nowrap inline-flex items-center gap-1.5 border shrink-0 ${
+                      isSelected
+                        ? 'bg-brand-500 border-brand-500 text-white font-semibold shadow-2xs'
+                        : 'bg-elevated/60 border-surface-700 text-surface-300 hover:bg-elevated hover:text-surface-100'
+                    }`}
+                  >
+                    <span>Semester {sem}</span>
+                    {isCurrentUserSem && (
+                      <span
+                        className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
+                          isSelected
+                            ? 'bg-white/20 text-white'
+                            : 'bg-brand-500/15 text-brand-700'
+                        }`}
+                      >
+                        Current
                       </span>
-                      <ProgressRing
-                        progress={subject.completionPercentage || 0}
-                        size={32}
-                        strokeWidth={3}
-                        variant="brand"
-                        showValue={false}
-                      />
-                    </div>
-                  </div>
-                  <CardTitle className="text-base text-surface-100 line-clamp-1">
-                    {subject.name}
-                  </CardTitle>
-                  <CardDescription className="line-clamp-2 mt-1">
-                    {subject.description ||
-                      'Comprehensive curriculum with theory, laboratory, and PYQs.'}
-                  </CardDescription>
-                </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
 
-                <div className="mt-5 pt-4 border-t border-surface-700 dark:border-surface-800/60">
-                  <div className="flex items-center justify-between text-xs text-surface-400 mb-2">
-                    <span className="flex items-center gap-1">
-                      <BookOpen className="w-3.5 h-3.5 text-brand-700 dark:text-brand-400" />
-                      {topicCount} Topics
-                    </span>
-                    <span className="text-brand-700 dark:text-brand-400 font-medium group-hover:text-brand-600 dark:group-hover:text-brand-500 transition-colors">Syllabus & Notes &rarr;</span>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
+            <div className="pt-3 border-t border-surface-700 flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex-1 min-w-0">
+                <Input
+                  aria-label="Search subjects or syllabus topics"
+                  type="text"
+                  placeholder="Search subjects or syllabus topics..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  leftIcon={Search}
+                />
+              </div>
+              {searchQuery && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="md"
+                  onClick={() => setSearchQuery('')}
+                >
+                  Clear Search
+                </Button>
+              )}
+            </div>
+          </Card>
+
+          {/* Subjects Directory Grid */}
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Skeleton key={i} className="h-52 w-full rounded-xl" />
+              ))}
+            </div>
+          ) : subjects.length === 0 ? (
+            <EmptyState
+              icon={BookOpen}
+              title="No subjects found"
+              description={`No curriculum entries recorded for Semester ${selectedSemester} in ${selectedBranch}.`}
+              actionLabel={searchQuery ? 'Reset Search' : undefined}
+              onAction={searchQuery ? () => setSearchQuery('') : undefined}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {subjects.map((subject) => {
+                const topicCount = subject.topics?.length || 0;
+                const estHours = (subject.topics || []).reduce(
+                  (sum, t) => sum + (t.estimatedHours || 2),
+                  0
+                );
+                const cachedSubject = queryClient.getQueryData([
+                  'academics-subject-details',
+                  subject._id,
+                ]);
+                const completionPct =
+                  cachedSubject?.completionPercentage ?? subject.completionPercentage;
+                const hasCompletion =
+                  completionPct !== undefined && completionPct !== null;
+                const unitPreviews = extractPreviewUnits(subject.syllabusOutline);
+
+                return (
+                  <Card
+                    key={subject._id}
+                    hover
+                    role="button"
+                    tabIndex={0}
+                    className="flex flex-col justify-between gap-4 cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
+                    onClick={() => openSubjectWorkspace(subject)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openSubjectWorkspace(subject);
+                      }
+                    }}
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Badge variant="brand">{subject.code}</Badge>
+                          <span className="font-mono text-[11px] text-surface-400">
+                            {subject.credits || 4} Credits
+                          </span>
+                        </div>
+
+                        {hasCompletion ? (
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="font-mono text-[11px] font-semibold text-surface-200 tabular-nums">
+                              {completionPct}%
+                            </span>
+                            <ProgressRing
+                              progress={completionPct}
+                              size={30}
+                              strokeWidth={3}
+                              variant={completionPct === 100 ? 'compiler' : 'brand'}
+                              showValue={false}
+                            />
+                          </div>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-elevated border border-surface-700 font-mono text-[11px] text-surface-300 shrink-0">
+                            <Clock className="w-3 h-3 text-brand-700" />
+                            {estHours}h Est.
+                          </span>
+                        )}
+                      </div>
+
+                      <div>
+                        <CardTitle className="text-base line-clamp-1 group-hover:text-brand-700 transition-colors">
+                          {subject.name}
+                        </CardTitle>
+                        <CardDescription className="line-clamp-2 mt-1 text-xs leading-relaxed">
+                          {subject.description ||
+                            'Comprehensive university curriculum covering theory modules, laboratory work, and PYQs.'}
+                        </CardDescription>
+                      </div>
+
+                      {unitPreviews.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {unitPreviews.map((u, idx) => (
+                            <span
+                              key={idx}
+                              className="px-2 py-0.5 rounded-md bg-elevated/70 border border-surface-700 text-[10px] font-mono text-surface-300 truncate max-w-full"
+                            >
+                              {u}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-3.5 border-t border-surface-700 flex items-center justify-between text-xs">
+                      <span className="inline-flex items-center gap-1.5 font-mono text-surface-400">
+                        <BookmarkCheck className="w-3.5 h-3.5 text-brand-700" />
+                        {topicCount} {topicCount === 1 ? 'Topic' : 'Topics'}
+                      </span>
+
+                      <span className="inline-flex items-center gap-1 font-medium text-brand-700 group-hover:translate-x-0.5 transition-transform">
+                        Syllabus &amp; Notes
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </span>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
-      {/* Subject Detail & Topic Checklist Modal */}
-      <Modal
-        isOpen={!!activeSubject}
-        onClose={() => setActiveSubject(null)}
-        title={activeSubject ? `${activeSubject.code} — ${activeSubject.name}` : ''}
-        description={activeSubject?.description}
-        maxWidth="max-w-2xl"
-      >
-        {isDetailsLoading ? (
-          <div className="space-y-3 py-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-24 w-full" />
-          </div>
-        ) : (
-          <div className="space-y-5">
-            {/* Completion Progress Bar */}
-            <div className="p-4 rounded-xl bg-surface-900 dark:bg-surface-950 border border-surface-700 dark:border-surface-800">
-              <div className="flex items-center justify-between text-xs mb-1.5">
-                <span className="text-surface-200 dark:text-surface-300 font-medium">Topic Completion Progress</span>
-                <span className="text-brand-700 dark:text-brand-400 font-bold text-sm">
-                  {subjectDetails?.completionPercentage || 0}% Complete
-                </span>
-              </div>
-              <div className="w-full h-2.5 rounded-full bg-surface-800 overflow-hidden">
-                <div
-                  className="h-full bg-brand-500 rounded-full transition-all duration-300"
-                  style={{ width: `${subjectDetails?.completionPercentage || 0}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Modal Tabs */}
-            <div className="flex border-b border-surface-700 dark:border-surface-800 text-xs">
-              <button
-                onClick={() => setActiveTab('topics')}
-                className={`px-4 py-2 font-medium border-b-2 transition-colors ${
-                  activeTab === 'topics'
-                    ? 'border-brand-500 text-brand-700 dark:text-brand-400'
-                    : 'border-transparent text-surface-400 hover:text-surface-100'
-                }`}
-              >
-                Topics Checklist ({subjectDetails?.topics?.length || 0})
-              </button>
-              <button
-                onClick={() => setActiveTab('resources')}
-                className={`px-4 py-2 font-medium border-b-2 transition-colors ${
-                  activeTab === 'resources'
-                    ? 'border-brand-500 text-brand-700 dark:text-brand-400'
-                    : 'border-transparent text-surface-400 hover:text-surface-100'
-                }`}
-              >
-                Study Resources & PYQs
-              </button>
-            </div>
-
-            {/* Tab: Topics Checklist */}
-            {activeTab === 'topics' && (
-              <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
-                {subjectDetails?.topics?.map((topic, index) => {
-                  const isDone = subjectDetails?.completedTopicIds?.includes(topic.topicId);
-
-                  return (
-                    <div
-                      key={topic.topicId}
-                      onClick={() =>
-                        toggleMutation.mutate({
-                          subjectId: activeSubject._id,
-                          topicId: topic.topicId,
-                        })
-                      }
-                      className={`flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
-                        isDone
-                          ? 'bg-emerald-500/10 border-emerald-600/25 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-200'
-                          : 'bg-surface-900 dark:bg-surface-950/60 border-surface-700 dark:border-surface-800 hover:border-surface-600 dark:hover:border-surface-700 text-surface-200'
-                      }`}
-                    >
-                      <button className="mt-0.5 shrink-0 focus:outline-none">
-                        {isDone ? (
-                          <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                        ) : (
-                          <Circle className="w-4 h-4 text-surface-500 hover:text-surface-300" />
-                        )}
-                      </button>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <p
-                            className={`text-xs font-semibold ${isDone ? 'line-through text-surface-400' : 'text-surface-100'}`}
-                          >
-                            {index + 1}. {topic.title}
-                          </p>
-                          <span className="text-[10px] text-surface-400 flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {topic.estimatedHours || 2}h
-                          </span>
-                        </div>
-                        {topic.description && (
-                          <p className="text-[11px] text-surface-400 mt-0.5">{topic.description}</p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Tab: Study Resources & PYQs */}
-            {activeTab === 'resources' && (
-              <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
-                {subjectResources?.length === 0 ? (
-                  <p className="text-xs text-surface-400 text-center py-6">
-                    No resources uploaded yet for this subject.
-                  </p>
-                ) : (
-                  subjectResources?.map(res => (
-                    <div
-                      key={res._id}
-                      className="p-3.5 rounded-xl border border-surface-700 dark:border-surface-800 bg-surface-900 dark:bg-surface-950/70 flex items-start justify-between gap-3"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="p-2 rounded-lg bg-brand-500/10 text-brand-700 dark:text-brand-400 border border-brand-500/20 shrink-0">
-                          <FileText className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-medium text-surface-100">{res.title}</p>
-                          <p className="text-[11px] text-surface-400 mt-0.5 line-clamp-2">
-                            {res.textContent || 'Verified academic resource.'}
-                          </p>
-                          <div className="flex items-center gap-2 mt-2">
-                            <Badge variant={res.type === 'pyq' ? 'purple' : 'brand'}>
-                              {res.type.toUpperCase()}
-                            </Badge>
-                            {res.year && (
-                              <span className="text-[10px] text-surface-400">Year {res.year}</span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => setPreviewResource(res)}
-                          title="Quick View Document"
-                          className="p-1.5 rounded-lg text-surface-400 hover:text-brand-700 dark:hover:text-brand-400 hover:bg-surface-800 transition-colors"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        {res.contentUrl && (
-                          <a
-                            href={res.contentUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            title="Open in new window"
-                            className="p-1.5 rounded-lg text-surface-400 hover:text-brand-700 dark:hover:text-brand-400 hover:bg-surface-800 transition-colors"
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
-        )}
-      </Modal>
-
-      {/* In-App Notes & Document Previewer Modal */}
-      <Modal
-        isOpen={!!previewResource}
+      {/* In-App Notes, PYQs & Syllabus Document Previewer */}
+      <ResourcePreviewModal
+        resource={previewResource}
+        topics={subjectDetails?.topics || activeSubject?.topics || []}
         onClose={() => setPreviewResource(null)}
-        title={previewResource ? previewResource.title : ''}
-        description={previewResource ? `${previewResource.type?.toUpperCase()} • Verified Syllabus Resource` : ''}
-        maxWidth="max-w-3xl"
-      >
-        {previewResource && (
-          <div className="space-y-4 text-surface-200">
-            <div className="flex items-center justify-between p-3 rounded-xl bg-surface-900 dark:bg-surface-950 border border-surface-700 dark:border-surface-800 text-xs">
-              <div className="flex items-center gap-2">
-                <Badge variant={previewResource.type === 'pyq' ? 'purple' : 'brand'}>
-                  {previewResource.type?.toUpperCase()}
-                </Badge>
-                {previewResource.year && (
-                  <span className="text-surface-400">Exam Year: {previewResource.year}</span>
-                )}
-              </div>
-              {previewResource.contentUrl && (
-                <a
-                  href={previewResource.contentUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-800 hover:bg-surface-700 text-brand-700 dark:text-brand-400 text-xs font-semibold transition-colors"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  Direct Link
-                </a>
-              )}
-            </div>
-
-            <div className="p-5 rounded-2xl bg-surface-900 dark:bg-surface-950/80 border border-surface-700 dark:border-surface-800 max-h-96 overflow-y-auto font-sans leading-relaxed text-xs sm:text-sm text-surface-200 dark:text-surface-300 whitespace-pre-wrap">
-              {previewResource.textContent || (
-                <div className="py-12 text-center text-surface-400 space-y-2">
-                  <FileText className="w-8 h-8 mx-auto text-surface-500" />
-                  <p>Document content is indexed from official course repository.</p>
-                  {previewResource.contentUrl && (
-                    <a
-                      href={previewResource.contentUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-brand-700 dark:text-brand-400 underline font-semibold block"
-                    >
-                      Open full PDF / Drive document &rarr;
-                    </a>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </Modal>
-    </div>
+      />
+    </>
   );
 };
 

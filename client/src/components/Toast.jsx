@@ -7,6 +7,9 @@ const cn = (...inputs) => twMerge(clsx(inputs));
 
 const ToastContext = createContext(null);
 
+/**
+ * Application-wide non-blocking toast notification provider and queue.
+ */
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
 
@@ -69,21 +72,20 @@ export const ToastProvider = ({ children }) => {
   };
 
   const styles = {
-    success: 'border-emerald-600/30 dark:border-emerald-500/40 bg-surface-850 dark:bg-surface-850/95 text-emerald-700 dark:text-emerald-300',
-    error: 'border-rose-600/30 dark:border-rose-500/40 bg-surface-850 dark:bg-surface-850/95 text-rose-700 dark:text-rose-300',
-    warning: 'border-amber-600/30 dark:border-amber-500/40 bg-surface-850 dark:bg-surface-850/95 text-amber-700 dark:text-amber-300',
-    info: 'border-brand-500/30 dark:border-brand-500/40 bg-surface-850 dark:bg-surface-850/95 text-brand-700 dark:text-brand-300',
+    success: 'border-compiler-500/35 bg-card badge-compiler',
+    error: 'border-rose-500/40 bg-card text-rose-700 dark:text-rose-400',
+    warning: 'border-amber-500/40 bg-card text-amber-700 dark:text-amber-400',
+    info: 'border-brand-500/35 bg-card text-brand-700',
   };
 
   return (
     <ToastContext.Provider value={toastMethods}>
       {children}
-      {/* Toast Portaled Container */}
       <div
         aria-live="polite"
         role="region"
         aria-label="Notifications"
-        className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"
+        className="fixed bottom-20 lg:bottom-5 right-4 z-50 flex flex-col gap-2 max-w-sm w-[calc(100vw-2rem)] sm:w-full pointer-events-none"
       >
         {toasts.map((t) => {
           const Icon = icons[t.type] || Info;
@@ -92,22 +94,22 @@ export const ToastProvider = ({ children }) => {
               key={t.id}
               role="status"
               className={cn(
-                'pointer-events-auto flex items-start gap-3 p-4 rounded-xl border shadow-[var(--shadow-elevated)] dark:shadow-xl backdrop-blur-md animate-fade-in-up transition-all',
+                'pointer-events-auto flex items-start gap-3 p-3.5 rounded-xl border shadow-[var(--shadow-elevated)] animate-fade-in-up transition-all',
                 styles[t.type] || styles.info
               )}
             >
-              <Icon className="w-5 h-5 flex-shrink-0 mt-0.5" />
-              <div className="flex-1 text-xs">
+              <Icon className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0 text-xs">
                 {t.title && <h5 className="font-semibold text-surface-100">{t.title}</h5>}
-                {t.message && <p className="text-surface-200 dark:text-surface-300 mt-0.5">{t.message}</p>}
+                {t.message && <p className="text-surface-400 mt-0.5 leading-relaxed">{t.message}</p>}
               </div>
               <button
                 type="button"
                 onClick={() => removeToast(t.id)}
                 aria-label="Dismiss toast"
-                className="text-surface-400 hover:text-surface-100 p-0.5 rounded transition-colors focus:outline-none"
+                className="text-surface-400 hover:text-surface-100 p-1 rounded-md hover:bg-elevated transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
           );
@@ -120,7 +122,6 @@ export const ToastProvider = ({ children }) => {
 export const useToast = () => {
   const context = useContext(ToastContext);
   if (!context) {
-    // Graceful fallback if used outside Provider
     return {
       toast: console.log,
       showToast: (msg, type) => console.log(`[Toast ${type || 'info'}]`, msg),
@@ -135,4 +136,3 @@ export const useToast = () => {
 };
 
 export default ToastProvider;
-

@@ -4,6 +4,9 @@ import { twMerge } from 'tailwind-merge';
 
 const cn = (...inputs) => twMerge(clsx(inputs));
 
+/**
+ * Keyboard- and pointer-accessible hover/focus tooltip.
+ */
 export const Tooltip = ({
   content,
   children,
@@ -53,7 +56,8 @@ export const Tooltip = ({
         <div
           role="tooltip"
           className={cn(
-            'absolute z-50 whitespace-nowrap rounded-lg bg-surface-100 border border-surface-200 text-surface-850 dark:bg-surface-950/95 dark:border-surface-700 px-2.5 py-1 text-xs font-mono dark:text-surface-200 shadow-lg dark:shadow-xl backdrop-blur-md animate-fade-in pointer-events-none',
+            'absolute z-50 whitespace-nowrap rounded-md border px-2.5 py-1 text-[11px] font-mono pointer-events-none animate-fade-in shadow-[var(--shadow-elevated)]',
+            'bg-surface-100 border-surface-100 text-white dark:bg-elevated dark:border-surface-600 dark:text-surface-100',
             positions[position] || positions.top,
             className
           )}
@@ -66,4 +70,3 @@ export const Tooltip = ({
 };
 
 export default Tooltip;
-

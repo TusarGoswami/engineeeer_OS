@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BookOpen,
@@ -8,11 +8,7 @@ import {
   FileCheck2,
   FileText,
   Search,
-  CheckCircle2,
-  Copy,
-  ExternalLink,
   Layers,
-  Sparkles,
   Cpu,
   Globe,
   Database,
@@ -20,14 +16,28 @@ import {
   HardDrive,
   Radio,
   Sigma,
+  Award,
+  AlertTriangle,
+  TrendingUp,
 } from 'lucide-react';
 import { gateService } from '../../services/gate.service.js';
-import { Card } from '../../components/Card.jsx';
-import { Badge } from '../../components/Badge.jsx';
-import { Button } from '../../components/Button.jsx';
-import { Modal } from '../../components/Modal.jsx';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/Table.jsx';
-import { useToast } from '../../components/Toast.jsx';
+import {
+  PageHeader,
+  MetricStrip,
+  MetricItem,
+  Card,
+  Badge,
+  Button,
+  Input,
+  Skeleton,
+  EmptyState,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '../../components/index.js';
 import { GATE_NOTES } from './gateNotesData.js';
 import { GateNotesReader } from './components/GateNotesReader.jsx';
 
@@ -42,21 +52,39 @@ const iconMap = {
   Sigma,
 };
 
+/**
+ * Finds a matching GATE_NOTES subject sheet for a weak syllabus topic when available.
+ */
+function findMatchingRevisionNote(topicName = '') {
+  const q = topicName.toLowerCase();
+  if (!q) return null;
+  return (
+    GATE_NOTES.find(
+      (n) =>
+        n.title.toLowerCase().includes(q) ||
+        q.includes(n.title.toLowerCase()) ||
+        n.tags.some((t) => t.toLowerCase().includes(q) || q.includes(t.toLowerCase()))
+    ) || null
+  );
+}
+
+/**
+ * GATE Preparation Command Center: live telemetry from real attempts, mock test discovery,
+ * weak-area revision recommendations, attempts diagnostics, and curated GATE CS formula notes.
+ */
 export function GateCataloguePage() {
   const navigate = useNavigate();
-  const { showToast } = useToast();
   const [tests, setTests] = useState([]);
   const [attempts, setAttempts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Hub Navigation Tab: 'tests' | 'notes'
-  const [activeHubTab, setActiveHubTab] = useState('tests');
+  const [activeHubTab, setActiveHubTab] = useState('tests'); // 'tests' | 'notes'
+  const [testSearch, setTestSearch] = useState('');
+  const [selectedTestSubject, setSelectedTestSubject] = useState('all');
 
-  // Notes filtering states
   const [notesSearch, setNotesSearch] = useState('');
   const [selectedTag, setSelectedTag] = useState('all');
   const [selectedNote, setSelectedNote] = useState(null);
-  const [copiedFormula, setCopiedFormula] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -72,215 +100,437 @@ export function GateCataloguePage() {
       setTests(testsData || []);
       setAttempts(attemptsData || []);
     } catch {
-      // Handled silently
+      // Handled gracefully with empty lists
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCopyFormula = (formulaText) => {
-    navigator.clipboard.writeText(formulaText);
-    setCopiedFormula(formulaText);
-    showToast('Formula copied to clipboard', 'success');
-    setTimeout(() => setCopiedFormula(null), 2500);
-  };
+  // Real aggregated analytics from recorded attempts (never fabricated)
+  const analytics = useMemo(() => {
+    if (!attempts.length) {
+      return {
+        avgAccuracy: null,
+        bestScoreLabel: '—',
+        bestScoreSub: 'Complete a mock to benchmark',
+        weakTopicCounts: [],
+        bestByTestId: new Map(),
+      };
+    }
 
-  const allTags = ['all', ...new Set(GATE_NOTES.flatMap((n) => n.tags))];
+    const totalAcc = attempts.reduce((sum, a) => sum + (a.accuracyRate || 0), 0);
+    const avgAccuracy = Math.round(totalAcc / attempts.length);
 
-  const filteredNotes = GATE_NOTES.filter((note) => {
-    const matchesSearch =
-      note.title.toLowerCase().includes(notesSearch.toLowerCase()) ||
-      note.description.toLowerCase().includes(notesSearch.toLowerCase()) ||
-      note.tags.some((t) => t.toLowerCase().includes(notesSearch.toLowerCase()));
-    const matchesTag = selectedTag === 'all' || note.tags.includes(selectedTag);
-    return matchesSearch && matchesTag;
-  });
+    let bestAttempt = attempts[0];
+    const weakMap = new Map();
+    const bestByTestId = new Map();
+
+    for (const att of attempts) {
+      const pct = att.totalMarksAvailable ? att.score / att.totalMarksAvailable : 0;
+      const bestPct = bestAttempt.totalMarksAvailable
+        ? bestAttempt.score / bestAttempt.totalMarksAvailable
+        : 0;
+      if (pct > bestPct || (pct === bestPct && att.score > bestAttempt.score)) {
+        bestAttempt = att;
+      }
+
+      const tid = att.testId?._id || att.testId;
+      if (tid) {
+        const existingBest = bestByTestId.get(tid);
+        if (!existingBest || att.score > existingBest.score) {
+          bestByTestId.set(tid, att);
+        }
+      }
+
+      for (const wt of att.weakTopics || []) {
+        weakMap.set(wt, (weakMap.get(wt) || 0) + 1);
+      }
+    }
+
+    const weakTopicCounts = Array.from(weakMap.entries())
+      .map(([topic, count]) => ({
+        topic,
+        count,
+        matchingNote: findMatchingRevisionNote(topic),
+      }))
+      .sort((a, b) => b.count - a.count);
+
+    return {
+      avgAccuracy,
+      bestScoreLabel: `${bestAttempt.score}/${bestAttempt.totalMarksAvailable}`,
+      bestScoreSub: `${bestAttempt.accuracyRate}% accuracy peak`,
+      weakTopicCounts,
+      bestByTestId,
+    };
+  }, [attempts]);
+
+  const testSubjects = useMemo(() => {
+    const unique = Array.from(new Set(tests.map((t) => t.subject).filter(Boolean)));
+    return ['all', ...unique];
+  }, [tests]);
+
+  const filteredTests = useMemo(() => {
+    const q = testSearch.trim().toLowerCase();
+    return tests.filter((test) => {
+      const matchesSubject =
+        selectedTestSubject === 'all' || test.subject === selectedTestSubject;
+      const matchesSearch =
+        !q ||
+        (test.title || '').toLowerCase().includes(q) ||
+        (test.description || '').toLowerCase().includes(q) ||
+        (test.subject || '').toLowerCase().includes(q);
+      return matchesSubject && matchesSearch;
+    });
+  }, [tests, testSearch, selectedTestSubject]);
+
+  const allNoteTags = useMemo(
+    () => ['all', ...new Set(GATE_NOTES.flatMap((n) => n.tags || []))],
+    []
+  );
+
+  const filteredNotes = useMemo(() => {
+    const q = notesSearch.trim().toLowerCase();
+    return GATE_NOTES.filter((note) => {
+      const matchesSearch =
+        !q ||
+        note.title.toLowerCase().includes(q) ||
+        note.description.toLowerCase().includes(q) ||
+        note.tags.some((t) => t.toLowerCase().includes(q));
+      const matchesTag = selectedTag === 'all' || note.tags.includes(selectedTag);
+      return matchesSearch && matchesTag;
+    });
+  }, [notesSearch, selectedTag]);
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto pb-12 animate-fade-in">
-      {/* Header section */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-surface-700/80 pb-6">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <BookOpen className="w-6 h-6 text-brand-500" />
-            <span className="text-xs font-mono uppercase tracking-wider text-brand-400">
-              National Examination Engine
-            </span>
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+      {/* Header & Workspace Switcher */}
+      <PageHeader
+        eyebrow="~/gate · National Examination Engine"
+        title="GATE Hub & Exam Simulator"
+        description="IIT-pattern CBT mock tests with integrity proctoring, real diagnostic analytics, and curated CS/IT formula revision sheets."
+        actions={
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-elevated border border-surface-700">
+            <button
+              type="button"
+              onClick={() => setActiveHubTab('tests')}
+              className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors ${
+                activeHubTab === 'tests'
+                  ? 'bg-brand-500 text-white shadow-2xs'
+                  : 'text-surface-300 hover:text-surface-100'
+              }`}
+            >
+              <Target className="w-4 h-4" />
+              <span>Mock Tests</span>
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                  activeHubTab === 'tests'
+                    ? 'bg-white/20 text-white'
+                    : 'bg-card text-surface-400 border border-surface-700'
+                }`}
+              >
+                {tests.length}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveHubTab('notes')}
+              className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors ${
+                activeHubTab === 'notes'
+                  ? 'bg-brand-500 text-white shadow-2xs'
+                  : 'text-surface-300 hover:text-surface-100'
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              <span>Revision Notes &amp; Formulas</span>
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                  activeHubTab === 'notes'
+                    ? 'bg-white/20 text-white'
+                    : 'bg-card text-surface-400 border border-surface-700'
+                }`}
+              >
+                {GATE_NOTES.length}
+              </span>
+            </button>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-surface-100 tracking-tight">
-            GATE Hub & Exam Simulator
-          </h1>
-          <p className="text-sm text-surface-400 mt-1 max-w-2xl leading-relaxed">
-            IIT-pattern computer-based mock tests with full anti-cheat proctoring, alongside
-            curated subject revision notes and high-yield formula cheatsheets for GATE CS & IT.
-          </p>
-        </div>
+        }
+      />
 
-        {/* Navigation Tabs between Mock Tests and Revision Notes */}
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-surface-900 border border-surface-700">
-          <button
-            type="button"
-            onClick={() => setActiveHubTab('tests')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
-              activeHubTab === 'tests'
-                ? 'bg-brand-500 text-white shadow-sm'
-                : 'text-surface-400 hover:text-surface-200'
-            }`}
-          >
-            <Target className="w-4 h-4" />
-            <span>Mock Tests</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-surface-800 text-surface-300 font-mono">
-              {tests.length}
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveHubTab('notes')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
-              activeHubTab === 'notes'
-                ? 'bg-brand-500 text-white shadow-sm'
-                : 'text-surface-400 hover:text-surface-200'
-            }`}
-          >
-            <FileText className="w-4 h-4" />
-            <span>Revision Notes & Formulas</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-surface-800 text-surface-300 font-mono">
-              8
-            </span>
-          </button>
-        </div>
-      </div>
+      {/* Live GATE Readiness Telemetry Strip */}
+      <MetricStrip>
+        <MetricItem
+          label="Available Mocks"
+          value={tests.length}
+          subvalue="Published CS & IT CBT papers"
+          icon={Target}
+        />
+        <MetricItem
+          label="Mocks Attempted"
+          value={attempts.length}
+          subvalue="Evaluated full attempts"
+          icon={FileCheck2}
+        />
+        <MetricItem
+          label="Best Score"
+          value={analytics.bestScoreLabel}
+          subvalue={analytics.bestScoreSub}
+          icon={Award}
+          accent="brand"
+        />
+        <MetricItem
+          label="Average Accuracy"
+          value={analytics.avgAccuracy !== null ? `${analytics.avgAccuracy}%` : '—'}
+          subvalue={
+            attempts.length > 0
+              ? `Across ${attempts.length} mock ${attempts.length === 1 ? 'attempt' : 'attempts'}`
+              : 'Complete a mock to benchmark'
+          }
+          icon={TrendingUp}
+          accent="compiler"
+        />
+      </MetricStrip>
 
-      {/* VIEW 1: MOCK EXAMINATIONS */}
+      {/* VIEW 1: MOCK EXAMINATIONS & DIAGNOSTICS */}
       {activeHubTab === 'tests' && (
-        <div className="space-y-8 animate-fade-in">
-          {/* Available Tests */}
+        <div className="space-y-6 animate-fade-in">
+          {/* Revision Insights Panel derived directly from weakTopics in attempts */}
+          {analytics.weakTopicCounts.length > 0 && (
+            <Card className="p-4 sm:p-5 border-amber-500/30 bg-amber-500/6 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-700 dark:text-amber-400 shrink-0" />
+                  <h2 className="font-display text-sm font-bold text-surface-100">
+                    Revision Priorities From Your Attempts
+                  </h2>
+                </div>
+                <span className="font-mono text-[11px] text-surface-400">
+                  Topics scoring below 50% accuracy
+                </span>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {analytics.weakTopicCounts.map(({ topic, count, matchingNote }) => (
+                  <div
+                    key={topic}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-surface-700 text-xs"
+                  >
+                    <span className="font-medium text-surface-100">{topic}</span>
+                    <span className="font-mono text-[10px] text-amber-700 dark:text-amber-400">
+                      ({count}x)
+                    </span>
+                    {matchingNote && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedNote(matchingNote)}
+                        className="font-mono text-[11px] font-semibold text-brand-700 hover:underline ml-1"
+                      >
+                        Revise Notes &rarr;
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* Test Discovery Filter Bar */}
+          <Card className="p-4 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex-1 min-w-0">
+                <Input
+                  aria-label="Search mock exams"
+                  placeholder="Search mock tests by title, subject, or syllabus scope..."
+                  value={testSearch}
+                  onChange={(e) => setTestSearch(e.target.value)}
+                  leftIcon={Search}
+                />
+              </div>
+              {(testSearch || selectedTestSubject !== 'all') && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setTestSearch('');
+                    setSelectedTestSubject('all');
+                  }}
+                >
+                  Clear Filters
+                </Button>
+              )}
+            </div>
+
+            {testSubjects.length > 2 && (
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+                {testSubjects.map((subj) => (
+                  <button
+                    key={subj}
+                    type="button"
+                    onClick={() => setSelectedTestSubject(subj)}
+                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors border whitespace-nowrap ${
+                      selectedTestSubject === subj
+                        ? 'bg-brand-500 border-brand-500 text-white'
+                        : 'bg-elevated/60 border-surface-700 text-surface-300 hover:bg-elevated hover:text-surface-100'
+                    }`}
+                  >
+                    {subj === 'all' ? 'All Subjects' : subj}
+                  </button>
+                ))}
+              </div>
+            )}
+          </Card>
+
+          {/* Available Mock Tests */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-surface-100 tracking-tight flex items-center gap-2">
-                <span>Available Mock Tests</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-500" />
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <h2 className="font-display text-lg font-bold text-surface-100 tracking-tight">
+                Available Mock Tests
               </h2>
-              <span className="text-xs text-surface-400">Timed IIT-Pattern Simulations with Proctoring</span>
+              <span className="text-xs font-mono text-surface-400">
+                Timed IIT-Pattern CBT Simulations
+              </span>
             </div>
 
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="h-56 rounded-2xl bg-surface-900/40 border border-surface-700 animate-pulse"
-                  />
+                  <Skeleton key={i} className="h-56 w-full rounded-xl" />
                 ))}
               </div>
-            ) : tests.length === 0 ? (
-              <Card className="p-8 text-center text-surface-400 text-sm">
-                No mock tests available at the moment. Check back soon!
-              </Card>
+            ) : filteredTests.length === 0 ? (
+              <EmptyState
+                icon={Target}
+                title={tests.length === 0 ? 'No mock tests published' : 'No matching mock tests'}
+                description={
+                  tests.length === 0
+                    ? 'No mock tests are available right now. Check back soon.'
+                    : 'Adjust your search query or subject filter above.'
+                }
+                actionLabel={tests.length > 0 ? 'Reset Filters' : undefined}
+                onAction={
+                  tests.length > 0
+                    ? () => {
+                        setTestSearch('');
+                        setSelectedTestSubject('all');
+                      }
+                    : undefined
+                }
+              />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {tests.map((test) => (
-                  <Card
-                    key={test._id}
-                    hover
-                    className="flex flex-col justify-between min-h-[240px] p-5 border-surface-700 bg-surface-850 shadow-md group"
-                  >
-                    <div className="space-y-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <Badge variant="cyan" size="sm" className="font-mono text-[10px]">
-                          {test.subject || 'CS & IT'}
-                        </Badge>
-                        <span className="text-[11px] font-mono text-surface-400">
-                          {test.totalMarks} Marks
-                        </span>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredTests.map((test) => {
+                  const bestPrior = analytics.bestByTestId.get(test._id);
+
+                  return (
+                    <Card
+                      key={test._id}
+                      hover
+                      className="flex flex-col justify-between gap-4 p-5 group"
+                    >
+                      <div className="space-y-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <Badge variant="cyan" size="sm">
+                            {test.subject || 'CS & IT'}
+                          </Badge>
+                          {bestPrior ? (
+                            <Badge variant="compiler" size="sm">
+                              Best: {bestPrior.score}/{bestPrior.totalMarksAvailable}
+                            </Badge>
+                          ) : (
+                            <span className="text-[11px] font-mono text-surface-400 shrink-0">
+                              {test.totalMarks} Marks
+                            </span>
+                          )}
+                        </div>
+
+                        <div>
+                          <h3 className="font-display text-base font-bold text-surface-100 group-hover:text-brand-700 transition-colors line-clamp-1">
+                            {test.title}
+                          </h3>
+                          <p className="text-xs text-surface-400 mt-1 line-clamp-2 leading-relaxed">
+                            {test.description}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-3 pt-2.5 text-xs font-mono text-surface-400 border-t border-surface-700">
+                          <span className="inline-flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5 text-surface-400" />
+                            {test.durationMinutes}m
+                          </span>
+                          <span>·</span>
+                          <span className="inline-flex items-center gap-1">
+                            <FileCheck2 className="w-3.5 h-3.5 text-surface-400" />
+                            {test.totalQuestions} Qs
+                          </span>
+                          <span>·</span>
+                          <span className="inline-flex items-center gap-1">
+                            <Target className="w-3.5 h-3.5 text-surface-400" />
+                            {test.totalMarks} Marks
+                          </span>
+                        </div>
                       </div>
 
-                      <div>
-                        <h3 className="text-base font-bold text-surface-100 group-hover:text-brand-500 transition-colors line-clamp-1">
-                          {test.title}
-                        </h3>
-                        <p className="text-xs text-surface-400 mt-1 line-clamp-2 leading-relaxed">
-                          {test.description}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-4 pt-2 text-xs font-mono text-surface-400 border-t border-surface-700/60">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5 text-surface-500" />
-                          {test.durationMinutes}m
-                        </span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1">
-                          <FileCheck2 className="w-3.5 h-3.5 text-surface-500" />
-                          {test.totalQuestions} Qs
-                        </span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1">
-                          <Target className="w-3.5 h-3.5 text-surface-500" />
-                          {test.totalMarks} Pts
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="mt-5 pt-3 border-t border-surface-700">
                       <Button
+                        type="button"
                         variant="primary"
                         size="sm"
                         className="w-full justify-between"
                         rightIcon={ArrowRight}
                         onClick={() => navigate(`/gate/test/${test._id}`)}
                       >
-                        Start Exam
+                        {bestPrior ? 'Retake Exam' : 'Start Exam'}
                       </Button>
-                    </div>
-                  </Card>
-                ))}
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </div>
 
-          {/* Recent Attempts History */}
-          <div className="space-y-4 pt-4 border-t border-surface-800">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-surface-100 tracking-tight flex items-center gap-2">
-                <span>My Test Attempts & Diagnostics</span>
+          {/* Past Attempts History */}
+          <div className="space-y-4 pt-4 border-t border-surface-700">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <h2 className="font-display text-lg font-bold text-surface-100 tracking-tight">
+                My Test Attempts &amp; Diagnostics
               </h2>
-              <span className="text-xs text-surface-400">Historical performance & solutions</span>
+              <span className="text-xs font-mono text-surface-400">
+                Historical performance &amp; solutions
+              </span>
             </div>
 
             {attempts.length === 0 ? (
-              <Card className="p-8 text-center text-surface-400 text-sm">
-                You haven&apos;t taken any GATE mock exams yet. Take your first test above to evaluate
-                your readiness!
-              </Card>
+              <EmptyState
+                icon={FileCheck2}
+                title="No attempts recorded yet"
+                description="Start a mock examination above to generate diagnostic analytics and question solutions."
+              />
             ) : (
-              <Table containerClassName="border-surface-700 bg-surface-850 rounded-xl overflow-hidden">
-                <TableHeader className="bg-surface-900 border-surface-700">
+              <Table>
+                <TableHeader>
                   <TableRow hover={false}>
                     <TableHead>Test Title</TableHead>
                     <TableHead>Score</TableHead>
                     <TableHead>Accuracy</TableHead>
+                    <TableHead>Weak Topics</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody className="divide-surface-700/80">
+                <TableBody>
                   {attempts.map((att) => (
                     <TableRow
                       key={att._id}
                       onClick={() => navigate(`/gate/results/${att._id}`)}
-                      className="cursor-pointer hover:bg-surface-800/60 transition-colors"
+                      className="cursor-pointer"
                     >
                       <TableCell className="font-semibold text-surface-100">
-                        <div className="flex items-center gap-2">
-                          <span>{att.testId?.title || 'GATE CS Mock Exam'}</span>
-                        </div>
+                        {att.testId?.title || 'GATE CS Mock Exam'}
                       </TableCell>
                       <TableCell>
-                        <span className="font-mono font-bold text-brand-400">
+                        <span className="font-mono font-bold text-brand-700">
                           {att.score}
                         </span>{' '}
-                        <span className="text-xs font-mono text-surface-500">
+                        <span className="text-xs font-mono text-surface-400">
                           / {att.totalMarksAvailable}
                         </span>
                       </TableCell>
@@ -290,10 +540,16 @@ export function GateCataloguePage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-xs font-mono text-surface-400">
+                        {att.weakTopics?.length > 0
+                          ? att.weakTopics.slice(0, 2).join(', ')
+                          : 'None'}
+                      </TableCell>
+                      <TableCell className="text-xs font-mono text-surface-400">
                         {new Date(att.submittedAt).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="text-right">
                         <Button
+                          type="button"
                           size="sm"
                           variant="secondary"
                           onClick={(e) => {
@@ -316,112 +572,123 @@ export function GateCataloguePage() {
       {/* VIEW 2: REVISION NOTES & FORMULA VAULT */}
       {activeHubTab === 'notes' && (
         <div className="space-y-6 animate-fade-in">
-          {/* Search & Tag Filter Bar */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 rounded-2xl border border-surface-700 bg-surface-850">
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-surface-400" />
-              <input
-                type="text"
-                placeholder="Search formulas, algorithms, or topics (e.g., Paging, Deadlock, BCNF)..."
-                value={notesSearch}
-                onChange={(e) => setNotesSearch(e.target.value)}
-                className="w-full bg-surface-900 border border-surface-700 rounded-xl pl-10 pr-4 py-2 text-xs sm:text-sm text-surface-100 placeholder-surface-500 focus:outline-none focus:border-brand-500 transition-colors"
-              />
-            </div>
+          <Card className="p-4 space-y-3">
+            <Input
+              aria-label="Search formulas and notes"
+              placeholder="Search formulas, algorithms, or topics (e.g., Paging, Deadlock, BCNF)..."
+              value={notesSearch}
+              onChange={(e) => setNotesSearch(e.target.value)}
+              leftIcon={Search}
+            />
 
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-              {['all', 'Paging', 'Subnetting', 'Normalization', 'Master Theorem', 'Pipelining'].map((tag) => (
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+              {allNoteTags.map((tag) => (
                 <button
                   key={tag}
                   type="button"
                   onClick={() => setSelectedTag(tag)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
+                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors border whitespace-nowrap ${
                     selectedTag === tag
-                      ? 'bg-brand-500 text-white shadow-sm'
-                      : 'bg-surface-800 text-surface-400 hover:text-surface-200'
+                      ? 'bg-brand-500 border-brand-500 text-white'
+                      : 'bg-elevated/60 border-surface-700 text-surface-300 hover:bg-elevated hover:text-surface-100'
                   }`}
                 >
                   {tag === 'all' ? 'All Subjects' : tag}
                 </button>
               ))}
             </div>
-          </div>
+          </Card>
 
-          {/* Subject Notes Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredNotes.map((note) => {
-              const IconComp = iconMap[note.icon] || BookOpen;
-              return (
-                <Card
-                  key={note.id}
-                  hover
-                  onClick={() => setSelectedNote(note)}
-                  className="flex flex-col justify-between p-5 border-surface-700 bg-surface-850 shadow-md cursor-pointer group hover:border-brand-500/60 transition-all"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="w-9 h-9 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400 group-hover:bg-brand-500 group-hover:text-white transition-colors">
-                        <IconComp className="w-5 h-5" />
+          {filteredNotes.length === 0 ? (
+            <EmptyState
+              icon={BookOpen}
+              title="No matching revision notes"
+              description="Try clearing the search query or selecting All Subjects above."
+              actionLabel="Reset Filter"
+              onAction={() => {
+                setNotesSearch('');
+                setSelectedTag('all');
+              }}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredNotes.map((note) => {
+                const IconComp = iconMap[note.icon] || BookOpen;
+                return (
+                  <Card
+                    key={note.id}
+                    hover
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setSelectedNote(note)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setSelectedNote(note);
+                      }
+                    }}
+                    className="flex flex-col justify-between gap-4 p-5 cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="w-9 h-9 rounded-lg bg-brand-500/12 border border-brand-500/25 flex items-center justify-center text-brand-700 group-hover:bg-brand-500 group-hover:text-white transition-colors">
+                          <IconComp className="w-5 h-5" />
+                        </div>
+                        <Badge variant="brand" size="sm">
+                          {note.weightage}
+                        </Badge>
                       </div>
-                      <Badge variant="brand" size="sm" className="font-mono text-[10px]">
-                        {note.weightage}
-                      </Badge>
+
+                      <div>
+                        <div className="text-[10px] font-mono font-semibold text-brand-700 uppercase tracking-wider">
+                          {note.code}
+                        </div>
+                        <h3 className="font-display text-base font-bold text-surface-100 group-hover:text-brand-700 transition-colors">
+                          {note.title}
+                        </h3>
+                        <p className="text-xs text-surface-400 mt-1 line-clamp-2 leading-relaxed">
+                          {note.description}
+                        </p>
+                      </div>
+
+                      <div className="pt-2.5 border-t border-surface-700 space-y-1.5">
+                        <span className="font-mono text-[10px] font-semibold uppercase text-surface-400 tracking-wider block">
+                          Key Formulas ({note.formulas.length})
+                        </span>
+                        <div className="space-y-1">
+                          {note.formulas.slice(0, 2).map((f, idx) => (
+                            <div
+                              key={idx}
+                              className="px-2.5 py-1.5 rounded-lg bg-elevated border border-surface-700 font-mono text-[11px] text-surface-100 flex items-center justify-between gap-2"
+                            >
+                              <span className="truncate font-semibold">{f.formula}</span>
+                              <span className="text-[10px] text-surface-400 shrink-0">
+                                {f.name}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
 
-                    <div>
-                      <div className="text-[10px] font-mono font-semibold text-brand-400 uppercase tracking-wider">
-                        {note.code}
-                      </div>
-                      <h3 className="text-base font-bold text-surface-100 group-hover:text-brand-400 transition-colors">
-                        {note.title}
-                      </h3>
-                      <p className="text-xs text-surface-400 mt-1 line-clamp-2 leading-relaxed">
-                        {note.description}
-                      </p>
-                    </div>
-
-                    {/* Key formulas preview */}
-                    <div className="pt-2 border-t border-surface-700/60 space-y-1.5">
-                      <span className="text-[10px] font-semibold uppercase text-surface-400 tracking-wider">
-                        Key Formulas ({note.formulas.length}):
+                    <div className="pt-3 border-t border-surface-700 flex items-center justify-between text-xs">
+                      <span className="font-mono text-surface-400">
+                        {note.topicsCount} Core Topics
                       </span>
-                      <div className="space-y-1">
-                        {note.formulas.slice(0, 2).map((f, idx) => (
-                          <div
-                            key={idx}
-                            className="p-1.5 rounded-lg bg-surface-900 border border-surface-750 font-mono text-[11px] text-cyan-400 truncate flex items-center justify-between"
-                          >
-                            <span className="truncate">{f.formula}</span>
-                            <span className="text-[9px] text-surface-500 ml-1.5 flex-shrink-0">
-                              {f.name}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
+                      <span className="inline-flex items-center gap-1 font-semibold text-brand-700 group-hover:translate-x-0.5 transition-transform">
+                        Read Cheatsheet
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </span>
                     </div>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-surface-700 flex items-center justify-between">
-                    <span className="text-xs text-surface-400">
-                      {note.topicsCount} Core Topics
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      rightIcon={ExternalLink}
-                      className="text-xs text-brand-400 group-hover:text-brand-300"
-                    >
-                      Read Cheatsheet
-                    </Button>
-                  </div>
-                </Card>
-              );
-            })}
-          </div>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
-      {/* Full-Screen Immersive Subject Notes & Cheatsheet Reader */}
+      {/* Full-Viewport Subject Notes & Formula Reader */}
       {selectedNote && (
         <GateNotesReader
           note={selectedNote}

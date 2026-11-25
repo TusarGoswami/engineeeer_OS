@@ -1,8 +1,36 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { ThemeProvider } from '../../../context/ThemeContext.jsx';
+import ToastProvider from '../../../components/Toast.jsx';
 import ProfileCard, { THEMES } from '../components/ProfileCard.jsx';
 import CardCustomizerDrawer from '../components/CardCustomizerDrawer.jsx';
-import ToastProvider from '../../../components/Toast.jsx';
+import CardExportModal from '../components/CardExportModal.jsx';
+import ProfilePage from '../ProfilePage.jsx';
+import profileService from '../../../services/profile.service.js';
+import { userService } from '../../../services/user.service.js';
+import { useAuth } from '../../auth/AuthContext.jsx';
+
+vi.mock('../../../services/profile.service.js', () => ({
+  default: {
+    getOwnerProfile: vi.fn(),
+    updateOwnerProfile: vi.fn(),
+    getMyBadges: vi.fn(),
+    getHeatmap: vi.fn(),
+    regenerateShareToken: vi.fn(),
+    uploadAvatar: vi.fn(),
+  },
+}));
+
+vi.mock('../../../services/user.service.js', () => ({
+  userService: {
+    exportMe: vi.fn(),
+  },
+}));
+
+vi.mock('../../auth/AuthContext.jsx', () => ({
+  useAuth: vi.fn(),
+}));
 
 const mockProfile = {
   identity: {
@@ -69,6 +97,27 @@ describe('ProfileCard Component', () => {
     });
   });
 
+  it('renders portrait pass orientation with concentric rings, vertical metrics, and QR zone', () => {
+    const { container } = render(
+      <ProfileCard profile={mockProfile} orientation="portrait" />
+    );
+
+    const card = container.querySelector('#engineeros-profile-card');
+    expect(card).toHaveAttribute('data-orientation', 'portrait');
+    expect(card).toHaveClass('pc-card-portrait');
+    expect(container.querySelectorAll('.pc-circle')).toHaveLength(5);
+    expect(screen.getByText('Coding')).toBeInTheDocument();
+    expect(screen.getByText('GATE Prep')).toBeInTheDocument();
+    expect(screen.getByText('Curriculum')).toBeInTheDocument();
+    expect(screen.getByText('Readiness')).toBeInTheDocument();
+    expect(screen.getByText('42')).toBeInTheDocument();
+    expect(screen.getByText('68.5')).toBeInTheDocument();
+    expect(screen.getByText('65%')).toBeInTheDocument();
+    expect(screen.getByText('82/100')).toBeInTheDocument();
+    expect(screen.getByText('EngineerOS Authentic Card')).toBeInTheDocument();
+    expect(screen.getByText('engineeros.dev/u/alexj')).toBeInTheDocument();
+  });
+
   it('respects privacy toggles and hides toggled-off sections', () => {
     const hiddenSectionsProfile = {
       ...mockProfile,
@@ -126,3 +175,84 @@ describe('CardCustomizerDrawer Component', () => {
   });
 });
 
+describe('CardExportModal Component', () => {
+  it('displays share URL with unlisted token and export actions', () => {
+    render(
+      <ToastProvider>
+        <CardExportModal
+          isOpen={true}
+          onClose={vi.fn()}
+          cardElementRef={{ current: document.createElement('div') }}
+          profile={{
+            ...mockProfile,
+            shareToken: 'sec_tok_123',
+            profileSettings: { ...mockProfile.profileSettings, visibility: 'unlisted' },
+          }}
+        />
+      </ToastProvider>
+    );
+
+    expect(screen.getByText('Share & Export Profile Card')).toBeInTheDocument();
+    expect(screen.getByText('Secret Token Included')).toBeInTheDocument();
+    expect(screen.getByLabelText('Direct public link').value).toContain('/u/alexj?token=sec_tok_123');
+    expect(screen.getByRole('button', { name: /Download PNG/i })).toBeInTheDocument();
+  });
+});
+
+describe('ProfilePage Component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    profileService.getOwnerProfile.mockResolvedValue(mockProfile);
+    profileService.getMyBadges.mockResolvedValue(mockProfile.badges);
+    profileService.getHeatmap.mockResolvedValue(mockProfile.recentActivity);
+    profileService.updateOwnerProfile.mockResolvedValue(mockProfile);
+    userService.exportMe.mockResolvedValue({ exported: true });
+  });
+
+  it('loads profile data, submits form updates, switches tabs cleanly, and exports data', async () => {
+    const updateUserMock = vi.fn().mockResolvedValue({});
+    useAuth.mockReturnValue({
+      user: { name: 'Alex Johnson', university: 'Apex Institute of Technology', semester: 6 },
+      updateUser: updateUserMock,
+    });
+
+    if (!window.IntersectionObserver) {
+      window.IntersectionObserver = class {
+        observe() {}
+        disconnect() {}
+      };
+    }
+
+    render(
+      <ThemeProvider>
+        <ToastProvider>
+          <MemoryRouter>
+            <ProfilePage />
+          </MemoryRouter>
+        </ToastProvider>
+      </ThemeProvider>
+    );
+
+    await waitFor(() => {
+      expect(profileService.getOwnerProfile).toHaveBeenCalledTimes(1);
+    });
+    expect(await screen.findByText('My EngineerOS Card')).toBeInTheDocument();
+
+    // Switch to Badges tab
+    fireEvent.click(screen.getByRole('tab', { name: /Badges \(2\)/i }));
+    expect(screen.getByText('Achievement Vault')).toBeInTheDocument();
+
+    // Switch to Activity Stream tab
+    fireEvent.click(screen.getByRole('tab', { name: /Activity Stream/i }));
+    expect(screen.getByText('Annual Activity Stream')).toBeInTheDocument();
+
+    // Switch back to Academic & Info and submit form
+    fireEvent.click(screen.getByRole('tab', { name: /Academic & Info/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Save Changes/i }));
+
+    await waitFor(() => {
+      expect(updateUserMock).toHaveBeenCalledTimes(1);
+      expect(profileService.updateOwnerProfile).toHaveBeenCalled();
+    });
+  });
+});

@@ -42,20 +42,30 @@ export const OAuthCallbackPage = () => {
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center p-6 text-center">
       {error ? (
-        <div className="max-w-md rounded-2xl border border-rose-500/25 bg-rose-500/10 p-6 text-rose-700 dark:text-rose-400">
-          <AlertCircle className="mx-auto mb-3 h-8 w-8 text-rose-600 dark:text-rose-400" />
-          <h3 className="mb-2 text-base font-semibold text-surface-100">Authentication Failed</h3>
-          <p className="mb-4 text-xs text-surface-200 dark:text-surface-300">{error}</p>
-          <button
-            type="button"
-            onClick={() => navigate('/login', { replace: true })}
-            className="rounded-lg bg-surface-900 dark:bg-surface-800 border border-surface-600 dark:border-surface-700 px-4 py-2 text-xs font-medium text-surface-100 dark:text-white hover:bg-surface-800 dark:hover:bg-surface-700"
-          >
-            Return to Login
-          </button>
+        <div className="max-w-md rounded-xl border border-rose-500/30 bg-card p-6 shadow-[var(--shadow-card)] space-y-3">
+          <div className="w-11 h-11 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-center justify-center mx-auto text-rose-700 dark:text-rose-400">
+            <AlertCircle className="h-5 w-5" />
+          </div>
+          <h3 className="font-display text-base font-bold text-surface-100">
+            Authentication Failed
+          </h3>
+          <p className="text-xs text-surface-400 leading-relaxed">{error}</p>
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={() => navigate('/login', { replace: true })}
+              className="rounded-lg bg-elevated border border-surface-700 px-4 py-2 text-xs font-medium text-surface-100 hover:bg-card hover:border-surface-600 transition-colors"
+            >
+              Return to Login
+            </button>
+          </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-3 text-surface-300">
+        <div
+          role="status"
+          aria-label="Completing secure authentication"
+          className="flex flex-col items-center gap-3 text-surface-300"
+        >
           <Loader2 className="h-8 w-8 animate-spin text-brand-500" />
           <p className="text-sm font-medium">Completing secure authentication…</p>
         </div>
