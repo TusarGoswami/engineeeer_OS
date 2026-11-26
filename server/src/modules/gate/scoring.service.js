@@ -27,7 +27,10 @@ export class GateScoringService {
       const subAnswer = answerMap.get(q.questionId);
       const hasAnswered =
         (subAnswer?.selectedOptions && subAnswer.selectedOptions.length > 0) ||
-        (subAnswer?.natAnswer !== null && subAnswer?.natAnswer !== undefined);
+        (subAnswer?.natAnswer !== null &&
+          subAnswer?.natAnswer !== undefined &&
+          String(subAnswer.natAnswer).trim() !== '' &&
+          !Number.isNaN(Number(subAnswer.natAnswer)));
 
       if (!hasAnswered) {
         unattemptedCount++;
