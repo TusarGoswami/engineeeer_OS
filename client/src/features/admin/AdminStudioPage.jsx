@@ -649,9 +649,16 @@ export const AdminStudioPage = () => {
                         <button
                           type="button"
                           onClick={async () => {
-                            const full = await adminService.getProblemById(p._id);
-                            setSelectedProblem(full);
-                            setIsProblemModalOpen(true);
+                            try {
+                              const full = await adminService.getProblemById(p._id);
+                              setSelectedProblem(full);
+                              setIsProblemModalOpen(true);
+                            } catch (err) {
+                              showToast(
+                                err.response?.data?.message || 'Failed to load problem details',
+                                'error'
+                              );
+                            }
                           }}
                           className="p-1.5 rounded-lg text-surface-400 hover:text-surface-100 hover:bg-elevated transition-colors"
                           aria-label={`Edit ${p.title}`}

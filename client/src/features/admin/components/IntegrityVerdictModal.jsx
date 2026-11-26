@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   CheckCircle2,
   AlertTriangle,
@@ -25,6 +25,15 @@ export const IntegrityVerdictModal = ({ isOpen, onClose, attempt, onResolve }) =
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      setAction('approve');
+      setPenaltyMarks(5);
+      setNotes('');
+      setError('');
+    }
+  }, [attempt?._id, isOpen]);
 
   if (!attempt) return null;
 

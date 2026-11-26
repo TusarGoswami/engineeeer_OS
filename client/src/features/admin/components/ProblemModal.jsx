@@ -114,6 +114,7 @@ export const ProblemModal = ({ isOpen, onClose, problem, onSave }) => {
           memoryLimitKb: Number(memoryLimitKb),
         },
         starterCode: {
+          ...(problem?.starterCode || {}),
           python: starterPython,
         },
         sampleTestCases: sampleCases.filter((c) => c.input && c.output),
