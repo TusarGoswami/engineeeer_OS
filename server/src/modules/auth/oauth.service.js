@@ -11,8 +11,13 @@ import { logger } from '../../config/logger.js';
 export class OAuthService {
   // ── Google ──────────────────────────────────────────────────────────────────
   static async exchangeGoogleCode(code, redirectUri, context = {}) {
-    // Development / Mock fallback if credentials are unset or mock code used
-    if (!env.GOOGLE_CLIENT_ID || code?.startsWith('demo_') || code?.startsWith('mock_')) {
+    if (typeof code !== 'string' || !code.trim()) {
+      throw new BadRequestError('Authorization code is required.');
+    }
+
+    const isMockCode = code.startsWith('demo_') || code.startsWith('mock_');
+    // Development / Test mock fallback (never permitted in production)
+    if (env.NODE_ENV !== 'production' && (!env.GOOGLE_CLIENT_ID || isMockCode)) {
       logger.info('Using mock Google OAuth authentication in development');
       return OAuthService._findOrCreateUser({
         provider: 'google',
@@ -21,6 +26,10 @@ export class OAuthService {
         name: 'Alex Rivera',
         avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&fit=crop&crop=faces',
       }, context);
+    }
+
+    if (!env.GOOGLE_CLIENT_ID) {
+      throw new BadRequestError('Google OAuth is not configured.');
     }
 
     // 1. Exchange code → tokens
@@ -59,8 +68,13 @@ export class OAuthService {
 
   // ── GitHub ──────────────────────────────────────────────────────────────────
   static async exchangeGitHubCode(code, redirectUri, context = {}) {
-    // Development / Mock fallback if credentials are unset or mock code used
-    if (!env.GITHUB_CLIENT_ID || code?.startsWith('demo_') || code?.startsWith('mock_')) {
+    if (typeof code !== 'string' || !code.trim()) {
+      throw new BadRequestError('Authorization code is required.');
+    }
+
+    const isMockCode = code.startsWith('demo_') || code.startsWith('mock_');
+    // Development / Test mock fallback (never permitted in production)
+    if (env.NODE_ENV !== 'production' && (!env.GITHUB_CLIENT_ID || isMockCode)) {
       logger.info('Using mock GitHub OAuth authentication in development');
       return OAuthService._findOrCreateUser({
         provider: 'github',
@@ -70,6 +84,10 @@ export class OAuthService {
         avatarUrl: 'https://avatars.githubusercontent.com/u/1024025?v=4',
         githubHandle: 'tusargoswami',
       }, context);
+    }
+
+    if (!env.GITHUB_CLIENT_ID) {
+      throw new BadRequestError('GitHub OAuth is not configured.');
     }
 
     // 1. Exchange code → access token

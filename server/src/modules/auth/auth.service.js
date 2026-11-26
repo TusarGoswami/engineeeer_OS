@@ -2,6 +2,7 @@ import { UserRepository } from '../users/user.repository.js';
 import { PasswordService } from './password.service.js';
 import { TokenService } from './token.service.js';
 import { EmailAdapter } from '../../integrations/email/email.adapter.js';
+import { getRedisClient, isRedisMock } from '../../config/redis.js';
 import {
   ConflictError,
   UnauthorizedError,
@@ -10,8 +11,20 @@ import {
 } from '../../middleware/error.js';
 import crypto from 'crypto';
 
-// In-memory or Redis-backed reset token store
-const resetTokens = new Map();
+// Fallback reset token store when Redis is unavailable (cleaned on access & bounded)
+const fallbackResetTokens = new Map();
+const RESET_TTL_SECONDS = 3600;
+
+function hashResetToken(rawToken) {
+  return crypto.createHash('sha256').update(rawToken).digest('hex');
+}
+
+function pruneFallbackResetTokens() {
+  const now = Date.now();
+  for (const [k, v] of fallbackResetTokens.entries()) {
+    if (v.expiresAt < now) fallbackResetTokens.delete(k);
+  }
+}
 
 export class AuthService {
   /**
@@ -158,8 +171,16 @@ export class AuthService {
     }
 
     const token = crypto.randomBytes(32).toString('hex');
-    const expiresAt = Date.now() + 60 * 60 * 1000; // 1 hour
-    resetTokens.set(token, { userId: user._id.toString(), expiresAt });
+    const tokenHash = hashResetToken(token);
+    const expiresAt = Date.now() + RESET_TTL_SECONDS * 1000;
+
+    if (!isRedisMock()) {
+      const redis = getRedisClient();
+      await redis.set(`auth:reset:${tokenHash}`, user._id.toString(), 'EX', RESET_TTL_SECONDS);
+    } else {
+      pruneFallbackResetTokens();
+      fallbackResetTokens.set(tokenHash, { userId: user._id.toString(), expiresAt });
+    }
 
     await EmailAdapter.sendPasswordResetEmail(user.email, user.name, token);
 
@@ -170,18 +191,35 @@ export class AuthService {
    * Confirm password reset
    */
   static async confirmPasswordReset(token, newPassword) {
-    const record = resetTokens.get(token);
-    if (!record || record.expiresAt < Date.now()) {
-      resetTokens.delete(token);
+    if (typeof token !== 'string' || !token) {
+      throw new BadRequestError('Password reset link is invalid or has expired.');
+    }
+
+    const tokenHash = hashResetToken(token);
+    let userId = null;
+
+    if (!isRedisMock()) {
+      const redis = getRedisClient();
+      userId = await redis.get(`auth:reset:${tokenHash}`);
+      if (userId) await redis.del(`auth:reset:${tokenHash}`);
+    } else {
+      pruneFallbackResetTokens();
+      const record = fallbackResetTokens.get(tokenHash);
+      if (record && record.expiresAt >= Date.now()) {
+        userId = record.userId;
+      }
+      fallbackResetTokens.delete(tokenHash);
+    }
+
+    if (!userId) {
       throw new BadRequestError('Password reset link is invalid or has expired.');
     }
 
     const newHash = await PasswordService.hash(newPassword);
-    await UserRepository.updateById(record.userId, { passwordHash: newHash });
+    await UserRepository.updateById(userId, { passwordHash: newHash });
 
     // Revoke all existing sessions for security
-    await TokenService.revokeAllUserTokens(record.userId);
-    resetTokens.delete(token);
+    await TokenService.revokeAllUserTokens(userId);
 
     return {
       message: 'Password has been successfully reset. Please log in with your new password.',

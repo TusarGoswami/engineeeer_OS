@@ -90,44 +90,45 @@ export class TokenService {
     }
 
     const tokenHash = this.hashToken(rawToken);
-    const existing = await RefreshToken.findOne({ tokenHash });
+    // Atomically claim the unused token to prevent concurrent rotation races
+    const claimed = await RefreshToken.findOneAndUpdate(
+      { tokenHash, isUsed: false },
+      { $set: { isUsed: true } },
+      { new: false }
+    );
 
-    if (!existing) {
-      throw new UnauthorizedError('Invalid refresh token');
-    }
+    if (!claimed) {
+      const existing = await RefreshToken.findOne({ tokenHash });
+      if (!existing) {
+        throw new UnauthorizedError('Invalid refresh token');
+      }
 
-    // Token reuse detection! Old used token presented again.
-    if (existing.isUsed) {
+      // Token reuse detection! Old used token presented again.
       logger.warn(
         { userId: existing.userId, family: existing.family, ipAddress },
         '[Security Breach] Refresh token reuse detected! Invalidating token family.'
       );
-      // Revoke all tokens belonging to this family
       await RefreshToken.deleteMany({ family: existing.family });
       throw new UnauthorizedError(
         'Token reuse detected. All sessions in this chain have been revoked.'
       );
     }
 
-    if (existing.expiresAt < new Date()) {
-      await RefreshToken.deleteOne({ _id: existing._id });
+    if (claimed.expiresAt < new Date()) {
+      await RefreshToken.deleteOne({ _id: claimed._id });
       throw new UnauthorizedError('Refresh token expired');
     }
 
-    // Mark current token as used
-    existing.isUsed = true;
-    await existing.save();
-
     // Issue next token in the same family
     const nextToken = await this.issueRefreshToken(
-      existing.userId,
-      existing.family,
+      claimed.userId,
+      claimed.family,
       userAgent,
       ipAddress
     );
 
     return {
-      userId: existing.userId,
+      userId: claimed.userId,
       newRawToken: nextToken.rawToken,
       expiresAt: nextToken.expiresAt,
     };

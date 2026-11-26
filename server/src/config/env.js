@@ -65,6 +65,23 @@ const envSchema = z.object({
   RATE_LIMIT_AI_MAX: z.coerce.number().default(10),
 
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+}).superRefine((val, ctx) => {
+  if (val.NODE_ENV === 'production') {
+    const devSecrets = [
+      ['JWT_ACCESS_SECRET', 'local-dev-jwt-access-secret-minimum-32-chars-long'],
+      ['JWT_REFRESH_SECRET', 'local-dev-jwt-refresh-secret-minimum-32-chars-long'],
+      ['COOKIE_SECRET', 'local-dev-cookie-secret-minimum-32-chars'],
+    ];
+    for (const [key, def] of devSecrets) {
+      if (!val[key] || val[key] === def) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [key],
+          message: `${key} must be set to a strong non-default secret in production`,
+        });
+      }
+    }
+  }
 });
 
 const parsed = envSchema.safeParse(process.env);
