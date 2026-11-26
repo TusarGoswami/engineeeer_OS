@@ -125,11 +125,11 @@ export class ProfileSnapshotService {
   /**
    * Evaluate deterministic badges and award new ones idempotently
    */
-  static async evaluateBadges(userId, stats) {
+  static async evaluateBadges(userId, stats, user = null) {
     const awarded = [];
 
     for (const badgeDef of BADGE_CATALOGUE) {
-      if (badgeDef.check(stats)) {
+      if (badgeDef.check(stats, user)) {
         const existing = await UserBadge.findOne({ userId, badgeId: badgeDef.badgeId }).lean();
         if (!existing) {
           const badge = await UserBadge.create({
@@ -222,7 +222,7 @@ export class ProfileSnapshotService {
     };
 
     // Check & award badges
-    await this.evaluateBadges(userId, statsPayload);
+    await this.evaluateBadges(userId, statsPayload, user);
     const userBadges = await UserBadge.find({ userId }).sort({ earnedAt: -1 }).lean();
 
     // Query 365-day activity rollup
@@ -284,7 +284,11 @@ export class ProfileSnapshotService {
       await redis.del(`cache:profile:me:${userId}`);
       await redis.del(`cache:dashboard:summary:${userId}`);
       if (user.username) {
-        await redis.del(`cache:profile:public:${user.username}`);
+        const cleanUsername = user.username.toLowerCase().trim();
+        const publicKeys = await redis.keys(`cache:profile:public:${cleanUsername}:*`);
+        if (publicKeys.length > 0) {
+          await redis.del(...publicKeys);
+        }
       }
     } catch {
       // Safe to ignore redis errors
