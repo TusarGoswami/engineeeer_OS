@@ -55,7 +55,7 @@ export const BADGE_CATALOGUE = [
     name: 'Code Virtuoso',
     description: 'Achieved 50 solved DSA problems with verified test case passing',
     icon: '🎯',
-    tier: 'silver',
+    tier: 'bronze',
     category: 'coding',
     check: (stats) => (stats.coding?.solvedCount || 0) >= 50,
   },

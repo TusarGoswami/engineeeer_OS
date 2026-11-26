@@ -51,7 +51,7 @@ export const BADGE_CATALOGUE = [
     name: 'Code Virtuoso',
     description:
       'Achieved 50 solved DSA problems with verified test case passing',
-    tier: 'silver',
+    tier: 'bronze',
     category: 'coding',
   },
   {
@@ -130,8 +130,16 @@ export const CUSTOM_BADGE_ARTWORK = {
     front: '/badges/centurion-streak-front.png',
     back: '/badges/centurion-streak-back.png',
   },
+  coding_50: {
+    front: '/badges/code-virtuoso-front.png',
+    back: '/badges/centurion-streak-back.png',
+  },
   coding_100: {
     front: '/badges/dsa-centurion-front.png',
+    back: '/badges/centurion-streak-back.png',
+  },
+  gate_veteran: {
+    front: '/badges/exam-veteran-front.png',
     back: '/badges/centurion-streak-back.png',
   },
   alumni_verified: {
