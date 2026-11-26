@@ -42,9 +42,9 @@ router.delete('/assessments/:id', AdminController.deleteAssessment);
 router.get('/integrity-signals', AdminController.getIntegritySignals);
 router.post('/attempts/:attemptId/verdict', validate({ body: integrityVerdictSchema }), AdminController.resolveIntegrityVerdict);
 
-// User & Alumni Governance
-router.get('/users', AdminController.getUsers);
-router.patch('/users/:userId/role', validate({ body: updateUserRoleSchema }), AdminController.updateUserRole);
-router.post('/users/:userId/alumni-status', validate({ body: verifyAlumniSchema }), AdminController.verifyAlumniStatus);
+// User & Alumni Governance (restricted to platformAdmin to prevent privilege escalation)
+router.get('/users', requireRole('platformAdmin'), AdminController.getUsers);
+router.patch('/users/:userId/role', requireRole('platformAdmin'), validate({ body: updateUserRoleSchema }), AdminController.updateUserRole);
+router.post('/users/:userId/alumni-status', requireRole('platformAdmin'), validate({ body: verifyAlumniSchema }), AdminController.verifyAlumniStatus);
 
 export default router;
