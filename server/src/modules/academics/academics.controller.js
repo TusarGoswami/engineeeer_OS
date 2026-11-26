@@ -106,6 +106,20 @@ export class AcademicsController {
       next(error);
     }
   }
+
+  static async getResourceFile(req, res, next) {
+    try {
+      const { key } = req.params;
+      const { buffer, contentType } = await AcademicsService.getResourceFile(key);
+      res.set({
+        'Content-Type': contentType,
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      });
+      res.end(buffer);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default AcademicsController;
