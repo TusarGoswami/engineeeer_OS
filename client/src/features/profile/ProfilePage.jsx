@@ -365,7 +365,10 @@ export const ProfilePage = () => {
                 </div>
                 <div className="text-left sm:text-right">
                   <div className="text-lg font-bold font-mono tabular-nums text-[var(--hm-accent-strong)]">
-                    {profileData?.stats?.streaks?.current || 0} Days
+                    {(profileData?.profile || profileData)?.stats?.streaks?.current ||
+                      (profileData?.profile || profileData)?.stats?.streaks?.currentStreak ||
+                      0}{' '}
+                    Days
                   </div>
                   <div className="text-xs text-[var(--hm-text-secondary)]">Current Streak</div>
                 </div>
@@ -375,8 +378,16 @@ export const ProfilePage = () => {
               <Heatmap
                 data={heatmapData}
                 weeks={52}
-                currentStreak={profileData?.stats?.streaks?.current || 0}
-                longestStreak={profileData?.stats?.streaks?.longest || 0}
+                currentStreak={
+                  (profileData?.profile || profileData)?.stats?.streaks?.current ||
+                  (profileData?.profile || profileData)?.stats?.streaks?.currentStreak ||
+                  0
+                }
+                longestStreak={
+                  (profileData?.profile || profileData)?.stats?.streaks?.longest ||
+                  (profileData?.profile || profileData)?.stats?.streaks?.longestStreak ||
+                  0
+                }
               />
             </CardContent>
           </Card>

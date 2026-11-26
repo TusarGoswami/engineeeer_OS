@@ -25,10 +25,12 @@ export const CardExportModal = ({
   const [isCopyingImage, setIsCopyingImage] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
+  const resolved = profile?.profile || profile;
+  const settings = profile?.settings || resolved?.profileSettings;
   const username =
-    profile?.identity?.username || profile?.username || 'engineer';
-  const visibility = profile?.profileSettings?.visibility || 'public';
-  const shareToken = profile?.shareToken;
+    resolved?.identity?.username || resolved?.username || 'engineer';
+  const visibility = settings?.visibility || 'public';
+  const shareToken = profile?.shareToken || resolved?.shareToken;
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
   const shareUrl = `${baseUrl}/u/${username}${

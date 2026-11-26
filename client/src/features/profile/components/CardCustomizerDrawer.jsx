@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Palette,
   Shield,
@@ -33,29 +33,49 @@ export const CardCustomizerDrawer = ({
   const [isRotatingToken, setIsRotatingToken] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
+  const resolvedProfile = profile?.profile || profile;
+  const resolvedSettings = profile?.settings || resolvedProfile?.profileSettings;
+
   const [theme, setTheme] = useState(
-    profile?.profileSettings?.theme || profile?.theme || 'terminal'
+    resolvedSettings?.theme || resolvedProfile?.theme || 'terminal'
   );
   const [visibility, setVisibility] = useState(
-    profile?.profileSettings?.visibility || 'public'
+    resolvedSettings?.visibility || 'public'
   );
   const [username, setUsername] = useState(
-    profile?.identity?.username || profile?.username || ''
+    resolvedProfile?.identity?.username || resolvedProfile?.username || ''
   );
   const [headline, setHeadline] = useState(
-    profile?.identity?.headline || profile?.headline || ''
+    resolvedProfile?.identity?.headline || resolvedProfile?.headline || ''
   );
   const [sections, setSections] = useState({
-    showHeatmap: profile?.profileSettings?.sections?.showHeatmap ?? true,
-    showGate: profile?.profileSettings?.sections?.showGate ?? true,
-    showInterviews: profile?.profileSettings?.sections?.showInterviews ?? true,
-    showUniversity: profile?.profileSettings?.sections?.showUniversity ?? true,
-    showPhoto: profile?.profileSettings?.sections?.showPhoto ?? true,
-    showSkills: profile?.profileSettings?.sections?.showSkills ?? true,
-    showBadges: profile?.profileSettings?.sections?.showBadges ?? true,
+    showHeatmap: resolvedSettings?.sections?.showHeatmap ?? true,
+    showGate: resolvedSettings?.sections?.showGate ?? true,
+    showInterviews: resolvedSettings?.sections?.showInterviews ?? true,
+    showUniversity: resolvedSettings?.sections?.showUniversity ?? true,
+    showPhoto: resolvedSettings?.sections?.showPhoto ?? true,
+    showSkills: resolvedSettings?.sections?.showSkills ?? true,
+    showBadges: resolvedSettings?.sections?.showBadges ?? true,
   });
 
-  const shareToken = profile?.shareToken;
+  useEffect(() => {
+    if (!resolvedProfile) return;
+    setTheme(resolvedSettings?.theme || resolvedProfile?.theme || 'terminal');
+    setVisibility(resolvedSettings?.visibility || 'public');
+    setUsername(resolvedProfile?.identity?.username || resolvedProfile?.username || '');
+    setHeadline(resolvedProfile?.identity?.headline || resolvedProfile?.headline || '');
+    setSections({
+      showHeatmap: resolvedSettings?.sections?.showHeatmap ?? true,
+      showGate: resolvedSettings?.sections?.showGate ?? true,
+      showInterviews: resolvedSettings?.sections?.showInterviews ?? true,
+      showUniversity: resolvedSettings?.sections?.showUniversity ?? true,
+      showPhoto: resolvedSettings?.sections?.showPhoto ?? true,
+      showSkills: resolvedSettings?.sections?.showSkills ?? true,
+      showBadges: resolvedSettings?.sections?.showBadges ?? true,
+    });
+  }, [profile, isOpen]);
+
+  const shareToken = profile?.shareToken || resolvedProfile?.shareToken;
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
   const shareUrl = `${baseUrl}/u/${username}${
     visibility === 'unlisted' && shareToken ? `?token=${shareToken}` : ''
