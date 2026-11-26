@@ -122,12 +122,20 @@ export const BADGE_CATALOGUE = [
 ];
 
 export const CUSTOM_BADGE_ARTWORK = {
+  streak_30: {
+    front: '/badges/monthly-engine-front.png',
+    back: '/badges/centurion-streak-back.png',
+  },
   streak_100: {
     front: '/badges/centurion-streak-front.png',
     back: '/badges/centurion-streak-back.png',
   },
   coding_100: {
     front: '/badges/dsa-centurion-front.png',
+    back: '/badges/centurion-streak-back.png',
+  },
+  alumni_verified: {
+    front: '/badges/alumni-mentor-front.png',
     back: '/badges/centurion-streak-back.png',
   },
 };
