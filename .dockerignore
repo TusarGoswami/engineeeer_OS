@@ -1,0 +1,24 @@
+# Dependencies & build artifacts
+node_modules
+**/node_modules
+client/dist
+**/dist
+**/*.log
+
+# Environment & local secrets
+.env
+**/.env
+**/.env.*
+!**/.env.example
+
+# Local uploads & runtime data
+server/uploads
+uploads
+
+# Git, IDE & test artifacts
+.git
+.gitignore
+.vscode
+.idea
+coverage
+**/coverage
