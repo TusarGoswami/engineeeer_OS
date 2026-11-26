@@ -53,9 +53,11 @@ export class ProfileController {
       const token = req.query.token || null;
       const data = await ProfileService.getPublicProfile(username, token);
 
-      // Cache headers for public profiles (short TTL to allow quick updates)
+      // Never cache unlisted token-gated profiles on public/shared proxies
       res.set({
-        'Cache-Control': 'public, max-age=60, stale-while-revalidate=120',
+        'Cache-Control': token
+          ? 'private, no-store'
+          : 'public, max-age=60, stale-while-revalidate=120',
       });
 
       res.status(200).json({ data });

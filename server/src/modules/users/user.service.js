@@ -43,6 +43,16 @@ export class UserService {
       }
     }
 
+    // Flatten nested subdocuments to dot-notation so partial updates don't wipe sibling keys
+    for (const nestedKey of ['profile', 'profileSettings']) {
+      if (sanitized[nestedKey] && typeof sanitized[nestedKey] === 'object') {
+        for (const [k, v] of Object.entries(sanitized[nestedKey])) {
+          sanitized[`${nestedKey}.${k}`] = v;
+        }
+        delete sanitized[nestedKey];
+      }
+    }
+
     const updated = await UserRepository.updateById(userId, sanitized);
     if (!updated) {
       throw new NotFoundError('User not found');
@@ -112,7 +122,7 @@ export class UserService {
     });
 
     try {
-      await ProfileSnapshotService.aggregateForUser(userId);
+      await ProfileSnapshotService.rebuildSnapshot(userId);
     } catch {
       // Non-fatal if snapshot background aggregation experiences brief contention
     }
@@ -150,7 +160,7 @@ export class UserService {
     });
 
     try {
-      await ProfileSnapshotService.aggregateForUser(userId);
+      await ProfileSnapshotService.rebuildSnapshot(userId);
     } catch {
       // Non-fatal
     }

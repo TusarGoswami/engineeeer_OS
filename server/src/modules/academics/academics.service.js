@@ -17,7 +17,7 @@ export class AcademicsService {
     const { university, branch, semester, search } = filters;
     const { limit = 20, cursor } = pagination;
 
-    const cacheKey = `cache:academics:subjects:${university || 'all'}:${branch || 'all'}:${semester || 'all'}:${cursor || 'start'}`;
+    const cacheKey = `cache:academics:subjects:${university || 'all'}:${branch || 'all'}:${semester || 'all'}:${search || 'none'}:${limit}:${cursor || 'start'}`;
     const redis = getRedisClient();
 
     try {
@@ -41,7 +41,7 @@ export class AcademicsService {
     }
 
     const subjects = await Subject.find(query)
-      .sort({ semester: 1, code: 1, _id: 1 })
+      .sort({ _id: 1 })
       .limit(limit + 1)
       .lean();
 
