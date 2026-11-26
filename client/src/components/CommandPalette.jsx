@@ -41,7 +41,7 @@ export const CommandPalette = ({ isOpen, onClose, userRole }) => {
       { id: 'profile', title: 'My Profile & Engineer Card', category: 'Settings', icon: User, path: '/profile' },
       { id: 'settings', title: 'Account Settings', category: 'Settings', icon: Settings, path: '/profile' },
     ];
-    if (!userRole || userRole === 'platformAdmin' || userRole === 'contentAdmin') {
+    if (userRole === 'platformAdmin' || userRole === 'contentAdmin') {
       base.push({
         id: 'admin',
         title: 'Admin & Faculty Studio',
