@@ -25,6 +25,7 @@ import {
   Modal,
   ProgressRing,
   ProgressBar,
+  useToast,
 } from '../../components/index.js';
 import { invalidateProgressQueries } from '../../utils/queryInvalidation.js';
 
@@ -79,6 +80,7 @@ const formatElapsed = (totalSec) => {
 export function InterviewSessionPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -270,7 +272,7 @@ export function InterviewSessionPage() {
   const handleToggleSpeech = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert('Speech recognition is not supported in this browser. Please type your response.');
+      showToast('Speech recognition is not supported in this browser. Please type your response.', 'info');
       return;
     }
 
