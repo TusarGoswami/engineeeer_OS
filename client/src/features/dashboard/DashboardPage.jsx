@@ -111,20 +111,70 @@ export const DashboardPage = () => {
     updateTaskMutation.mutate({ taskId: task._id || task.taskId, status: 'snoozed' });
   };
 
-  const user = summaryData?.user || profile?.identity;
-  const stats = summaryData?.stats || profile?.stats;
+  const resolvedProfile = profile?.profile || profile;
+  const user = summaryData?.user || resolvedProfile?.identity;
+  const stats = summaryData?.stats || resolvedProfile?.stats;
   const tasks = todayData?.tasks || [];
   const completedCount = todayData?.completed || 0;
   const totalTasks = todayData?.total || tasks.length;
   const progressPercent = todayData?.percent || 0;
 
-  const username = profile?.identity?.username || user?.username || 'user';
-  const university = profile?.identity?.university || user?.university;
-  const semester = profile?.identity?.semester || user?.semester;
-  const branch = profile?.identity?.branch || user?.branch;
+  const username = resolvedProfile?.identity?.username || user?.username || 'user';
+  const university = resolvedProfile?.identity?.university || user?.university;
+  const semester = resolvedProfile?.identity?.semester || user?.semester;
+  const branch = resolvedProfile?.identity?.branch || user?.branch;
 
-  const activeStreak = stats?.overallStreak || stats?.coding?.streak || 0;
-  const longestStreak = profile?.stats?.streaks?.longest || 0;
+  const activeStreak = stats?.overallStreak || stats?.coding?.streak || resolvedProfile?.stats?.streaks?.currentStreak || 0;
+  const longestStreak = resolvedProfile?.stats?.streaks?.longestStreak ?? resolvedProfile?.stats?.streaks?.longest ?? 0;
+
+  // Merge live summaryData.stats into the profile passed to ProfileCard for real-time updates
+  const liveCardProfile = useMemo(() => {
+    if (!resolvedProfile) return null;
+    if (!summaryData?.stats) return profile;
+    const s = summaryData.stats;
+    return {
+      ...(resolvedProfile),
+      profileSettings: resolvedProfile.profileSettings || profile?.settings,
+      shareToken: profile?.shareToken || resolvedProfile.shareToken,
+      stats: {
+        ...resolvedProfile.stats,
+        coding: {
+          ...resolvedProfile.stats?.coding,
+          solvedCount: s.coding?.solvedCount ?? resolvedProfile.stats?.coding?.solvedCount ?? 0,
+          easyCount: s.coding?.easyCount ?? resolvedProfile.stats?.coding?.easyCount ?? 0,
+          mediumCount: s.coding?.mediumCount ?? resolvedProfile.stats?.coding?.mediumCount ?? 0,
+          hardCount: s.coding?.hardCount ?? resolvedProfile.stats?.coding?.hardCount ?? 0,
+          accuracy: s.coding?.accuracyRate ?? resolvedProfile.stats?.coding?.accuracy ?? 0,
+        },
+        gate: {
+          ...resolvedProfile.stats?.gate,
+          testsTaken: s.gate?.testsAttempted ?? resolvedProfile.stats?.gate?.testsTaken ?? 0,
+          averageScore: s.gate?.averageScore ?? resolvedProfile.stats?.gate?.averageScore ?? 0,
+          accuracy: s.gate?.accuracyRate ?? resolvedProfile.stats?.gate?.accuracy ?? 0,
+        },
+        academics: {
+          ...resolvedProfile.stats?.academics,
+          completionPercentage:
+            s.academics?.percentComplete ?? resolvedProfile.stats?.academics?.completionPercentage ?? 0,
+          activeSubjectsCount:
+            s.academics?.subjectsInProgress ?? resolvedProfile.stats?.academics?.activeSubjectsCount ?? 0,
+        },
+        interviews: {
+          ...resolvedProfile.stats?.interviews,
+          completedCount:
+            s.interviews?.sessionsCompleted ?? resolvedProfile.stats?.interviews?.completedCount ?? 0,
+          averageReadiness:
+            s.interviews?.averageReadinessScore ?? resolvedProfile.stats?.interviews?.averageReadiness ?? 0,
+        },
+        streaks: {
+          ...resolvedProfile.stats?.streaks,
+          currentStreak:
+            s.overallStreak ?? resolvedProfile.stats?.streaks?.currentStreak ?? resolvedProfile.stats?.streaks?.current ?? 0,
+          longestStreak,
+        },
+      },
+    };
+  }, [profile, resolvedProfile, summaryData, longestStreak]);
   const codingSolved = stats?.coding?.solvedCount || 0;
   const codingEasy = stats?.coding?.easyCount || 0;
   const codingMedium = stats?.coding?.mediumCount || 0;
@@ -398,7 +448,7 @@ export const DashboardPage = () => {
             ) : (
               <ProfileCard
                 ref={cardRef}
-                profile={profile}
+                profile={liveCardProfile}
                 orientation="portrait"
                 compact={false}
                 className="w-full"

@@ -97,7 +97,7 @@ describe('ProfileCard Component', () => {
     });
   });
 
-  it('renders portrait pass orientation with concentric rings, vertical metrics, and QR zone', () => {
+  it('renders simplified portrait pass orientation with photo, streak, overall progress, module bars, and QR zone', () => {
     const { container } = render(
       <ProfileCard profile={mockProfile} orientation="portrait" />
     );
@@ -106,14 +106,14 @@ describe('ProfileCard Component', () => {
     expect(card).toHaveAttribute('data-orientation', 'portrait');
     expect(card).toHaveClass('pc-card-portrait');
     expect(container.querySelectorAll('.pc-circle')).toHaveLength(5);
-    expect(screen.getByText('Coding')).toBeInTheDocument();
-    expect(screen.getByText('GATE Prep')).toBeInTheDocument();
-    expect(screen.getByText('Curriculum')).toBeInTheDocument();
-    expect(screen.getByText('Readiness')).toBeInTheDocument();
-    expect(screen.getByText('42')).toBeInTheDocument();
-    expect(screen.getByText('68.5')).toBeInTheDocument();
-    expect(screen.getByText('65%')).toBeInTheDocument();
-    expect(screen.getByText('82/100')).toBeInTheDocument();
+    expect(screen.getByText('Alex Johnson')).toBeInTheDocument();
+    expect(screen.getByText(/14d streak/i)).toBeInTheDocument();
+    expect(screen.getByText('Overall Progress')).toBeInTheDocument();
+    expect(screen.getByText('81%')).toBeInTheDocument(); // (65 + 100 + 78 + 82) / 4 = 81.25 -> 81%
+    expect(screen.getByText('Academic Hub')).toBeInTheDocument();
+    expect(screen.getByText('Coding Platform')).toBeInTheDocument();
+    expect(screen.getByText('GATE Hub')).toBeInTheDocument();
+    expect(screen.getByText('AI Readiness')).toBeInTheDocument();
     expect(screen.getByText('EngineerOS Authentic Card')).toBeInTheDocument();
     expect(screen.getByText('engineeros.dev/u/alexj')).toBeInTheDocument();
   });

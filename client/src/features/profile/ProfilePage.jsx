@@ -91,13 +91,14 @@ export const ProfilePage = () => {
       setBadges(myBadges || []);
       setHeatmapData(myHeatmap || []);
 
-      if (ownerProfile) {
+      const resolvedOwner = ownerProfile?.profile || ownerProfile;
+      if (resolvedOwner) {
         reset({
-          name: ownerProfile.identity?.name || user?.name || '',
-          university: ownerProfile.identity?.university || user?.university || '',
-          branch: ownerProfile.identity?.branch || user?.branch || '',
-          semester: ownerProfile.identity?.semester || user?.semester || 1,
-          bio: ownerProfile.identity?.headline || user?.bio || '',
+          name: resolvedOwner.identity?.name || user?.name || '',
+          university: resolvedOwner.identity?.university || user?.university || '',
+          branch: resolvedOwner.identity?.branch || user?.branch || '',
+          semester: resolvedOwner.identity?.semester || user?.semester || 1,
+          bio: resolvedOwner.identity?.headline || user?.bio || '',
           currentCompany: user?.profile?.currentCompany || '',
           githubHandle: user?.profile?.githubHandle || '',
         });

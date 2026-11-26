@@ -146,10 +146,11 @@ describe('Redesigned DashboardPage Component (Phase 7)', () => {
     const authenticCard = heroSection.querySelector('#engineeros-profile-card');
     expect(authenticCard).toHaveAttribute('data-orientation', 'portrait');
     expect(authenticCard).toHaveClass('pc-card-portrait');
-    expect(within(heroSection).getByText('Coding')).toBeInTheDocument();
-    expect(within(heroSection).getByText('GATE Prep')).toBeInTheDocument();
-    expect(within(heroSection).getByText('Curriculum')).toBeInTheDocument();
-    expect(within(heroSection).getByText('Readiness')).toBeInTheDocument();
+    expect(within(heroSection).getByText('Overall Progress')).toBeInTheDocument();
+    expect(within(heroSection).getByText('Academic Hub')).toBeInTheDocument();
+    expect(within(heroSection).getByText('Coding Platform')).toBeInTheDocument();
+    expect(within(heroSection).getByText('GATE Hub')).toBeInTheDocument();
+    expect(within(heroSection).getByText('AI Readiness')).toBeInTheDocument();
     expect(within(heroSection).getByText('EngineerOS Authentic Card')).toBeInTheDocument();
 
     // 2. Check unified "Today's Focus" section inside the Hero

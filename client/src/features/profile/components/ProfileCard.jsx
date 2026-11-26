@@ -94,15 +94,26 @@ export const ProfileCard = forwardRef(
   ) => {
     if (!profile) return null;
 
+    // Unwrap API envelope { profile: snapshot, settings, shareToken, shareUrl } if passed directly
+    const raw =
+      profile?.profile && typeof profile.profile === 'object' && !profile.identity
+        ? {
+            ...profile.profile,
+            profileSettings: profile.profile.profileSettings || profile.settings,
+            shareToken: profile.shareToken || profile.profile.shareToken,
+            shareUrl: profile.shareUrl || profile.profile.shareUrl,
+          }
+        : profile;
+
     const isPortrait = orientation === 'portrait';
 
     const theme =
       themeOverride ||
-      profile.profileSettings?.theme ||
-      profile.theme ||
+      raw.profileSettings?.theme ||
+      raw.theme ||
       'terminal';
 
-    const sections = profile.profileSettings?.sections || {
+    const sections = raw.profileSettings?.sections || {
       showHeatmap: true,
       showGate: true,
       showInterviews: true,
@@ -114,24 +125,24 @@ export const ProfileCard = forwardRef(
 
     /* ── Avatar resolution ── */
     const resolvedAvatarKey =
-      profile.identity?.avatarKey ||
-      profile.avatarKey ||
-      profile.user?.avatarKey ||
+      raw.identity?.avatarKey ||
+      raw.avatarKey ||
+      raw.user?.avatarKey ||
       '';
 
     const rawAvatarUrl =
-      profile.identity?.avatarUrl ||
-      profile.avatarUrl ||
-      profile.profile?.avatarUrl ||
-      profile.user?.profile?.avatarUrl ||
+      raw.identity?.avatarUrl ||
+      raw.avatarUrl ||
+      raw.profile?.avatarUrl ||
+      raw.user?.profile?.avatarUrl ||
       (resolvedAvatarKey
         ? `/api/v1/users/avatar/${encodeURIComponent(resolvedAvatarKey)}`
         : '');
 
     const avatarVersion =
-      profile.identity?.avatarVersion ||
-      profile.avatarVersion ||
-      profile.user?.avatarVersion ||
+      raw.identity?.avatarVersion ||
+      raw.avatarVersion ||
+      raw.user?.avatarVersion ||
       1;
 
     const avatarUrl = rawAvatarUrl
@@ -143,61 +154,104 @@ export const ProfileCard = forwardRef(
     /* ── Identity ── */
     const identity = {
       name:
-        profile.identity?.name || profile.name || profile.user?.name || '',
+        raw.identity?.name || raw.name || raw.user?.name || '',
       username:
-        profile.identity?.username ||
-        profile.username ||
-        profile.user?.username ||
+        raw.identity?.username ||
+        raw.username ||
+        raw.user?.username ||
         '',
       headline:
-        profile.identity?.headline || profile.headline || '',
+        raw.identity?.headline || raw.headline || '',
       university:
-        profile.identity?.university ||
-        profile.university ||
-        profile.user?.university ||
+        raw.identity?.university ||
+        raw.university ||
+        raw.user?.university ||
         '',
       branch:
-        profile.identity?.branch ||
-        profile.branch ||
-        profile.user?.branch ||
+        raw.identity?.branch ||
+        raw.branch ||
+        raw.user?.branch ||
         '',
       semester:
-        profile.identity?.semester ||
-        profile.semester ||
-        profile.user?.semester ||
+        raw.identity?.semester ||
+        raw.semester ||
+        raw.user?.semester ||
         1,
       graduationYear:
-        profile.identity?.graduationYear ||
-        profile.graduationYear ||
-        profile.profile?.graduationYear ||
-        profile.user?.profile?.graduationYear,
+        raw.identity?.graduationYear ||
+        raw.graduationYear ||
+        raw.profile?.graduationYear ||
+        raw.user?.profile?.graduationYear,
       avatarUrl,
       avatarKey: resolvedAvatarKey,
       githubHandle:
-        profile.identity?.githubHandle ||
-        profile.githubHandle ||
-        profile.profile?.githubHandle ||
-        profile.user?.profile?.githubHandle ||
+        raw.identity?.githubHandle ||
+        raw.githubHandle ||
+        raw.profile?.githubHandle ||
+        raw.user?.profile?.githubHandle ||
         '',
       isAlumni:
-        profile.isAlumni ??
-        profile.identity?.isAlumni ??
-        profile.user?.isAlumni ??
+        raw.isAlumni ??
+        raw.identity?.isAlumni ??
+        raw.user?.isAlumni ??
         false,
     };
 
-    /* ── Stats ── */
-    const stats = profile.stats || {
-      coding: { solved: 0, easy: 0, medium: 0, hard: 0, accuracy: 0 },
-      gate: { testsTaken: 0, bestScore: 0, accuracy: 0 },
-      academic: { subjectsEnrolled: 0, syllabusProgress: 0 },
-      interviews: { completed: 0, averageScore: 0 },
-      streaks: { current: 0, longest: 0 },
+    /* ── Normalized Stats (supports both ProfileSnapshot schema and test mocks) ── */
+    const rawStats = raw.stats || {};
+    const stats = {
+      coding: {
+        solved: rawStats.coding?.solved ?? rawStats.coding?.solvedCount ?? 0,
+        easy: rawStats.coding?.easy ?? rawStats.coding?.easyCount ?? 0,
+        medium: rawStats.coding?.medium ?? rawStats.coding?.mediumCount ?? 0,
+        hard: rawStats.coding?.hard ?? rawStats.coding?.hardCount ?? 0,
+        accuracy: rawStats.coding?.accuracy ?? rawStats.coding?.accuracyRate ?? 0,
+      },
+      gate: {
+        testsTaken: rawStats.gate?.testsTaken ?? rawStats.gate?.testsAttempted ?? 0,
+        bestScore: rawStats.gate?.bestScore ?? rawStats.gate?.averageScore ?? 0,
+        accuracy: rawStats.gate?.accuracy ?? rawStats.gate?.accuracyRate ?? 0,
+      },
+      academic: {
+        subjectsEnrolled:
+          rawStats.academic?.subjectsEnrolled ?? rawStats.academics?.activeSubjectsCount ?? 0,
+        syllabusProgress:
+          rawStats.academic?.syllabusProgress ?? rawStats.academics?.completionPercentage ?? 0,
+      },
+      interviews: {
+        completed:
+          rawStats.interviews?.completed ?? rawStats.interviews?.completedCount ?? 0,
+        averageScore:
+          rawStats.interviews?.averageScore ?? rawStats.interviews?.averageReadiness ?? 0,
+      },
+      streaks: {
+        current: rawStats.streaks?.current ?? rawStats.streaks?.currentStreak ?? 0,
+        longest: rawStats.streaks?.longest ?? rawStats.streaks?.longestStreak ?? 0,
+      },
     };
 
-    const badges = profile.badges || [];
-    const topSkills = profile.topSkills || [];
-    const recentActivity = profile.recentActivity || [];
+    const academicPct = Math.min(100, Math.max(0, Math.round(stats.academic.syllabusProgress || 0)));
+    const codingPct =
+      stats.coding.solved > 0
+        ? Math.min(100, Math.max(5, Math.round((stats.coding.solved / 20) * 100)))
+        : 0;
+    const gatePct =
+      stats.gate.testsTaken > 0 || stats.gate.bestScore > 0
+        ? Math.min(100, Math.max(10, Math.round(stats.gate.accuracy || stats.gate.bestScore || 25)))
+        : 0;
+    const interviewPct =
+      stats.interviews.completed > 0 || stats.interviews.averageScore > 0
+        ? Math.min(100, Math.max(10, Math.round(stats.interviews.averageScore || 50)))
+        : 0;
+    const overallProgress = Math.round(
+      (academicPct + codingPct + gatePct + interviewPct) / 4
+    );
+
+    const badges = raw.badges || [];
+    const topSkills = (raw.topSkills || [])
+      .map((s) => (typeof s === 'string' ? s : s?.name))
+      .filter(Boolean);
+    const recentActivity = raw.recentActivity || [];
 
     /* ── QR code URL ── */
     const baseUrl =
@@ -205,7 +259,7 @@ export const ProfileCard = forwardRef(
         ? window.location.origin
         : 'https://engineeros.dev';
     const profileUrl = `${baseUrl}/u/${identity.username || 'user'}${
-      profile.shareToken ? `?token=${profile.shareToken}` : ''
+      raw.shareToken ? `?token=${raw.shareToken}` : ''
     }`;
 
     const typo = THEME_TYPOGRAPHY[theme] || THEME_TYPOGRAPHY.terminal;
@@ -538,301 +592,231 @@ export const ProfileCard = forwardRef(
             </div>
 
             {isPortrait ? (
-              /* ── Portrait Body — vertical identity pass distributed across full column height ── */
-              <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between gap-3">
-                {/* 1. Prominent Vertical Identity Showcase */}
-                <div className="space-y-2.5">
-                  <div className="flex items-center gap-3.5 pr-16">
-                    {sections.showPhoto !== false ? (
-                      <div className="relative shrink-0">
-                        <div
-                          className="rounded-full p-0.5"
-                          style={{
-                            border: '2px solid rgba(255, 140, 66, 0.55)',
-                            boxShadow: '0 0 0 3px rgba(255, 140, 66, 0.14)',
-                          }}
-                        >
-                          <Avatar
-                            src={identity.avatarUrl}
-                            name={identity.name}
-                            size="xl"
-                            className="!ring-0"
-                            fallbackClassName="!bg-gradient-to-br !from-[#FF8C42] !to-[#E85D04] !text-white !ring-0"
-                          />
-                        </div>
-                        <div
-                          className="absolute -bottom-0.5 -right-0.5 bg-[#E85D04] dark:bg-[#FF8C42] text-white rounded-full p-0.5 border-2 border-white dark:border-[#111315] shadow-sm"
-                          title="Verified Engineer"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                        </div>
-                      </div>
-                    ) : (
+              /* ── Simplified Portrait Card (Photo, Student Name, Streak, Overall Progress Ring, Module Bars, QR) ── */
+              <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between gap-4">
+                {/* 1. Identity Row: Glowing Photo + Student Name + University/Branch + Streak */}
+                <div className="flex items-center gap-3.5 pr-16">
+                  {sections.showPhoto !== false ? (
+                    <div className="relative shrink-0">
                       <div
-                        className="w-16 h-16 rounded-2xl flex items-center justify-center font-bold text-lg shrink-0"
+                        className="rounded-full p-0.5"
                         style={{
-                          background: 'var(--pc-surface)',
-                          color: 'var(--pc-accent)',
-                          border: '1.5px solid var(--pc-border)',
+                          border: '2px solid rgba(255, 140, 66, 0.7)',
+                          boxShadow: '0 0 18px rgba(255, 107, 53, 0.25)',
                         }}
                       >
-                        {identity.name?.slice(0, 2).toUpperCase() || 'OS'}
+                        <Avatar
+                          src={identity.avatarUrl}
+                          name={identity.name}
+                          size="xl"
+                          className="!ring-0"
+                          fallbackClassName="!bg-gradient-to-br !from-[#FF8C42] !to-[#E85D04] !text-white !ring-0"
+                        />
                       </div>
-                    )}
-
-                    <div className="min-w-0 space-y-1">
-                      <h2
-                        className={`text-xl font-bold leading-tight truncate ${typo.titleClass}`}
-                        style={{ color: 'var(--pc-text-primary)' }}
+                      <div
+                        className="absolute -bottom-0.5 -right-0.5 bg-[#E85D04] dark:bg-[#FF8C42] text-white rounded-full p-0.5 border-2 border-white dark:border-[#111315] shadow-sm"
+                        title="Verified Engineer"
                       >
-                        {identity.name || 'Engineer'}
-                      </h2>
-
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {identity.username && (
-                          <span
-                            className="text-xs font-mono font-medium"
-                            style={{ color: 'var(--pc-accent)' }}
-                          >
-                            @{identity.username}
-                          </span>
-                        )}
-                        <span
-                          className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-mono font-medium"
-                          style={{
-                            background: 'var(--pc-surface)',
-                            border: '1px solid var(--pc-border)',
-                            color: 'var(--pc-text-primary)',
-                          }}
-                        >
-                          <Flame
-                            className="w-3 h-3"
-                            style={{ color: 'var(--pc-accent)', fill: 'var(--pc-accent)' }}
-                          />
-                          <span>{stats.streaks?.current || 0}d streak</span>
-                        </span>
+                        <CheckCircle2 className="w-3.5 h-3.5" />
                       </div>
-
-                      {identity.isAlumni && (
-                        <div>
-                          <span
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full"
-                            style={{
-                              background: 'var(--pc-accent-bg)',
-                              border: '1px solid var(--pc-border)',
-                              color: 'var(--pc-accent-soft)',
-                            }}
-                          >
-                            <Award className="w-3 h-3 shrink-0" />
-                            Verified Alumni Mentor
-                          </span>
-                        </div>
-                      )}
                     </div>
-                  </div>
-
-                  {identity.headline && (
-                    <p
-                      className="text-sm leading-snug line-clamp-2"
-                      style={{ color: 'var(--pc-text-secondary)' }}
+                  ) : (
+                    <div
+                      className="w-16 h-16 rounded-2xl flex items-center justify-center font-bold text-lg shrink-0"
+                      style={{
+                        background: 'var(--pc-surface)',
+                        color: 'var(--pc-accent)',
+                        border: '1.5px solid var(--pc-border)',
+                      }}
                     >
-                      {identity.headline}
-                    </p>
+                      {identity.name?.slice(0, 2).toUpperCase() || 'OS'}
+                    </div>
                   )}
 
-                  {sections.showUniversity !== false && identity.university && (
-                    <div
-                      className="flex items-center gap-x-2 gap-y-1 text-xs flex-wrap"
-                      style={{ color: 'var(--pc-text-secondary)' }}
+                  <div className="min-w-0 space-y-1">
+                    <h2
+                      className={`text-xl font-bold leading-tight truncate ${typo.titleClass}`}
+                      style={{ color: 'var(--pc-text-primary)' }}
                     >
-                      <span className="inline-flex items-center gap-1">
+                      {identity.name || 'Engineer'}
+                    </h2>
+
+                    {sections.showUniversity !== false && (identity.branch || identity.university) && (
+                      <p
+                        className="text-xs flex items-center gap-1.5 truncate"
+                        style={{ color: 'var(--pc-text-secondary)' }}
+                      >
                         <GraduationCap
                           className="w-3.5 h-3.5 shrink-0"
                           style={{ color: 'var(--pc-accent)' }}
                         />
-                        {identity.university}
-                      </span>
-                      {identity.branch && (
-                        <>
-                          <span style={{ color: 'var(--pc-text-muted)' }}>•</span>
-                          <span>{identity.branch}</span>
-                        </>
-                      )}
-                      {identity.semester && (
-                        <>
-                          <span style={{ color: 'var(--pc-text-muted)' }}>•</span>
-                          <span>Sem {identity.semester}</span>
-                        </>
-                      )}
-                      {identity.graduationYear && (
-                        <>
-                          <span style={{ color: 'var(--pc-text-muted)' }}>•</span>
-                          <span className="inline-flex items-center gap-0.5">
-                            <Calendar
-                              className="w-3 h-3"
-                              style={{ color: 'var(--pc-accent)' }}
-                            />
-                            &apos;{String(identity.graduationYear).slice(-2)}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  )}
+                        <span className="truncate">
+                          {[identity.branch, identity.university].filter(Boolean).join(' • ')}
+                        </span>
+                      </p>
+                    )}
 
-                  {identity.githubHandle && (
-                    <div>
-                      <a
-                        href={`https://github.com/${identity.githubHandle}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="pc-link inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-mono"
-                      >
-                        <Github
-                          className="w-3.5 h-3.5"
+                    <div className="flex items-center gap-2 flex-wrap pt-0.5">
+                      {identity.username && (
+                        <span
+                          className="text-xs font-mono font-medium"
                           style={{ color: 'var(--pc-accent)' }}
+                        >
+                          @{identity.username}
+                        </span>
+                      )}
+                      <span
+                        className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold"
+                        style={{
+                          background: 'var(--pc-surface)',
+                          border: '1px solid var(--pc-border)',
+                          color: 'var(--pc-text-primary)',
+                        }}
+                      >
+                        <Flame
+                          className="w-3 h-3"
+                          style={{ color: 'var(--pc-accent)', fill: 'var(--pc-accent)' }}
                         />
-                        <span>{identity.githubHandle}</span>
-                      </a>
+                        <span>{stats.streaks?.current || 0}d streak</span>
+                      </span>
                     </div>
-                  )}
+                  </div>
                 </div>
 
-                {/* 2. Vertical Pass Telemetry Ledger */}
-                <div className={`pc-panel ${typo.panelRadius} overflow-hidden`}>
-                  {telemetryMetrics.map((metric, idx) => {
-                    const MetricIcon = metric.icon;
-                    return (
-                      <div
-                        key={metric.key}
-                        className="px-3.5 py-2 flex items-center justify-between gap-3"
-                        style={
-                          idx > 0
-                            ? { borderTop: '1px solid var(--pc-border-subtle)' }
-                            : undefined
+                {/* 2. Overall Progress Ring Hero Box */}
+                <div
+                  className={`pc-panel ${typo.panelRadius} px-4 py-3.5 flex items-center gap-4`}
+                >
+                  <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
+                    <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80" aria-hidden="true">
+                      <circle
+                        cx="40"
+                        cy="40"
+                        r="32"
+                        fill="none"
+                        stroke="var(--pc-accent-bg)"
+                        strokeWidth="8"
+                      />
+                      <circle
+                        cx="40"
+                        cy="40"
+                        r="32"
+                        fill="none"
+                        stroke="url(#pcOverallRingGrad)"
+                        strokeWidth="8"
+                        strokeLinecap="round"
+                        strokeDasharray={2 * Math.PI * 32}
+                        strokeDashoffset={
+                          2 * Math.PI * 32 * (1 - Math.min(100, Math.max(0, overallProgress)) / 100)
                         }
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                          <div
-                            className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                            style={{
-                              background: 'var(--pc-accent-bg)',
-                              border: '1px solid var(--pc-border-subtle)',
-                            }}
+                        className="transition-all duration-700"
+                      />
+                      <defs>
+                        <linearGradient id="pcOverallRingGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stopColor="#FF8C42" />
+                          <stop offset="100%" stopColor="#E85D04" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                    <span
+                      className="absolute text-lg font-mono font-bold tabular-nums"
+                      style={{ color: 'var(--pc-text-primary)' }}
+                    >
+                      {overallProgress}%
+                    </span>
+                  </div>
+
+                  <div className="min-w-0 space-y-1">
+                    <div
+                      className="text-sm font-bold tracking-tight"
+                      style={{ color: 'var(--pc-text-primary)' }}
+                    >
+                      Overall Progress
+                    </div>
+                    <p
+                      className="text-xs italic"
+                      style={{ color: 'var(--pc-accent-soft)' }}
+                    >
+                      {overallProgress >= 75
+                        ? 'Outstanding momentum!'
+                        : overallProgress >= 35
+                        ? 'Keep going! Building daily.'
+                        : overallProgress > 0
+                        ? 'Great start! Keep pushing.'
+                        : 'Solve a problem or mock to begin!'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* 3. Live Modules Progress Bars */}
+                <div className={`pc-panel ${typo.panelRadius} p-3.5 space-y-2.5`}>
+                  {[
+                    {
+                      key: 'academics',
+                      label: 'Academic Hub',
+                      icon: BookOpen,
+                      pct: academicPct,
+                      visible: true,
+                    },
+                    {
+                      key: 'coding',
+                      label: 'Coding Platform',
+                      icon: Code2,
+                      pct: codingPct,
+                      visible: true,
+                    },
+                    {
+                      key: 'gate',
+                      label: 'GATE Hub',
+                      icon: Award,
+                      pct: gatePct,
+                      visible: sections.showGate !== false,
+                    },
+                    {
+                      key: 'interviews',
+                      label: 'AI Readiness',
+                      icon: Sparkles,
+                      pct: interviewPct,
+                      visible: sections.showInterviews !== false,
+                    },
+                  ]
+                    .filter((m) => m.visible)
+                    .map((mod) => {
+                      const ModIcon = mod.icon;
+                      return (
+                        <div key={mod.key} className="flex items-center gap-2.5">
+                          <ModIcon
+                            className="w-3.5 h-3.5 shrink-0"
+                            style={{ color: 'var(--pc-accent)' }}
+                          />
+                          <span
+                            className="text-xs font-medium w-28 truncate shrink-0"
+                            style={{ color: 'var(--pc-text-secondary)' }}
                           >
-                            <MetricIcon
-                              className="w-3.5 h-3.5"
-                              style={{ color: 'var(--pc-accent)' }}
+                            {mod.label}
+                          </span>
+                          <div
+                            className="flex-1 h-2 rounded-full overflow-hidden"
+                            style={{ background: 'var(--pc-accent-bg)' }}
+                          >
+                            <div
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{
+                                width: `${mod.pct}%`,
+                                background: 'linear-gradient(90deg, #FF8C42, #E85D04)',
+                              }}
                             />
                           </div>
-                          <div className="min-w-0 flex-1">
-                            <div
-                              className="text-[11px] uppercase tracking-wider font-semibold"
-                              style={{ color: 'var(--pc-text-secondary)' }}
-                            >
-                              {metric.label}
-                            </div>
-                            <div
-                              className="text-[11px] truncate"
-                              style={{ color: 'var(--pc-text-muted)' }}
-                            >
-                              {metric.subtitle}
-                            </div>
-                            {typeof metric.progress === 'number' && (
-                              <div
-                                className="w-24 h-1 rounded-full overflow-hidden mt-1"
-                                style={{ background: 'var(--pc-accent-bg)' }}
-                              >
-                                <div
-                                  className="h-full rounded-full transition-all duration-500"
-                                  style={{
-                                    width: `${metric.progress}%`,
-                                    background: 'linear-gradient(90deg, #FF8C42, #E85D04)',
-                                  }}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        <div
-                          className="text-lg sm:text-xl font-mono font-bold tabular-nums shrink-0"
-                          style={{ color: 'var(--pc-text-primary)' }}
-                        >
-                          {metric.value}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* 3. Pass Proficiencies, Credentials & Consistency */}
-                {((sections.showSkills !== false && topSkills.length > 0) ||
-                  (sections.showBadges !== false && badges.length > 0) ||
-                  (sections.showHeatmap !== false && recentActivity.length > 0)) && (
-                  <div className="space-y-2.5">
-                    {sections.showSkills !== false && topSkills.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {topSkills.slice(0, 4).map((skill) => (
                           <span
-                            key={skill}
-                            className={`text-[11px] px-2 py-0.5 ${typo.chipRadius} font-mono font-medium`}
-                            style={{
-                              background: 'var(--pc-surface-subtle)',
-                              border: '1px solid var(--pc-border)',
-                              color: 'var(--pc-accent-soft)',
-                            }}
+                            className="text-xs font-mono font-semibold tabular-nums w-9 text-right shrink-0"
+                            style={{ color: 'var(--pc-text-primary)' }}
                           >
-                            #{skill}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {sections.showBadges !== false && badges.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {badges.slice(0, 3).map((b) => (
-                          <div
-                            key={b.badgeId || b.name}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px]"
-                            style={{
-                              background: 'var(--pc-surface)',
-                              border: '1px solid var(--pc-border)',
-                              color: 'var(--pc-text-primary)',
-                            }}
-                          >
-                            <span className="text-xs">{b.icon || '🎖️'}</span>
-                            <span className="font-medium truncate max-w-[140px]">{b.name}</span>
-                            <span
-                              className="text-[10px] uppercase font-mono font-semibold"
-                              style={{ color: 'var(--pc-accent)' }}
-                            >
-                              • {b.tier}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {sections.showHeatmap !== false && recentActivity.length > 0 && (
-                      <div className="space-y-1">
-                        <div
-                          className="flex items-center justify-between text-[10px]"
-                          style={{ color: 'var(--pc-text-secondary)' }}
-                        >
-                          <span className="font-semibold uppercase tracking-wider">
-                            30-Day Pulse
-                          </span>
-                          <span className="font-mono">
-                            {recentActivity.reduce((acc, a) => acc + (a.count || 0), 0)} events
+                            {mod.pct}%
                           </span>
                         </div>
-                        <div className="flex items-center gap-1 overflow-x-auto py-0.5">
-                          {renderHeatmapBars('h-3 w-2')}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
+                      );
+                    })}
+                </div>
               </div>
             ) : (
               /* ── Landscape Body (ProfilePage & PublicProfilePage) ── */
