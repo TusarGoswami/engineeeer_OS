@@ -14,16 +14,21 @@ export class Judge0Client extends IJudge0Adapter {
 
     // Wrap remote HTTP execution in Opossum Circuit Breaker
     const options = {
-      timeout: 15000, // 15 seconds
-      errorThresholdPercentage: 50, // Open circuit if 50% fails
-      resetTimeout: 30000, // Try reset after 30 seconds
+      timeout: 25000, // 25 seconds (allows Java/C++ compilation on remote Judge0)
+      errorThresholdPercentage: 50, // Open circuit if >=50% fail
+      volumeThreshold: 5, // Require at least 5 requests before tripping circuit
+      resetTimeout: 15000, // Try reset after 15 seconds
     };
 
     this.breaker = new CircuitBreaker(this._executeRemote.bind(this), options);
 
     // Fallback when remote Judge0 call fails, rate-limited, or circuit is open
-    this.breaker.fallback(async (params) => {
+    this.breaker.fallback(async (params, err) => {
       logger.warn(
+        {
+          status: err?.response?.status,
+          reason: err?.message,
+        },
         '[Judge0Client] Remote Judge0 execution unavailable or rejected. Seamlessly using sandbox fallback.'
       );
       return this.mockFallback.execute(params);
@@ -47,11 +52,14 @@ export class Judge0Client extends IJudge0Adapter {
   }) {
     const languageId = JUDGE0_LANGUAGE_IDS[language] || 71; // Default Python
 
+    const encodeBase64 = (val) => Buffer.from(val || '', 'utf8').toString('base64');
+    const decodeBase64 = (val) => (val ? Buffer.from(val, 'base64').toString('utf8') : null);
+
     const payload = {
-      source_code: sourceCode,
+      source_code: encodeBase64(sourceCode),
       language_id: languageId,
-      stdin: stdin || '',
-      expected_output: expectedOutput || null,
+      stdin: encodeBase64(stdin || ''),
+      ...(expectedOutput ? { expected_output: encodeBase64(expectedOutput) } : {}),
       cpu_time_limit: timeLimitMs ? timeLimitMs / 1000 : 2.0,
       memory_limit: memoryLimitKb || 256000,
     };
@@ -72,18 +80,18 @@ export class Judge0Client extends IJudge0Adapter {
     }
 
     const response = await axios.post(
-      `${this.apiUrl}/submissions?base64_encoded=false&wait=true`,
+      `${this.apiUrl}/submissions?base64_encoded=true&wait=true`,
       payload,
-      { headers, timeout: 12000 }
+      { headers, timeout: 22000 }
     );
 
     const data = response.data;
 
     return {
       status: data.status,
-      stdout: data.stdout,
-      stderr: data.stderr,
-      compileOutput: data.compile_output,
+      stdout: decodeBase64(data.stdout),
+      stderr: decodeBase64(data.stderr),
+      compileOutput: decodeBase64(data.compile_output),
       time: parseFloat(data.time || '0'),
       memory: parseInt(data.memory || '0', 10),
     };
