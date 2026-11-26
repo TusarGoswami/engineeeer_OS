@@ -1,31 +1,14 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { BongoCatCoder } from '../components/BongoCatCoder.jsx';
 import { ThemeToggle } from '../components/ThemeToggle.jsx';
+import { BrandLogo } from '../components/BrandLogo.jsx';
 
 /**
  * Shared brand wordmark linking to application root.
  */
-const EngineerOSLogo = ({ size = 'md' }) => {
-  const isLg = size === 'lg';
-  return (
-    <Link to="/" className="inline-flex items-center gap-2.5 group select-none">
-      <div
-        className={`flex items-center justify-center rounded-lg bg-brand-500 font-display font-bold text-white shadow-xs transition-colors duration-150 group-hover:bg-brand-600 ${
-          isLg ? 'h-9 w-9 text-sm' : 'h-7 w-7 text-xs'
-        }`}
-      >
-        OS
-      </div>
-      <span
-        className={`font-display font-bold tracking-tight text-surface-100 ${
-          isLg ? 'text-xl' : 'text-base'
-        }`}
-      >
-        Engineer<span className="text-brand-500">OS</span>
-      </span>
-    </Link>
-  );
-};
+const EngineerOSLogo = ({ size = 'md' }) => (
+  <BrandLogo to="/" size={size} />
+);
 
 /**
  * Two-column authentication layout with BongoCatCoder showcase and semantic light/dark surfaces.
