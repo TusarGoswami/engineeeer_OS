@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { PublicLayout } from '../layouts/PublicLayout.jsx';
 import { DashboardLayout } from '../layouts/DashboardLayout.jsx';
 import { ProtectedRoute } from '../components/ProtectedRoute.jsx';
@@ -42,6 +42,21 @@ export const router = createBrowserRouter([
     element: <PublicProfilePage />,
   },
 
+  // Isolated Full-Viewport Exam Routes (No sidebar / navigation escape)
+  {
+    element: (
+      <ProtectedRoute>
+        <div className="min-h-screen bg-canvas text-surface-100 px-3 py-3 sm:px-6 sm:py-4">
+          <Outlet />
+        </div>
+      </ProtectedRoute>
+    ),
+    children: [
+      { path: '/gate/test/:id', element: <GateTestPage /> },
+      { path: '/assessments/take/:id', element: <AssessmentTakePage /> },
+    ],
+  },
+
   // Protected Dashboard Routes
   {
     element: (
@@ -56,13 +71,11 @@ export const router = createBrowserRouter([
       { path: '/coding', element: <CodingCataloguePage /> },
       { path: '/coding/solve/:slug', element: <ProblemSolvePage /> },
       { path: '/gate', element: <GateCataloguePage /> },
-      { path: '/gate/test/:id', element: <GateTestPage /> },
       { path: '/gate/results/:id', element: <GateResultPage /> },
       { path: '/ai-assistant', element: <AiAssistantPage /> },
       { path: '/interviews', element: <InterviewHubPage /> },
       { path: '/interviews/:id', element: <InterviewSessionPage /> },
       { path: '/assessments', element: <AssessmentCataloguePage /> },
-      { path: '/assessments/take/:id', element: <AssessmentTakePage /> },
       {
         path: '/assessments/review/:id',
         element: (
