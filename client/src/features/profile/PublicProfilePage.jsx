@@ -10,6 +10,7 @@ import profileService from '../../services/profile.service.js';
 import ProfileCard from './components/ProfileCard.jsx';
 import CardExportModal from './components/CardExportModal.jsx';
 import { Button, Card, CardSkeleton, ThemeToggle } from '../../components/index.js';
+import { BrandLogo } from '../../components/BrandLogo.jsx';
 
 /**
  * Publicly shareable EngineerOS card route (/u/:username) supporting unlisted ?token access.
@@ -71,17 +72,7 @@ export const PublicProfilePage = () => {
       {/* Top Navbar */}
       <header className="border-b border-surface-700 bg-navbar/95 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
-          <Link
-            to="/"
-            className="flex items-center gap-2.5 font-display font-bold text-surface-100 text-sm hover:opacity-90 transition-opacity"
-          >
-            <div className="w-7 h-7 rounded-lg bg-brand-500 flex items-center justify-center font-display font-bold text-xs text-white shadow-xs">
-              OS
-            </div>
-            <span>
-              Engineer<span className="text-brand-500">OS</span>
-            </span>
-          </Link>
+          <BrandLogo to="/" size="sm" />
 
           <div className="flex items-center gap-2.5 sm:gap-3">
             <ThemeToggle size="sm" />
