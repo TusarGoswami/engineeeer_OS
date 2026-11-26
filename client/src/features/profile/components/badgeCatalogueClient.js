@@ -121,5 +121,14 @@ export const BADGE_CATALOGUE = [
   },
 ];
 
+export const CUSTOM_BADGE_ARTWORK = {
+  streak_100: {
+    front: '/badges/centurion-streak-front.png',
+    back: '/badges/centurion-streak-back.png',
+  },
+};
+
+export const HEX_CLIP_PATH = 'polygon(50% 2%, 93% 25%, 93% 75%, 50% 98%, 7% 75%, 7% 25%)';
+
 export default BADGE_CATALOGUE;
 

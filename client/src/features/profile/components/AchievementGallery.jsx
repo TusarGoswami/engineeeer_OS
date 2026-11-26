@@ -16,7 +16,7 @@ import {
   BookOpen,
   Users,
 } from 'lucide-react';
-import { BADGE_CATALOGUE } from './badgeCatalogueClient.js';
+import { BADGE_CATALOGUE, CUSTOM_BADGE_ARTWORK, HEX_CLIP_PATH } from './badgeCatalogueClient.js';
 import { Modal } from '../../../components/Modal.jsx';
 import { ProgressBar } from '../../../components/ProgressBar.jsx';
 import { useTheme } from '../../../context/ThemeContext.jsx';
@@ -184,6 +184,35 @@ const useReducedMotion = () => {
    ═══════════════════════════════════════════════════════════════════════ */
 const HexBadge = ({ badgeId, tier, isUnlocked, className = '' }) => {
   const { isDark } = useTheme();
+  const customArt = CUSTOM_BADGE_ARTWORK[badgeId]?.front;
+
+  if (customArt) {
+    return (
+      <div className={`relative w-full h-full ${className}`}>
+        <div
+          className="w-full h-full drop-shadow-lg overflow-hidden"
+          style={{
+            clipPath: HEX_CLIP_PATH,
+            filter: isUnlocked ? undefined : 'saturate(0.15) brightness(0.5)',
+          }}
+        >
+          <img
+            src={customArt}
+            alt={badgeId}
+            className="w-full h-full object-cover scale-[1.06]"
+          />
+        </div>
+        {!isUnlocked && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-7 h-7 rounded-full bg-black/65 border border-white/20 flex items-center justify-center">
+              <Lock className="w-3.5 h-3.5 text-slate-300" strokeWidth={1.75} />
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   const tierCfg = TIER_CONFIG[tier] || TIER_CONFIG.bronze;
   const IconComponent = BADGE_ICONS[badgeId] || AwardIcon;
   const c = isUnlocked ? tierCfg : LOCKED_COLORS;
@@ -366,8 +395,28 @@ const HexSideWalls = ({ depth, edgeColor, edgeHighlight, isUnlocked }) => {
      7. Tier insignia text engraved below emblem
      8. Top-highlight shimmer for metallic realism
    ═══════════════════════════════════════════════════════════════════════ */
-const HexBadgeBack = ({ tier, isUnlocked }) => {
+const HexBadgeBack = ({ badgeId, tier, isUnlocked }) => {
   const { isDark } = useTheme();
+  const customBackArt = CUSTOM_BADGE_ARTWORK[badgeId]?.back;
+
+  if (customBackArt) {
+    return (
+      <div
+        className="relative w-full h-full overflow-hidden drop-shadow-lg"
+        style={{
+          clipPath: HEX_CLIP_PATH,
+          filter: isUnlocked ? undefined : 'saturate(0.15) brightness(0.5)',
+        }}
+      >
+        <img
+          src={customBackArt}
+          alt={`${badgeId} reverse`}
+          className="w-full h-full object-cover scale-[1.06]"
+        />
+      </div>
+    );
+  }
+
   const tierCfg = TIER_CONFIG[tier] || TIER_CONFIG.bronze;
   const c = isUnlocked ? tierCfg : LOCKED_COLORS;
 
@@ -725,7 +774,7 @@ const HexMedal3D = ({
               backfaceVisibility: 'hidden',
             }}
           >
-            <HexBadgeBack tier={tier} isUnlocked={isUnlocked} />
+            <HexBadgeBack badgeId={badgeId} tier={tier} isUnlocked={isUnlocked} />
           </div>
         </div>
       </div>

@@ -22,6 +22,7 @@ import {
   Github,
 } from 'lucide-react';
 import Avatar from '../../../components/Avatar.jsx';
+import { CUSTOM_BADGE_ARTWORK, HEX_CLIP_PATH } from './badgeCatalogueClient.js';
 
 export const THEMES = {
   terminal: {
@@ -845,20 +846,32 @@ export const ProfileCard = forwardRef(
                           Badges ({badges.length})
                         </span>
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          {badges.map((b) => (
-                            <span
-                              key={b.badgeId || b.name}
-                              title={`${b.name}${b.tier ? ` • ${b.tier}` : ''}`}
-                              aria-label={b.name}
-                              className="w-7 h-7 rounded-full flex items-center justify-center text-sm shadow-2xs transition-transform hover:scale-110"
-                              style={{
-                                background: 'var(--pc-surface-subtle)',
-                                border: '1px solid var(--pc-border)',
-                              }}
-                            >
-                              {b.icon || '🎖️'}
-                            </span>
-                          ))}
+                          {badges.map((b) => {
+                            const customFront = CUSTOM_BADGE_ARTWORK[b.badgeId]?.front;
+                            return (
+                              <span
+                                key={b.badgeId || b.name}
+                                title={`${b.name}${b.tier ? ` • ${b.tier}` : ''}`}
+                                aria-label={b.name}
+                                className="w-7 h-7 rounded-full flex items-center justify-center text-sm shadow-2xs transition-transform hover:scale-110 overflow-hidden"
+                                style={{
+                                  background: 'var(--pc-surface-subtle)',
+                                  border: '1px solid var(--pc-border)',
+                                }}
+                              >
+                                {customFront ? (
+                                  <img
+                                    src={customFront}
+                                    alt={b.name}
+                                    className="w-6 h-6 object-cover"
+                                    style={{ clipPath: HEX_CLIP_PATH }}
+                                  />
+                                ) : (
+                                  b.icon || '🎖️'
+                                )}
+                              </span>
+                            );
+                          })}
                         </div>
                       </div>
                     </>
