@@ -593,7 +593,7 @@ export const ProfileCard = forwardRef(
 
             {isPortrait ? (
               /* ── Simplified Portrait Card (Photo, Student Name, Streak, Overall Progress Ring, Module Bars, QR) ── */
-              <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between gap-4">
+              <div className="p-4 sm:p-5 flex-1 flex flex-col justify-center gap-3.5">
                 {/* 1. Identity Row: Glowing Photo + Student Name + University/Branch + Streak */}
                 <div className="flex items-center gap-3.5 pr-16">
                   {sections.showPhoto !== false ? (
@@ -683,73 +683,87 @@ export const ProfileCard = forwardRef(
                   </div>
                 </div>
 
-                {/* 2. Overall Progress Ring Hero Box */}
+                {/* 2. Overall Progress Ring + Module Bars (combined panel) */}
                 <div
-                  className={`pc-panel ${typo.panelRadius} px-4 py-3.5 flex items-center gap-4`}
+                  className={`pc-panel ${typo.panelRadius} px-4 py-3.5 space-y-3.5`}
                 >
-                  <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
-                    <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80" aria-hidden="true">
-                      <circle
-                        cx="40"
-                        cy="40"
-                        r="32"
-                        fill="none"
-                        stroke="var(--pc-accent-bg)"
-                        strokeWidth="8"
-                      />
-                      <circle
-                        cx="40"
-                        cy="40"
-                        r="32"
-                        fill="none"
-                        stroke="url(#pcOverallRingGrad)"
-                        strokeWidth="8"
-                        strokeLinecap="round"
-                        strokeDasharray={2 * Math.PI * 32}
-                        strokeDashoffset={
-                          2 * Math.PI * 32 * (1 - Math.min(100, Math.max(0, overallProgress)) / 100)
-                        }
-                        className="transition-all duration-700"
-                      />
-                      <defs>
-                        <linearGradient id="pcOverallRingGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stopColor="#FF8C42" />
-                          <stop offset="100%" stopColor="#E85D04" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                    <span
-                      className="absolute text-lg font-mono font-bold tabular-nums"
-                      style={{ color: 'var(--pc-text-primary)' }}
-                    >
-                      {overallProgress}%
-                    </span>
-                  </div>
-
-                  <div className="min-w-0 space-y-1">
-                    <div
-                      className="text-sm font-bold tracking-tight"
-                      style={{ color: 'var(--pc-text-primary)' }}
-                    >
-                      Overall Progress
+                  {/* Progress Ring Row */}
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
+                      <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80" aria-hidden="true">
+                        <circle
+                          cx="40"
+                          cy="40"
+                          r="32"
+                          fill="none"
+                          stroke="var(--pc-accent-bg)"
+                          strokeWidth="8"
+                        />
+                        <circle
+                          cx="40"
+                          cy="40"
+                          r="32"
+                          fill="none"
+                          stroke="url(#pcOverallRingGrad)"
+                          strokeWidth="8"
+                          strokeLinecap="round"
+                          strokeDasharray={2 * Math.PI * 32}
+                          strokeDashoffset={
+                            2 * Math.PI * 32 * (1 - Math.min(100, Math.max(0, overallProgress)) / 100)
+                          }
+                          className="transition-all duration-700"
+                          style={{
+                            filter: overallProgress > 0 ? 'drop-shadow(0 0 6px rgba(255,140,66,0.5))' : 'none',
+                          }}
+                        />
+                        <defs>
+                          <linearGradient id="pcOverallRingGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#FF8C42" />
+                            <stop offset="100%" stopColor="#E85D04" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                      <span
+                        className="absolute text-lg font-mono font-bold tabular-nums"
+                        style={{ color: 'var(--pc-text-primary)' }}
+                      >
+                        {overallProgress}%
+                      </span>
                     </div>
-                    <p
-                      className="text-xs italic"
-                      style={{ color: 'var(--pc-accent-soft)' }}
-                    >
-                      {overallProgress >= 75
-                        ? 'Outstanding momentum!'
-                        : overallProgress >= 35
-                        ? 'Keep going! Building daily.'
-                        : overallProgress > 0
-                        ? 'Great start! Keep pushing.'
-                        : 'Solve a problem or mock to begin!'}
-                    </p>
-                  </div>
-                </div>
 
-                {/* 3. Live Modules Progress Bars */}
-                <div className={`pc-panel ${typo.panelRadius} p-3.5 space-y-2.5`}>
+                    <div className="min-w-0 space-y-1">
+                      <div
+                        className="text-sm font-bold tracking-tight"
+                        style={{ color: 'var(--pc-text-primary)' }}
+                      >
+                        Overall Progress
+                      </div>
+                      <p
+                        className="text-xs italic"
+                        style={{ color: 'var(--pc-accent-soft)' }}
+                      >
+                        {overallProgress >= 75
+                          ? 'Outstanding momentum!'
+                          : overallProgress >= 35
+                          ? 'Keep going! Building daily.'
+                          : overallProgress > 0
+                          ? 'Great start! Keep pushing.'
+                          : 'Solve a problem or mock to begin!'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="h-px w-full" style={{ background: 'var(--pc-border)' }} />
+
+                  {/* Module Progress Bars */}
+                  <div className="space-y-2.5">
+                    <div
+                      className="text-[11px] font-semibold uppercase tracking-wider"
+                      style={{ color: 'var(--pc-text-secondary)' }}
+                    >
+                      Modules Progress
+                    </div>
                   {[
                     {
                       key: 'academics',
@@ -804,6 +818,7 @@ export const ProfileCard = forwardRef(
                               style={{
                                 width: `${mod.pct}%`,
                                 background: 'linear-gradient(90deg, #FF8C42, #E85D04)',
+                                boxShadow: mod.pct > 0 ? '0 0 8px rgba(255, 140, 66, 0.35)' : 'none',
                               }}
                             />
                           </div>
@@ -816,6 +831,7 @@ export const ProfileCard = forwardRef(
                         </div>
                       );
                     })}
+                  </div>
                 </div>
               </div>
             ) : (

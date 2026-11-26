@@ -3,6 +3,9 @@ import { UserBadge } from './userBadge.model.js';
 import { ProfileSnapshot } from './profileSnapshot.model.js';
 import { User } from '../users/user.model.js';
 import { ProgressSummary } from '../progress/progressSummary.model.js';
+import { GateAttempt } from '../gate/gateAttempt.model.js';
+import { CommunityPost } from '../community/communityPost.model.js';
+import { CommunityReply } from '../community/communityReply.model.js';
 import { BADGE_CATALOGUE } from './badge.catalogue.js';
 import { getRedisClient } from '../../config/redis.js';
 
@@ -166,11 +169,16 @@ export class ProfileSnapshotService {
       ranking: summary.codingStats?.solvedCount ? Math.max(1, 500 - summary.codingStats.solvedCount * 3) : 0,
     };
 
+    const bestGateAttempt = await GateAttempt.findOne({ userId })
+      .sort({ accuracyRate: -1, score: -1 })
+      .populate('testId', 'subject title')
+      .lean();
+
     const gateStats = {
       testsTaken: summary.gateStats?.testsAttempted || 0,
       averageScore: summary.gateStats?.averageScore || 0,
       percentile: summary.gateStats?.averageScore ? Math.min(99, Math.round(summary.gateStats.averageScore * 1.1)) : 0,
-      topSubject: 'Computer Networks',
+      topSubject: bestGateAttempt?.testId?.subject || '',
     };
 
     const interviewStats = {
@@ -185,10 +193,23 @@ export class ProfileSnapshotService {
       activeSubjectsCount: summary.academicsStats?.subjectsInProgress || 0,
     };
 
+    const [postsCount, acceptedAnswersCount, postUpvotesAgg, replyUpvotesAgg] = await Promise.all([
+      CommunityPost.countDocuments({ authorId: userId }),
+      CommunityReply.countDocuments({ authorId: userId, isAccepted: true }),
+      CommunityPost.aggregate([
+        { $match: { authorId: user._id } },
+        { $group: { _id: null, total: { $sum: '$upvoteCount' } } },
+      ]),
+      CommunityReply.aggregate([
+        { $match: { authorId: user._id } },
+        { $group: { _id: null, total: { $sum: '$upvoteCount' } } },
+      ]),
+    ]);
+
     const communityStats = {
-      postsCount: 0,
-      acceptedAnswersCount: 0,
-      helpfulVotesCount: 0,
+      postsCount,
+      acceptedAnswersCount,
+      helpfulVotesCount: (postUpvotesAgg[0]?.total || 0) + (replyUpvotesAgg[0]?.total || 0),
     };
 
     const statsPayload = {
