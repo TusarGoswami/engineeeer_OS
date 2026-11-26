@@ -265,18 +265,14 @@ export const ProfileCard = forwardRef(
 
     const typo = THEME_TYPOGRAPHY[theme] || THEME_TYPOGRAPHY.terminal;
 
-    /* ── Theme-aware CSS token styles ── */
+    /* ── Clean 2D surface overlay (no 3D translateZ/blur to keep text razor-sharp) ── */
     const glassStyle = {
-      transformStyle: 'preserve-3d',
       position: 'absolute',
-      inset: '8px',
-      borderRadius: '22px',
+      inset: '6px',
+      borderRadius: '20px',
       borderTop: '1px solid var(--pc-glass-border)',
       borderLeft: '1px solid var(--pc-glass-border)',
       background: 'var(--pc-glass)',
-      backdropFilter: 'blur(4px)',
-      WebkitBackdropFilter: 'blur(4px)',
-      transform: 'translate3d(0,0,20px)',
       pointerEvents: 'none',
       zIndex: 1,
     };
@@ -289,17 +285,12 @@ export const ProfileCard = forwardRef(
       borderRadius: '50%',
       top: 0,
       right: 0,
-      backdropFilter: 'blur(4px)',
-      WebkitBackdropFilter: 'blur(4px)',
       background: 'var(--pc-circle-bg)',
       border: '1px solid var(--pc-circle-border)',
       boxShadow: 'var(--pc-circle-shadow)',
-      transition: 'all 0.5s ease-in-out',
     };
 
     const contentDepth = {
-      transformStyle: 'preserve-3d',
-      transform: 'translate3d(0,0,55px)',
       position: 'relative',
       zIndex: 2,
     };
@@ -392,21 +383,19 @@ export const ProfileCard = forwardRef(
     ].filter((item) => item.visible);
 
     return (
-      /* perspective wrapper */
       <div
         className={`pc-parent ${
           isPortrait
-            ? 'pc-parent-portrait w-full max-w-md xl:max-w-none h-full flex flex-col'
+            ? 'pc-parent-portrait w-full max-w-md h-full flex flex-col'
             : 'w-full max-w-2xl'
         } ${className}`}
-        style={{ perspective: '1200px' }}
       >
-        {/* 3D theme-aware card body (adapts via .pc-card & .dark .pc-card CSS vars) */}
+        {/* Theme-aware card body (adapts via .pc-card & .dark .pc-card CSS vars) */}
         <div
           ref={ref}
           id="engineeros-profile-card"
           data-orientation={orientation}
-          className={`pc-card w-full rounded-3xl relative overflow-visible ${
+          className={`pc-card w-full rounded-3xl relative overflow-hidden ${
             isPortrait ? 'pc-card-portrait flex-1 flex flex-col' : ''
           }`}
         >
@@ -417,7 +406,6 @@ export const ProfileCard = forwardRef(
               position: 'absolute',
               right: 0,
               top: 0,
-              transformStyle: 'preserve-3d',
               pointerEvents: 'none',
               zIndex: 0,
             }}
@@ -428,10 +416,8 @@ export const ProfileCard = forwardRef(
               style={{
                 ...circleBase,
                 width: ringSizes[0],
-                transform: 'translate3d(0,0,15px)',
                 top: '6px',
                 right: '6px',
-                transitionDelay: '0s',
               }}
             />
             <span
@@ -439,10 +425,8 @@ export const ProfileCard = forwardRef(
               style={{
                 ...circleBase,
                 width: ringSizes[1],
-                transform: 'translate3d(0,0,32px)',
                 top: '9px',
                 right: '9px',
-                transitionDelay: '0.1s',
               }}
             />
             <span
@@ -450,10 +434,8 @@ export const ProfileCard = forwardRef(
               style={{
                 ...circleBase,
                 width: ringSizes[2],
-                transform: 'translate3d(0,0,50px)',
                 top: '15px',
                 right: '15px',
-                transitionDelay: '0.2s',
               }}
             />
             <span
@@ -461,10 +443,8 @@ export const ProfileCard = forwardRef(
               style={{
                 ...circleBase,
                 width: ringSizes[3],
-                transform: 'translate3d(0,0,68px)',
                 top: '22px',
                 right: '22px',
-                transitionDelay: '0.3s',
               }}
             />
             <span
@@ -472,10 +452,8 @@ export const ProfileCard = forwardRef(
               style={{
                 ...circleBase,
                 width: ringSizes[4],
-                transform: 'translate3d(0,0,86px)',
                 top: '29px',
                 right: '29px',
-                transitionDelay: '0.4s',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -1261,16 +1239,13 @@ export const ProfileCard = forwardRef(
               </div>
             )}
 
-            {/* ── Footer — elevated action zone ── */}
+            {/* ── Footer — action zone ── */}
             <div
               className={`pc-bottom flex items-center justify-between gap-3 px-5 border-t shrink-0 ${
                 isPortrait ? 'py-3' : 'py-4'
               }`}
               style={{
                 borderColor: 'var(--pc-border-subtle)',
-                transformStyle: 'preserve-3d',
-                transform: 'translate3d(0,0,0)',
-                transition: 'transform 0.5s ease-in-out',
               }}
             >
               <div className="flex items-center gap-3">

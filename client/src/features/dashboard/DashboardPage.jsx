@@ -451,7 +451,7 @@ export const DashboardPage = () => {
                 profile={liveCardProfile}
                 orientation="portrait"
                 compact={false}
-                className="w-full"
+                className="w-full xl:max-w-none"
               />
             )}
           </div>
