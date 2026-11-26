@@ -95,7 +95,8 @@ export class CodeExecWorkerService {
 
         if (
           result.status?.id === JUDGE0_STATUS.RUNTIME_ERROR_NZEC ||
-          result.status?.id === JUDGE0_STATUS.RUNTIME_ERROR_SIGSEGV
+          result.status?.id === JUDGE0_STATUS.RUNTIME_ERROR_SIGSEGV ||
+          (result.status?.id >= 7 && result.status?.id <= 14 && result.status?.id !== JUDGE0_STATUS.TIME_LIMIT_EXCEEDED)
         ) {
           finalStatus = 'runtime_error';
           break;
@@ -121,7 +122,7 @@ export class CodeExecWorkerService {
       // 4. Update Submission record
       submission.status = finalStatus;
       submission.testCasesPassed = passedCount;
-      submission.runtimeMs = Math.round((totalRuntime / Math.max(passedCount || 1, 1)) * 1000);
+      submission.runtimeMs = Math.round((totalRuntime / Math.max(traces.length, 1)) * 1000);
       submission.memoryKb = maxMemory;
       await submission.save();
 
@@ -131,12 +132,22 @@ export class CodeExecWorkerService {
 
       // 6. Emit Activity Events for Progress Tracking & Streak
       const isAccepted = finalStatus === 'accepted';
+      let alreadySolvedBefore = false;
+      if (isAccepted) {
+        const priorAccepted = await CodingSubmission.exists({
+          userId: submission.userId,
+          problemId: submission.problemId,
+          status: 'accepted',
+          _id: { $ne: submission._id },
+        });
+        alreadySolvedBefore = Boolean(priorAccepted);
+      }
       const problem = await CodingProblem.findById(submission.problemId).lean();
 
       await ActivityService.record({
         userId: submission.userId,
         module: 'coding',
-        action: isAccepted ? 'PROBLEM_SOLVED' : 'SUBMISSION_EVALUATED',
+        action: isAccepted && !alreadySolvedBefore ? 'PROBLEM_SOLVED' : 'SUBMISSION_EVALUATED',
         payload: {
           submissionId: submission._id.toString(),
           problemId: submission.problemId.toString(),

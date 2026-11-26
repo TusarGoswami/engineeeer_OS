@@ -1,4 +1,3 @@
-import axios from 'axios';
 import CircuitBreaker from 'opossum';
 import { IJudge0Adapter, JUDGE0_LANGUAGE_IDS } from './judge0.interface.js';
 import { MockJudge0Adapter } from './mock.judge0.js';
@@ -24,9 +23,16 @@ export class Judge0Client extends IJudge0Adapter {
 
     // Fallback when remote Judge0 call fails, rate-limited, or circuit is open
     this.breaker.fallback(async (params, err) => {
+      if (env.NODE_ENV === 'production') {
+        logger.error(
+          { status: err?.status, reason: err?.message },
+          '[Judge0Client] Remote Judge0 execution failed in production.'
+        );
+        throw new Error('Code execution service is temporarily unavailable.');
+      }
       logger.warn(
         {
-          status: err?.response?.status,
+          status: err?.status,
           reason: err?.message,
         },
         '[Judge0Client] Remote Judge0 execution unavailable or rejected. Seamlessly using sandbox fallback.'
@@ -79,13 +85,23 @@ export class Judge0Client extends IJudge0Adapter {
       }
     }
 
-    const response = await axios.post(
+    const response = await fetch(
       `${this.apiUrl}/submissions?base64_encoded=true&wait=true`,
-      payload,
-      { headers, timeout: 22000 }
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(22000),
+      }
     );
 
-    const data = response.data;
+    if (!response.ok) {
+      const err = new Error(`Judge0 HTTP ${response.status}`);
+      err.status = response.status;
+      throw err;
+    }
+
+    const data = await response.json();
 
     return {
       status: data.status,

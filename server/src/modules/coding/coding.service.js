@@ -19,6 +19,7 @@ export class CodingService {
   static async getProblems(filters = {}, pagination = {}) {
     const { difficulty, tag, search } = filters;
     const { limit = 20, cursor } = pagination;
+    const safeLimit = Math.min(100, Math.max(1, Number(limit) || 20));
 
     const query = { isPublished: true };
     if (difficulty) query.difficulty = difficulty;
@@ -34,11 +35,11 @@ export class CodingService {
     const problems = await CodingProblem.find(query)
       .select('title slug difficulty tags sampleTestCases createdAt')
       .sort({ _id: 1 })
-      .limit(limit + 1)
+      .limit(safeLimit + 1)
       .lean();
 
-    const hasMore = problems.length > limit;
-    const data = hasMore ? problems.slice(0, limit) : problems;
+    const hasMore = problems.length > safeLimit;
+    const data = hasMore ? problems.slice(0, safeLimit) : problems;
     const nextCursor = hasMore && data.length > 0 ? data[data.length - 1]._id : null;
 
     return {
@@ -46,7 +47,7 @@ export class CodingService {
       pagination: {
         hasMore,
         nextCursor,
-        limit,
+        limit: safeLimit,
       },
     };
   }
