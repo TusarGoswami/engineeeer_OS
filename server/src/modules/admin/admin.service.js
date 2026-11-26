@@ -63,9 +63,10 @@ export class AdminService {
   static async getProblems({ page = 1, limit = 20, search = '', difficulty = '' } = {}) {
     const filter = {};
     if (search) {
+      const escaped = String(search).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       filter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { tags: { $in: [new RegExp(search, 'i')] } },
+        { title: { $regex: escaped, $options: 'i' } },
+        { tags: { $in: [new RegExp(escaped, 'i')] } },
       ];
     }
     if (difficulty) {
@@ -171,9 +172,10 @@ export class AdminService {
   static async getAssessments({ page = 1, limit = 20, search = '' } = {}) {
     const filter = {};
     if (search) {
+      const escaped = String(search).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       filter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
+        { title: { $regex: escaped, $options: 'i' } },
+        { description: { $regex: escaped, $options: 'i' } },
       ];
     }
 
@@ -344,10 +346,11 @@ export class AdminService {
   static async getUsers({ page = 1, limit = 20, search = '', role = '', isAlumni } = {}) {
     const filter = {};
     if (search) {
+      const escaped = String(search).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { username: { $regex: search, $options: 'i' } },
+        { name: { $regex: escaped, $options: 'i' } },
+        { email: { $regex: escaped, $options: 'i' } },
+        { username: { $regex: escaped, $options: 'i' } },
       ];
     }
     if (role) filter.role = role;
