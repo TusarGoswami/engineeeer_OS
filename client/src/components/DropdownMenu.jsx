@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useRef, useEffect, useCallback } from 'react';
+import { cloneElement, isValidElement, createContext, useContext, useState, useRef, useEffect, useCallback } from 'react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -62,8 +62,16 @@ export const DropdownMenuTrigger = ({ children, className = '', asChild = false,
 
   const { isOpen, setOpen } = context;
 
-  if (asChild && children && typeof children === 'object') {
-    return children;
+  if (asChild && isValidElement(children)) {
+    return cloneElement(children, {
+      ...props,
+      'aria-expanded': isOpen,
+      'aria-haspopup': 'menu',
+      onClick: (e) => {
+        children.props?.onClick?.(e);
+        setOpen((prev) => !prev);
+      },
+    });
   }
 
   return (
