@@ -316,5 +316,68 @@ describe('Assessments Module (Module 7)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Clear Review' }));
     expect(screen.getByRole('button', { name: 'Cleared' })).toBeDisabled();
   });
+
+  it('shows centered proctoring warning modal for 3 violations and auto-submits + redirects on the 4th', async () => {
+    assessmentService.startAttempt.mockResolvedValue(mockStartAttemptPayload);
+    assessmentService.recordIntegrity.mockResolvedValue({ success: true });
+    assessmentService.submitAttempt.mockResolvedValue({
+      data: { _id: 'att-10', score: 2, accuracyRate: 33, isAutoSubmitted: true },
+    });
+    assessmentService.getAssessments.mockResolvedValue({ data: mockAssessmentsList });
+
+    const mockTrack = { stop: vi.fn() };
+    const mockMediaStream = {
+      getTracks: () => [mockTrack],
+      getVideoTracks: () => [{}],
+    };
+    Object.defineProperty(navigator, 'mediaDevices', {
+      value: {
+        getUserMedia: vi.fn().mockResolvedValue(mockMediaStream),
+        getDisplayMedia: vi.fn().mockResolvedValue(mockMediaStream),
+      },
+      configurable: true,
+    });
+
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    renderWithRoutes('/assessments/take/assess-1');
+
+    expect(
+      await screen.findByText('Mandatory Exam Security & Proctoring Setup')
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Enable Camera' }));
+    await waitFor(() => expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledTimes(1));
+    fireEvent.click(screen.getByRole('button', { name: 'Share Screen' }));
+    await waitFor(() => expect(navigator.mediaDevices.getDisplayMedia).toHaveBeenCalledTimes(1));
+    fireEvent.click(screen.getByRole('button', { name: /Enter Fullscreen & Begin Exam/i }));
+    expect(await screen.findByText(/REC · PROCTOR LIVE/i)).toBeInTheDocument();
+
+    // Violation 1
+    await vi.advanceTimersByTimeAsync(500);
+    fireEvent(document, new Event('fullscreenchange'));
+    expect(await screen.findByText('Proctoring Rule Violation Warning')).toBeInTheDocument();
+    expect(screen.getByText('Warning 1 of 3')).toBeInTheDocument();
+    expect(screen.getByText('2 chances remaining')).toBeInTheDocument();
+
+    // Violation 2
+    await vi.advanceTimersByTimeAsync(500);
+    fireEvent(window, new Event('blur'));
+    expect(await screen.findByText('Warning 2 of 3')).toBeInTheDocument();
+    expect(screen.getByText('1 chance remaining')).toBeInTheDocument();
+
+    // Violation 3
+    await vi.advanceTimersByTimeAsync(500);
+    fireEvent(document, new Event('fullscreenchange'));
+    expect(await screen.findByText('Warning 3 of 3')).toBeInTheDocument();
+    expect(screen.getByText('0 chances remaining')).toBeInTheDocument();
+    expect(assessmentService.submitAttempt).not.toHaveBeenCalled();
+
+    // Violation 4 -> auto-submit & redirect out of exam
+    await vi.advanceTimersByTimeAsync(500);
+    fireEvent(window, new Event('blur'));
+    await waitFor(() => {
+      expect(assessmentService.submitAttempt).toHaveBeenCalledTimes(1);
+    });
+    expect(await screen.findByText('CS301: Operating Systems Midterm')).toBeInTheDocument();
+  });
 });
 
