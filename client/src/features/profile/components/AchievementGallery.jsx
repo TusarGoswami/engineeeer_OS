@@ -190,7 +190,7 @@ const HexBadge = ({ badgeId, tier, isUnlocked, className = '' }) => {
     return (
       <div className={`relative w-full h-full ${className}`}>
         <div
-          className="w-full h-full drop-shadow-lg overflow-hidden rounded-2xl"
+          className="w-full h-full drop-shadow-lg"
           style={{
             filter: isUnlocked ? undefined : 'saturate(0.15) brightness(0.5)',
           }}
@@ -198,7 +198,7 @@ const HexBadge = ({ badgeId, tier, isUnlocked, className = '' }) => {
           <img
             src={customArt}
             alt={badgeId}
-            className="w-full h-full object-contain scale-[1.08]"
+            className="w-full h-full object-contain"
           />
         </div>
         {!isUnlocked && (
@@ -401,7 +401,7 @@ const HexBadgeBack = ({ badgeId, tier, isUnlocked }) => {
   if (customBackArt) {
     return (
       <div
-        className="relative w-full h-full overflow-hidden rounded-2xl drop-shadow-lg"
+        className="relative w-full h-full drop-shadow-lg"
         style={{
           filter: isUnlocked ? undefined : 'saturate(0.15) brightness(0.5)',
         }}
@@ -409,7 +409,7 @@ const HexBadgeBack = ({ badgeId, tier, isUnlocked }) => {
         <img
           src={customBackArt}
           alt={`${badgeId} reverse`}
-          className="w-full h-full object-contain scale-[1.08]"
+          className="w-full h-full object-contain"
         />
       </div>
     );
@@ -755,13 +755,15 @@ const HexMedal3D = ({
             <HexBadge badgeId={badgeId} tier={tier} isUnlocked={isUnlocked} />
           </div>
 
-          {/* 3D SIDE WALLS — 6 perpendicular surfaces visible at all angles */}
-          <HexSideWalls
-            depth={depth}
-            edgeColor={edgeStart}
-            edgeHighlight={edgeMid}
-            isUnlocked={isUnlocked}
-          />
+          {/* 3D SIDE WALLS — only for SVG badges (custom PNGs spin cleanly without protruding edge lines) */}
+          {!CUSTOM_BADGE_ARTWORK[badgeId] && (
+            <HexSideWalls
+              depth={depth}
+              edgeColor={edgeStart}
+              edgeHighlight={edgeMid}
+              isUnlocked={isUnlocked}
+            />
+          )}
 
           {/* BACK FACE */}
           <div

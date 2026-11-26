@@ -22,7 +22,7 @@ import {
   Github,
 } from 'lucide-react';
 import Avatar from '../../../components/Avatar.jsx';
-import { CUSTOM_BADGE_ARTWORK, HEX_CLIP_PATH } from './badgeCatalogueClient.js';
+import { CUSTOM_BADGE_ARTWORK } from './badgeCatalogueClient.js';
 
 export const THEMES = {
   terminal: {
@@ -863,8 +863,7 @@ export const ProfileCard = forwardRef(
                                   <img
                                     src={customFront}
                                     alt={b.name}
-                                    className="w-6 h-6 object-cover"
-                                    style={{ clipPath: HEX_CLIP_PATH }}
+                                    className="w-6 h-6 object-contain"
                                   />
                                 ) : (
                                   b.icon || '🎖️'
