@@ -51,7 +51,17 @@ export const AssessmentModal = ({
       setTotalMarks(assessment.totalMarks || 20);
       setFullScreenRequired(assessment.rules?.fullScreenRequired !== false);
       setTrackTabSwitches(assessment.rules?.trackTabSwitches !== false);
-      setQuestions(assessment.questions?.length ? assessment.questions : []);
+      setQuestions(
+        assessment.questions?.length
+          ? assessment.questions.map((q) => ({
+              ...q,
+              options: (q.options || []).map((opt) => ({
+                ...opt,
+                id: opt.id || opt.optionId,
+              })),
+            }))
+          : []
+      );
     } else {
       setTitle('');
       setDescription('');
@@ -303,9 +313,10 @@ export const AssessmentModal = ({
                     label="Question Text"
                     value={q.questionText}
                     onChange={(e) => {
-                      const next = [...questions];
-                      next[qIdx].questionText = e.target.value;
-                      setQuestions(next);
+                      const val = e.target.value;
+                      setQuestions((prev) =>
+                        prev.map((item, idx) => (idx === qIdx ? { ...item, questionText: val } : item))
+                      );
                     }}
                     placeholder="Enter question statement..."
                     required
@@ -317,9 +328,10 @@ export const AssessmentModal = ({
                     type="number"
                     value={q.marks}
                     onChange={(e) => {
-                      const next = [...questions];
-                      next[qIdx].marks = e.target.value;
-                      setQuestions(next);
+                      const val = e.target.value;
+                      setQuestions((prev) =>
+                        prev.map((item, idx) => (idx === qIdx ? { ...item, marks: val } : item))
+                      );
                     }}
                   />
                 </div>
@@ -327,39 +339,54 @@ export const AssessmentModal = ({
 
               {/* Options */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1">
-                {q.options?.map((opt, optIdx) => (
-                  <div
-                    key={opt.id}
-                    className="flex items-center gap-2 bg-card p-2 rounded-lg border border-surface-700"
-                  >
-                    <span className="font-mono font-bold text-surface-400 w-4">{opt.id}</span>
-                    <input
-                      type="text"
-                      aria-label={`Question ${qIdx + 1} Option ${opt.id}`}
-                      placeholder={`Option ${opt.id}`}
-                      value={opt.text}
-                      onChange={(e) => {
-                        const next = [...questions];
-                        next[qIdx].options[optIdx].text = e.target.value;
-                        setQuestions(next);
-                      }}
-                      className="w-full bg-transparent border-0 text-surface-100 placeholder:text-surface-500 text-xs focus:outline-none"
-                    />
-                    <input
-                      type="radio"
-                      name={`correct-${qIdx}`}
-                      aria-label={`Mark Question ${qIdx + 1} Option ${opt.id} as correct`}
-                      checked={q.correctOptions?.includes(opt.id)}
-                      onChange={() => {
-                        const next = [...questions];
-                        next[qIdx].correctOptions = [opt.id];
-                        setQuestions(next);
-                      }}
-                      title="Mark as correct answer"
-                      className="text-brand-500 focus:ring-brand-500 cursor-pointer"
-                    />
-                  </div>
-                ))}
+                {q.options?.map((opt, optIdx) => {
+                  const optId = opt.id || opt.optionId;
+                  return (
+                    <div
+                      key={optId || optIdx}
+                      className="flex items-center gap-2 bg-card p-2 rounded-lg border border-surface-700"
+                    >
+                      <span className="font-mono font-bold text-surface-400 w-4">{optId}</span>
+                      <input
+                        type="text"
+                        aria-label={`Question ${qIdx + 1} Option ${optId}`}
+                        placeholder={`Option ${optId}`}
+                        value={opt.text}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setQuestions((prev) =>
+                            prev.map((item, idx) =>
+                              idx === qIdx
+                                ? {
+                                    ...item,
+                                    options: item.options.map((o, oIdx) =>
+                                      oIdx === optIdx ? { ...o, text: val } : o
+                                    ),
+                                  }
+                                : item
+                            )
+                          );
+                        }}
+                        className="w-full bg-transparent border-0 text-surface-100 placeholder:text-surface-500 text-xs focus:outline-none"
+                      />
+                      <input
+                        type="radio"
+                        name={`correct-${qIdx}`}
+                        aria-label={`Mark Question ${qIdx + 1} Option ${optId} as correct`}
+                        checked={q.correctOptions?.includes(optId)}
+                        onChange={() => {
+                          setQuestions((prev) =>
+                            prev.map((item, idx) =>
+                              idx === qIdx ? { ...item, correctOptions: [optId] } : item
+                            )
+                          );
+                        }}
+                        title="Mark as correct answer"
+                        className="text-brand-500 focus:ring-brand-500 cursor-pointer"
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ))}
