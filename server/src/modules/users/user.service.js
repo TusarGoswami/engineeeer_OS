@@ -43,12 +43,21 @@ export class UserService {
       }
     }
 
-    // Flatten nested subdocuments to dot-notation so partial updates don't wipe sibling keys
-    for (const nestedKey of ['profile', 'profileSettings']) {
-      if (sanitized[nestedKey] && typeof sanitized[nestedKey] === 'object') {
-        for (const [k, v] of Object.entries(sanitized[nestedKey])) {
-          sanitized[`${nestedKey}.${k}`] = v;
+    // Flatten nested subdocuments recursively to dot-notation so partial updates don't wipe sibling keys
+    const flattenNested = (prefix, obj) => {
+      for (const [k, v] of Object.entries(obj)) {
+        const path = `${prefix}.${k}`;
+        if (v && typeof v === 'object' && !Array.isArray(v) && !(v instanceof Date)) {
+          flattenNested(path, v);
+        } else {
+          sanitized[path] = v;
         }
+      }
+    };
+
+    for (const nestedKey of ['profile', 'profileSettings', 'settings']) {
+      if (sanitized[nestedKey] && typeof sanitized[nestedKey] === 'object' && !Array.isArray(sanitized[nestedKey])) {
+        flattenNested(nestedKey, sanitized[nestedKey]);
         delete sanitized[nestedKey];
       }
     }
