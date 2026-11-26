@@ -10,6 +10,7 @@ const router = Router();
 router.get('/subjects', optionalAuth, AcademicsController.getSubjects);
 router.get('/subjects/:id', optionalAuth, AcademicsController.getSubjectById);
 router.get('/subjects/:id/resources', optionalAuth, AcademicsController.getResources);
+router.get('/resources/file/:key', AcademicsController.getResourceFile);
 
 // Student topic progress toggle
 router.post(
