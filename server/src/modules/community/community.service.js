@@ -78,9 +78,8 @@ export class CommunityService {
       .lean();
 
     if (!post) {
-      const err = new Error('Post not found');
-      err.statusCode = 404;
-      throw err;
+      const { NotFoundError } = await import('../../middleware/error.js');
+      throw new NotFoundError('Post not found');
     }
 
     // Fetch replies from segregated collection
@@ -101,9 +100,8 @@ export class CommunityService {
   static async addReply({ postId, authorId, content, parentReplyId = null }) {
     const post = await CommunityPost.findById(postId);
     if (!post) {
-      const err = new Error('Post not found');
-      err.statusCode = 404;
-      throw err;
+      const { NotFoundError } = await import('../../middleware/error.js');
+      throw new NotFoundError('Post not found');
     }
 
     const reply = await CommunityReply.create({
@@ -154,9 +152,8 @@ export class CommunityService {
   static async upvotePost({ postId, userId }) {
     const post = await CommunityPost.findById(postId);
     if (!post) {
-      const err = new Error('Post not found');
-      err.statusCode = 404;
-      throw err;
+      const { NotFoundError } = await import('../../middleware/error.js');
+      throw new NotFoundError('Post not found');
     }
 
     const index = post.upvotes.findIndex(id => id.toString() === userId.toString());
@@ -182,9 +179,8 @@ export class CommunityService {
   static async upvoteReply({ replyId, userId }) {
     const reply = await CommunityReply.findById(replyId);
     if (!reply) {
-      const err = new Error('Reply not found');
-      err.statusCode = 404;
-      throw err;
+      const { NotFoundError } = await import('../../middleware/error.js');
+      throw new NotFoundError('Reply not found');
     }
 
     const index = reply.upvotes.findIndex(id => id.toString() === userId.toString());
@@ -210,15 +206,19 @@ export class CommunityService {
   static async acceptReply({ postId, replyId, userId }) {
     const post = await CommunityPost.findById(postId);
     if (!post) {
-      const err = new Error('Post not found');
-      err.statusCode = 404;
-      throw err;
+      const { NotFoundError } = await import('../../middleware/error.js');
+      throw new NotFoundError('Post not found');
     }
 
     if (post.authorId.toString() !== userId.toString()) {
-      const err = new Error('Only the post author can mark an accepted reply');
-      err.statusCode = 403;
-      throw err;
+      const { ForbiddenError } = await import('../../middleware/error.js');
+      throw new ForbiddenError('Only the post author can mark an accepted reply');
+    }
+
+    const replyExists = await CommunityReply.findOne({ _id: replyId, postId }).lean();
+    if (!replyExists) {
+      const { NotFoundError } = await import('../../middleware/error.js');
+      throw new NotFoundError('Reply not found for this post');
     }
 
     await CommunityReply.updateMany({ postId }, { $set: { isAccepted: false } });

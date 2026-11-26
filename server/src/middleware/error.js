@@ -1,5 +1,6 @@
 import { logger } from '../config/logger.js';
 import { ZodError } from 'zod';
+import multer from 'multer';
 
 export class AppError extends Error {
   constructor(message, statusCode = 500, code = 'INTERNAL_ERROR', details = null) {
@@ -87,6 +88,18 @@ export const errorHandler = (err, req, res, _next) => {
         code: 'CONFLICT',
         message: `An entity with this ${field} already exists.`,
         details: { field },
+        requestId,
+      },
+    });
+  }
+
+  // Handle Multer upload errors
+  if (err instanceof multer.MulterError) {
+    const status = err.code === 'LIMIT_FILE_SIZE' ? 413 : 400;
+    return res.status(status).json({
+      error: {
+        code: err.code || 'UPLOAD_ERROR',
+        message: err.message,
         requestId,
       },
     });

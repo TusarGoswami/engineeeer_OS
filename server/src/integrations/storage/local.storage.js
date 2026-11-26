@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { IStorageAdapter } from './storage.interface.js';
+import { NotFoundError } from '../../middleware/error.js';
 
 export class LocalStorageAdapter extends IStorageAdapter {
   constructor(baseDir = 'uploads') {
@@ -30,7 +31,7 @@ export class LocalStorageAdapter extends IStorageAdapter {
   async download({ key }) {
     const filePath = this._getFilePath(key);
     if (!fs.existsSync(filePath)) {
-      throw new Error(`File not found: ${key}`);
+      throw new NotFoundError(`File not found: ${key}`);
     }
     return await fs.promises.readFile(filePath);
   }

@@ -2,6 +2,7 @@ import { GateTest } from './gateTest.model.js';
 import { GateAttempt } from './gateAttempt.model.js';
 import { GateScoringService } from './scoring.service.js';
 import { ActivityService } from '../progress/activity.service.js';
+import { NotFoundError } from '../../middleware/error.js';
 
 export class GateService {
   /**
@@ -10,7 +11,8 @@ export class GateService {
   static async getTests(query = {}) {
     const filter = { isPublished: true };
     if (query.subject) {
-      filter.subject = new RegExp(query.subject, 'i');
+      const escaped = String(query.subject).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter.subject = new RegExp(escaped, 'i');
     }
 
     return GateTest.find(filter)
@@ -30,9 +32,7 @@ export class GateService {
       .lean();
 
     if (!test) {
-      const err = new Error('GATE test not found or not published');
-      err.statusCode = 404;
-      throw err;
+      throw new NotFoundError('GATE test not found or not published');
     }
 
     return test;
@@ -48,9 +48,7 @@ export class GateService {
       .lean();
 
     if (!test) {
-      const err = new Error('GATE test not found');
-      err.statusCode = 404;
-      throw err;
+      throw new NotFoundError('GATE test not found');
     }
 
     // 2. Evaluate using GateScoringService
@@ -106,15 +104,15 @@ export class GateService {
       .lean();
 
     if (!attempt) {
-      const err = new Error('GATE attempt not found');
-      err.statusCode = 404;
-      throw err;
+      throw new NotFoundError('GATE attempt not found');
     }
 
-    // Include explanation from test questions for review
-    const fullTest = await GateTest.findById(attempt.testId._id)
-      .select('+questions.correctOptions +questions.explanation')
-      .lean();
+    // Include explanation from test questions for review (guard against deleted test)
+    const fullTest = attempt.testId?._id
+      ? await GateTest.findById(attempt.testId._id)
+          .select('+questions.correctOptions +questions.explanation')
+          .lean()
+      : null;
 
     const questionsMap = new Map((fullTest?.questions || []).map(q => [q.questionId, q]));
 
