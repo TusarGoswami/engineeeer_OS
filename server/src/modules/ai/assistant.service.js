@@ -76,13 +76,7 @@ export class AssistantService {
    * Stream response tokens via Server-Sent Events (SSE)
    */
   static async streamAssistantResponse({ userId, conversationId, query, subjectId, res }) {
-    // 1. Configure SSE headers
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.flushHeaders?.();
-
-    // 2. Fetch or create conversation record
+    // 1. Fetch or create conversation record before flushing SSE headers so errors return proper HTTP status
     let conversation = null;
     if (conversationId) {
       conversation = await AssistantConversation.findOne({ _id: conversationId, userId });
@@ -97,8 +91,14 @@ export class AssistantService {
       });
     }
 
-    // 3. Grounded Context Retrieval
+    // 2. Grounded Context Retrieval
     const { contextSnippet, citations } = await this.retrieveGroundedContext({ query, subjectId });
+
+    // 3. Configure and flush SSE headers once DB & retrieval succeed
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders?.();
 
     // Send metadata and citations first
     res.write(
