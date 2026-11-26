@@ -193,6 +193,17 @@ export class ProfileService {
     const username = updatedUser.username || 'user';
     const shareUrl = `/u/${encodeURIComponent(username)}?token=${encodeURIComponent(newToken)}`;
 
+    try {
+      const redis = getRedisClient();
+      const cleanUsername = username.toLowerCase().trim();
+      const publicKeys = await redis.keys(`cache:profile:public:${cleanUsername}:*`);
+      if (publicKeys.length > 0) {
+        await redis.del(...publicKeys);
+      }
+    } catch {
+      // Safe to ignore redis errors
+    }
+
     return {
       shareToken: newToken,
       shareUrl,
