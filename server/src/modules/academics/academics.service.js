@@ -238,6 +238,33 @@ export class AcademicsService {
   }
 
   /**
+   * Retrieve an uploaded academic resource file buffer and MIME type
+   */
+  static async getResourceFile(key) {
+    if (!key || !key.startsWith('academic_')) {
+      throw new NotFoundError('Resource file not found');
+    }
+
+    const buffer = await storageAdapter.download({ key });
+    const ext = key.split('.').pop()?.toLowerCase();
+    const mimeMap = {
+      pdf: 'application/pdf',
+      png: 'image/png',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      webp: 'image/webp',
+      txt: 'text/plain; charset=utf-8',
+      md: 'text/markdown; charset=utf-8',
+      json: 'application/json; charset=utf-8',
+    };
+
+    return {
+      buffer,
+      contentType: mimeMap[ext] || 'application/octet-stream',
+    };
+  }
+
+  /**
    * Cache Invalidation Helper
    */
   static async invalidateSubjectCache() {
