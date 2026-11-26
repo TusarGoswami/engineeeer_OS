@@ -15,12 +15,12 @@ export class EmailAdapter {
       return { success: true, messageId: `mock-${Date.now()}` };
     }
 
-    // In production with SES/SMTP
-    logger.info(
-      { to, subject },
-      `[Email Adapter - ${env.EMAIL_PROVIDER}] Dispatched email to ${to}`
+    // Non-console providers (SES/SMTP) are not yet wired
+    logger.error(
+      { to, subject, provider: env.EMAIL_PROVIDER },
+      `[Email Adapter] Provider "${env.EMAIL_PROVIDER}" is not implemented; cannot dispatch email to ${to}`
     );
-    return { success: true, messageId: `msg-${Date.now()}` };
+    throw new Error(`Email provider "${env.EMAIL_PROVIDER}" is not implemented`);
   }
 
   static async sendVerificationEmail(to, name, verificationToken) {
