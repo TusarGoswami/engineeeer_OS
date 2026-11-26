@@ -180,11 +180,12 @@ export class AssessmentsService {
       return attempt; // Idempotent submission
     }
 
-    if (attempt.status === 'expired' && !isAutoSubmitted) {
+    if (attempt.status === 'expired') {
       throw new BadRequestError('Assessment time has already expired');
     }
 
-    if (!isAutoSubmitted && attempt.expiresAt && Date.now() > attempt.expiresAt.getTime() + 15000) {
+    const graceMs = isAutoSubmitted ? 30000 : 15000;
+    if (attempt.expiresAt && Date.now() > attempt.expiresAt.getTime() + graceMs) {
       attempt.status = 'expired';
       await attempt.save();
       throw new BadRequestError('Time has expired on server');
@@ -225,13 +226,19 @@ export class AssessmentsService {
         isCorrect =
           studentSet.size === correctSet.size && [...studentSet].every(opt => correctSet.has(opt));
       } else if (q.type === 'nat') {
-        const num = Number(ans.natAnswer);
-        const min = q.natRange?.min;
-        const max = q.natRange?.max;
-        if (min != null && max != null) {
-          isCorrect = num >= min && num <= max;
-        } else if (q.correctOptions?.[0]) {
-          isCorrect = Math.abs(num - Number(q.correctOptions[0])) <= 0.01;
+        const hasNatValue =
+          ans.natAnswer !== null &&
+          ans.natAnswer !== undefined &&
+          String(ans.natAnswer).trim() !== '';
+        const num = hasNatValue ? Number(ans.natAnswer) : Number.NaN;
+        if (!Number.isNaN(num)) {
+          const min = q.natRange?.min;
+          const max = q.natRange?.max;
+          if (min != null && max != null) {
+            isCorrect = num >= min && num <= max;
+          } else if (q.correctOptions?.[0]) {
+            isCorrect = Math.abs(num - Number(q.correctOptions[0])) <= 0.01;
+          }
         }
       }
 
