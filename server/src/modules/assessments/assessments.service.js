@@ -2,6 +2,7 @@ import { Assessment } from './assessment.model.js';
 import { AssessmentAttempt } from './assessmentAttempt.model.js';
 import { MonitoringEvent } from './monitoringEvent.model.js';
 import { ActivityService } from '../progress/activity.service.js';
+import { BadRequestError, NotFoundError } from '../../middleware/error.js';
 
 export class AssessmentsService {
   /**
@@ -30,9 +31,7 @@ export class AssessmentsService {
       .lean();
 
     if (!assessment) {
-      const err = new Error('Assessment not found');
-      err.statusCode = 404;
-      throw err;
+      throw new NotFoundError('Assessment not found');
     }
     return assessment;
   }
@@ -41,14 +40,12 @@ export class AssessmentsService {
    * Start or resume an assessment attempt with server-authoritative timer
    */
   static async startAttempt({ assessmentId, userId }) {
-    const assessment = await Assessment.findById(assessmentId)
+    const assessment = await Assessment.findOne({ _id: assessmentId, isPublished: true })
       .select('-questions.correctOptions -questions.explanation')
       .lean();
 
     if (!assessment) {
-      const err = new Error('Assessment not found');
-      err.statusCode = 404;
-      throw err;
+      throw new NotFoundError('Assessment not found');
     }
 
     // Check for existing active attempt
@@ -84,9 +81,7 @@ export class AssessmentsService {
       status: { $in: ['submitted', 'expired'] },
     });
     if (pastAttempt) {
-      const err = new Error('You have already completed this assessment');
-      err.statusCode = 400;
-      throw err;
+      throw new BadRequestError('You have already completed this assessment');
     }
 
     // Create fresh attempt with server-calculated expiresAt
@@ -117,24 +112,18 @@ export class AssessmentsService {
   static async autosaveAttempt({ attemptId, userId, answers = [] }) {
     const attempt = await AssessmentAttempt.findOne({ _id: attemptId, userId });
     if (!attempt) {
-      const err = new Error('Attempt not found');
-      err.statusCode = 404;
-      throw err;
+      throw new NotFoundError('Attempt not found');
     }
 
     if (attempt.status !== 'in_progress') {
-      const err = new Error('Cannot autosave completed or expired attempt');
-      err.statusCode = 400;
-      throw err;
+      throw new BadRequestError('Cannot autosave completed or expired attempt');
     }
 
     // Grace window of 15 seconds for network latency
     if (Date.now() > attempt.expiresAt.getTime() + 15000) {
       attempt.status = 'expired';
       await attempt.save();
-      const err = new Error('Time has expired on server');
-      err.statusCode = 400;
-      throw err;
+      throw new BadRequestError('Time has expired on server');
     }
 
     attempt.answers = answers;
@@ -184,13 +173,21 @@ export class AssessmentsService {
   static async submitAttempt({ attemptId, userId, answers = [], isAutoSubmitted = false }) {
     const attempt = await AssessmentAttempt.findOne({ _id: attemptId, userId });
     if (!attempt) {
-      const err = new Error('Attempt not found');
-      err.statusCode = 404;
-      throw err;
+      throw new NotFoundError('Attempt not found');
     }
 
     if (attempt.status === 'submitted') {
       return attempt; // Idempotent submission
+    }
+
+    if (attempt.status === 'expired' && !isAutoSubmitted) {
+      throw new BadRequestError('Assessment time has already expired');
+    }
+
+    if (!isAutoSubmitted && attempt.expiresAt && Date.now() > attempt.expiresAt.getTime() + 15000) {
+      attempt.status = 'expired';
+      await attempt.save();
+      throw new BadRequestError('Time has expired on server');
     }
 
     // Fetch assessment with correct options to grade
@@ -199,7 +196,15 @@ export class AssessmentsService {
       .lean();
 
     const questionsMap = new Map((assessment?.questions || []).map(q => [q.questionId, q]));
-    const studentAnswers = answers.length > 0 ? answers : attempt.answers;
+    const rawAnswers = answers.length > 0 ? answers : attempt.answers;
+    // Deduplicate answers by questionId to prevent score multiplication
+    const dedupedAnswersMap = new Map();
+    for (const ans of rawAnswers) {
+      if (ans?.questionId) {
+        dedupedAnswersMap.set(ans.questionId, ans);
+      }
+    }
+    const studentAnswers = Array.from(dedupedAnswersMap.values());
 
     let totalScore = 0;
     let correctCount = 0;
@@ -223,7 +228,7 @@ export class AssessmentsService {
         const num = Number(ans.natAnswer);
         const min = q.natRange?.min;
         const max = q.natRange?.max;
-        if (min !== null && max !== null) {
+        if (min != null && max != null) {
           isCorrect = num >= min && num <= max;
         } else if (q.correctOptions?.[0]) {
           isCorrect = Math.abs(num - Number(q.correctOptions[0])) <= 0.01;
@@ -245,10 +250,11 @@ export class AssessmentsService {
       });
     }
 
+    const totalQuestions = assessment?.questions?.length || 0;
     attempt.answers = evaluatedAnswers;
     attempt.score = totalScore;
     attempt.accuracyRate =
-      studentAnswers.length > 0 ? Math.round((correctCount / studentAnswers.length) * 100) : 0;
+      totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
     attempt.status = 'submitted';
     attempt.submittedAt = new Date();
     attempt.isAutoSubmitted = isAutoSubmitted;
