@@ -24,6 +24,7 @@ import { Badge } from '../components/Badge.jsx';
 import { Avatar } from '../components/Avatar.jsx';
 import { CommandPalette } from '../components/CommandPalette.jsx';
 import { ThemeToggle } from '../components/ThemeToggle.jsx';
+import { BrandLogo } from '../components/BrandLogo.jsx';
 import { notificationService } from '../services/notification.service.js';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -239,19 +240,7 @@ export const DashboardLayout = () => {
       <aside className="hidden lg:flex w-64 flex-col fixed inset-y-0 border-r border-surface-700 bg-sidebar z-30">
         {/* Brand Header */}
         <div className="flex h-14 items-center justify-between px-4 border-b border-surface-700 shrink-0">
-          <Link to="/dashboard" className="flex items-center gap-2.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 rounded-lg pr-1">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500 font-display font-bold text-white text-xs shadow-xs group-hover:bg-brand-600 transition-colors">
-              OS
-            </div>
-            <div className="leading-tight">
-              <span className="font-display font-bold text-[15px] text-surface-100 tracking-tight block">
-                Engineer<span className="text-brand-500">OS</span>
-              </span>
-              <span className="block text-[10px] text-surface-400 font-mono tracking-wide">
-                ~/student-os
-              </span>
-            </div>
-          </Link>
+          <BrandLogo to="/dashboard" size="md" subtitle="~/student-os" />
         </div>
 
         {/* Navigation Links */}
@@ -266,7 +255,7 @@ export const DashboardLayout = () => {
             className="flex items-center justify-between gap-2.5 p-2 rounded-lg hover:bg-elevated border border-transparent hover:border-surface-700 transition-colors group"
           >
             <div className="flex items-center gap-2.5 min-w-0">
-              <Avatar name={user?.name || 'Student'} size="sm" fallbackClassName="!bg-brand-500/15 !text-brand-700 !ring-brand-500/25" />
+              <Avatar src={user?.avatar || user?.avatarUrl} name={user?.name || 'Student'} size="sm" fallbackClassName="!bg-brand-500/15 !text-brand-700 !ring-brand-500/25" />
               <div className="min-w-0">
                 <p className="text-xs font-semibold text-surface-100 truncate">{user?.name || 'Engineer'}</p>
                 <p className="text-[11px] text-surface-400 truncate capitalize font-mono">
@@ -297,14 +286,7 @@ export const DashboardLayout = () => {
           />
           <div className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-sidebar border-r border-surface-700 p-4 flex flex-col shadow-[var(--shadow-elevated)] animate-in slide-in-from-left">
             <div className="flex items-center justify-between pb-3.5 border-b border-surface-700 mb-4">
-              <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-500 font-display font-bold text-white text-xs">
-                  OS
-                </div>
-                <span className="font-display font-bold text-surface-100">
-                  Engineer<span className="text-brand-500">OS</span>
-                </span>
-              </div>
+              <BrandLogo asLink={false} size="sm" />
               <div className="flex items-center gap-1.5">
                 <ThemeToggle size="sm" />
                 <button
