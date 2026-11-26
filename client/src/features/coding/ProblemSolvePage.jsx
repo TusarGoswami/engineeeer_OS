@@ -144,8 +144,19 @@ export function ProblemSolvePage() {
     }
   };
 
+  const pollIntervalRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    };
+  }, []);
+
   const handleRunSampleTests = async () => {
-    if (!problem) return;
+    if (!problem || isRunning || isSubmitting) return;
     try {
       setConsoleOpen(true);
       setConsoleTab('result');
@@ -183,7 +194,7 @@ export function ProblemSolvePage() {
   };
 
   const handleSubmitSolution = async () => {
-    if (!problem) return;
+    if (!problem || isRunning || isSubmitting) return;
     try {
       setConsoleOpen(true);
       setConsoleTab('result');
@@ -205,8 +216,11 @@ export function ProblemSolvePage() {
           showToast(`Verdict: ${res.verdict.status.toUpperCase()}`, 'error');
         }
       } else if (res.submissionId) {
+        if (pollIntervalRef.current) {
+          clearInterval(pollIntervalRef.current);
+        }
         let attempts = 0;
-        const interval = setInterval(async () => {
+        pollIntervalRef.current = setInterval(async () => {
           attempts++;
           try {
             const sub = await codingService.getSubmissionById(res.submissionId);
@@ -214,7 +228,8 @@ export function ProblemSolvePage() {
               sub.status === 'queued' || sub.status === 'pending' || sub.status === 'running';
 
             if (!isEvaluating) {
-              clearInterval(interval);
+              clearInterval(pollIntervalRef.current);
+              pollIntervalRef.current = null;
               setSubmitVerdict(sub);
               setIsSubmitting(false);
               fetchSubmissions(problem._id);
@@ -225,13 +240,15 @@ export function ProblemSolvePage() {
                 showToast(`Verdict: ${sub.status.toUpperCase()}`, 'error');
               }
             } else if (attempts >= 30) {
-              clearInterval(interval);
+              clearInterval(pollIntervalRef.current);
+              pollIntervalRef.current = null;
               setIsSubmitting(false);
               showToast('Evaluation is taking longer than expected. Check the Submissions tab.', 'info');
               fetchSubmissions(problem._id);
             }
           } catch (err) {
-            clearInterval(interval);
+            clearInterval(pollIntervalRef.current);
+            pollIntervalRef.current = null;
             setIsSubmitting(false);
             showToast(err.response?.data?.message || 'Failed to check submission status', 'error');
           }
@@ -263,7 +280,7 @@ export function ProblemSolvePage() {
     };
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [problem, sourceCode, language, selectedCaseIdx, customInput]);
+  }, [problem, sourceCode, language, selectedCaseIdx, customInput, isRunning, isSubmitting]);
 
   const getMonacoLang = (lang) => {
     if (lang === 'cpp') return 'cpp';

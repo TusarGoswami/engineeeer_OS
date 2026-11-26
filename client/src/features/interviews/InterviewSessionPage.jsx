@@ -258,6 +258,14 @@ export function InterviewSessionPage() {
     }
   };
 
+  const recognitionRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      recognitionRef.current?.abort?.();
+    };
+  }, []);
+
   // Web Speech API Microphone Dictation
   const handleToggleSpeech = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -267,12 +275,14 @@ export function InterviewSessionPage() {
     }
 
     if (isListening) {
+      recognitionRef.current?.stop?.();
       setIsListening(false);
       return;
     }
 
     try {
       const recognition = new SpeechRecognition();
+      recognitionRef.current = recognition;
       recognition.continuous = false;
       recognition.interimResults = false;
       recognition.lang = 'en-US';

@@ -100,6 +100,14 @@ export function AiAssistantPage() {
     setMobileHistoryOpen(false);
   };
 
+  const recognitionRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      recognitionRef.current?.abort?.();
+    };
+  }, []);
+
   const handleToggleSpeech = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -108,12 +116,14 @@ export function AiAssistantPage() {
     }
 
     if (isListening) {
+      recognitionRef.current?.stop?.();
       setIsListening(false);
       return;
     }
 
     try {
       const recognition = new SpeechRecognition();
+      recognitionRef.current = recognition;
       recognition.continuous = false;
       recognition.interimResults = false;
       recognition.lang = 'en-US';
