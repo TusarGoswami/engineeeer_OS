@@ -315,5 +315,47 @@ describe('GATE Hub Module (Module 6)', () => {
     ).not.toBeInTheDocument();
     expect(screen.getByText('Exact entry calculation equals 42 frames.')).toBeInTheDocument();
   });
+
+  it('shows centered warning modal for up to 3 fullscreen/focus violations and auto-submits on the 4th', async () => {
+    gateService.getTestForAttempt.mockResolvedValue(mockActiveExam);
+    gateService.submitAttempt.mockResolvedValue({ _id: 'att-99' });
+    gateService.getAttemptById.mockResolvedValue(mockEvaluatedAttempt);
+
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    renderWithRoutes('/gate/test/test-1');
+
+    expect(await screen.findByText('GATE CBT Mode & Integrity Guidelines')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Stay Windowed' }));
+
+    // Violation 1
+    await vi.advanceTimersByTimeAsync(500);
+    fireEvent(document, new Event('fullscreenchange'));
+    expect(await screen.findByText('Rule Violation Warning')).toBeInTheDocument();
+    expect(screen.getByText('Warning 1 of 3')).toBeInTheDocument();
+    expect(screen.getByText('2 chances remaining')).toBeInTheDocument();
+    expect(gateService.submitAttempt).not.toHaveBeenCalled();
+
+    // Violation 2
+    await vi.advanceTimersByTimeAsync(500);
+    fireEvent(window, new Event('blur'));
+    expect(await screen.findByText('Warning 2 of 3')).toBeInTheDocument();
+    expect(screen.getByText('1 chance remaining')).toBeInTheDocument();
+    expect(gateService.submitAttempt).not.toHaveBeenCalled();
+
+    // Violation 3
+    await vi.advanceTimersByTimeAsync(500);
+    fireEvent(document, new Event('fullscreenchange'));
+    expect(await screen.findByText('Warning 3 of 3')).toBeInTheDocument();
+    expect(screen.getByText('0 chances remaining')).toBeInTheDocument();
+    expect(gateService.submitAttempt).not.toHaveBeenCalled();
+
+    // Violation 4 -> auto-submit & redirect to results
+    await vi.advanceTimersByTimeAsync(500);
+    fireEvent(window, new Event('blur'));
+    await waitFor(() => {
+      expect(gateService.submitAttempt).toHaveBeenCalledTimes(1);
+    });
+    expect(await screen.findByText(/Result Analysis/i)).toBeInTheDocument();
+  });
 });
 
