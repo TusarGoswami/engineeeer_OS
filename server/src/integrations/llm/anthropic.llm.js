@@ -113,21 +113,29 @@ export class AnthropicLLMAdapter extends ILLMAdapter {
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
       let fullText = '';
+      let buffer = '';
 
       let streamDone = false;
       while (!streamDone) {
         const { done, value } = await reader.read();
         if (done) {
           streamDone = true;
-          break;
+        } else {
+          buffer += decoder.decode(value, { stream: true });
         }
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n').filter(line => line.trim().startsWith('data: '));
+        const lines = buffer.split('\n');
+        // Keep trailing incomplete line in buffer until next chunk or stream end
+        buffer = streamDone ? '' : (lines.pop() || '');
 
         for (const line of lines) {
-          const raw = line.replace('data: ', '').trim();
-          if (raw === '[DONE]') break;
+          const trimmed = line.trim();
+          if (!trimmed.startsWith('data: ')) continue;
+          const raw = trimmed.slice(6).trim();
+          if (raw === '[DONE]') {
+            streamDone = true;
+            break;
+          }
           try {
             const data = JSON.parse(raw);
             if (data.type === 'content_block_delta' && data.delta?.text) {
@@ -136,7 +144,7 @@ export class AnthropicLLMAdapter extends ILLMAdapter {
               if (onToken) onToken(textDelta);
             }
           } catch {
-            // parse error
+            // Ignore non-JSON or partial event lines
           }
         }
       }
