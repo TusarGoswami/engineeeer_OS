@@ -170,13 +170,18 @@ export const ProfilePage = () => {
         if (!prev) return prev;
         return {
           ...prev,
-          identity: {
-            ...(prev.identity || {}),
-            avatarUrl: result.avatarUrl,
-            avatarKey: result.avatarKey,
-            avatarVersion: result.avatarVersion,
-          },
-          avatarUrl: result.avatarUrl,
+          profile: prev.profile
+            ? {
+                ...prev.profile,
+                identity: {
+                  ...(prev.profile.identity || {}),
+                  avatarUrl: result.avatarUrl,
+                  avatarKey: result.avatarKey,
+                  avatarVersion: result.avatarVersion,
+                },
+                avatarUrl: result.avatarUrl,
+              }
+            : prev.profile,
         };
       });
     }
@@ -184,7 +189,7 @@ export const ProfilePage = () => {
   };
 
   const username =
-    profileData?.identity?.username || user?.username || user?.email?.split('@')[0];
+    profileData?.profile?.identity?.username || user?.username || user?.email?.split('@')[0];
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
