@@ -46,6 +46,11 @@ const processQueue = (error, token = null) => {
 api.interceptors.response.use(
   response => response,
   async error => {
+    // Normalize server error envelope { error: { message } } -> error.response.data.message
+    if (error.response?.data?.error?.message && !error.response.data.message) {
+      error.response.data.message = error.response.data.error.message;
+    }
+
     const originalRequest = error.config;
 
     // Skip retry on auth endpoints to prevent loops

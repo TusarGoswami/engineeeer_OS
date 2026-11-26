@@ -1,22 +1,41 @@
-import { api, getAccessToken } from './api';
+import { api, getAccessToken, setAccessToken } from './api';
 
 export const aiService = {
   /**
    * Stream tokens from AI Academic Assistant via Fetch SSE
    */
   async streamAssistant({ query, subjectId, conversationId, onMeta, onToken, onDone, onError }) {
-    const token = getAccessToken();
     const baseURL = import.meta.env.VITE_API_URL || '/api/v1';
 
-    try {
-      const response = await fetch(`${baseURL}/ai/assistant/stream`, {
+    const doFetch = (token) =>
+      fetch(`${baseURL}/ai/assistant/stream`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ query, subjectId, conversationId }),
       });
+
+    try {
+      let token = getAccessToken();
+      let response = await doFetch(token);
+
+      if (response.status === 401) {
+        const refreshRes = await fetch(`${baseURL}/auth/refresh`, {
+          method: 'POST',
+          credentials: 'include',
+        });
+        if (refreshRes.ok) {
+          const refreshJson = await refreshRes.json();
+          const newToken = refreshJson?.data?.accessToken;
+          if (newToken) {
+            setAccessToken(newToken);
+            response = await doFetch(newToken);
+          }
+        }
+      }
 
       if (!response.ok) {
         throw new Error(`Streaming failed: HTTP ${response.status}`);
