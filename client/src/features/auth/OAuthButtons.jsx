@@ -7,7 +7,10 @@ export const OAuthButtons = ({ onError }) => {
   const { loginWithGoogle, loginWithGitHub } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/dashboard';
+  const fromState = location.state?.from;
+  const from = fromState
+    ? `${fromState.pathname || '/dashboard'}${fromState.search || ''}${fromState.hash || ''}`
+    : '/dashboard';
 
   const [loadingProvider, setLoadingProvider] = useState(null);
 
