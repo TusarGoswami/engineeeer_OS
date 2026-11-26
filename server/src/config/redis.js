@@ -77,7 +77,6 @@ export const getRedisClient = () => {
   try {
     const client = new Redis(env.REDIS_URL, {
       maxRetriesPerRequest: 1,
-      enableOfflineQueue: false,
       lazyConnect: true,
       retryStrategy: null,
     });

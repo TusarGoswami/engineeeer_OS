@@ -19,13 +19,7 @@ const createRateLimiter = (options = {}) => {
       const client = getRedisClient();
       if (!isRedisMock()) {
         store = new RedisStore({
-          sendCommand: async (...args) => {
-            try {
-              return await client.call(...args);
-            } catch {
-              return null;
-            }
-          },
+          sendCommand: (...args) => client.call(...args),
           prefix,
         });
       }
