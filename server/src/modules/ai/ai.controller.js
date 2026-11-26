@@ -9,7 +9,7 @@ export class AiController {
       const { conversationId, query, subjectId } = req.body;
       const userId = req.user.id || req.user._id;
 
-      if (!query || query.trim() === '') {
+      if (typeof query !== 'string' || query.trim() === '') {
         return res.status(400).json({ error: { message: 'Query cannot be empty' } });
       }
 
@@ -83,7 +83,7 @@ export class AiController {
       const { candidateMessage } = req.body;
       const userId = req.user.id || req.user._id;
 
-      if (!candidateMessage || candidateMessage.trim() === '') {
+      if (typeof candidateMessage !== 'string' || candidateMessage.trim() === '') {
         return res.status(400).json({ error: { message: 'Message cannot be empty' } });
       }
 

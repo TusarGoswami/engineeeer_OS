@@ -4,6 +4,8 @@ import { INTERVIEW_CONDUCTOR_PROMPT } from '../../integrations/llm/prompts/inter
 import { aiFeedbackQueue } from '../../jobs/queues.js';
 import { AiFeedbackWorkerService } from '../../jobs/workers/aiFeedback.worker.js';
 import { env } from '../../config/env.js';
+import { isRedisMock } from '../../config/redis.js';
+import { BadRequestError, NotFoundError } from '../../middleware/error.js';
 
 export class InterviewService {
   /**
@@ -48,15 +50,11 @@ export class InterviewService {
   static async submitTurn({ sessionId, userId, candidateMessage }) {
     const session = await InterviewSession.findOne({ _id: sessionId, userId });
     if (!session) {
-      const err = new Error('Interview session not found');
-      err.statusCode = 404;
-      throw err;
+      throw new NotFoundError('Interview session not found');
     }
 
     if (session.status !== 'in_progress') {
-      const err = new Error('Interview session is already concluded');
-      err.statusCode = 400;
-      throw err;
+      throw new BadRequestError('Interview session is already concluded');
     }
 
     // 1. Record candidate response
@@ -95,9 +93,7 @@ export class InterviewService {
   static async finishSession({ sessionId, userId }) {
     const session = await InterviewSession.findOne({ _id: sessionId, userId });
     if (!session) {
-      const err = new Error('Interview session not found');
-      err.statusCode = 404;
-      throw err;
+      throw new NotFoundError('Interview session not found');
     }
 
     session.status = 'completed';
@@ -112,8 +108,8 @@ export class InterviewService {
       { jobId: `interview_eval_${session._id.toString()}` }
     );
 
-    // In unit test environments without Redis daemon, execute evaluation synchronously
-    if (env.NODE_ENV === 'test') {
+    // Execute evaluation synchronously when Redis is unavailable/mock or in test env
+    if (env.NODE_ENV === 'test' || isRedisMock()) {
       await AiFeedbackWorkerService.processInterviewEvaluation({
         data: { sessionId: session._id.toString() },
       });
@@ -128,9 +124,7 @@ export class InterviewService {
   static async getSessionById(sessionId, userId) {
     const session = await InterviewSession.findOne({ _id: sessionId, userId }).lean();
     if (!session) {
-      const err = new Error('Interview session not found');
-      err.statusCode = 404;
-      throw err;
+      throw new NotFoundError('Interview session not found');
     }
     return session;
   }

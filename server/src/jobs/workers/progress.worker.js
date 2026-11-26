@@ -186,7 +186,7 @@ export class ProgressWorkerService {
     if (action === 'INTERVIEW_COMPLETED') {
       const prevSessions = summary.interviewStats.sessionsCompleted || 0;
       const nextSessions = prevSessions + 1;
-      const readiness = payload?.readinessScore || 75;
+      const readiness = payload?.readinessScore ?? payload?.overallScore ?? 75;
       summary.interviewStats.sessionsCompleted = nextSessions;
       summary.interviewStats.averageReadinessScore = Math.round(
         ((summary.interviewStats.averageReadinessScore || 0) * prevSessions + readiness) /

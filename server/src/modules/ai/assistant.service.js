@@ -124,23 +124,28 @@ export class AssistantService {
         res.write(`event: token\ndata: ${JSON.stringify({ token })}\n\n`);
       },
       onComplete: async () => {
-        // 6. Persist conversation history before ending response
-        conversation.messages.push({
-          role: 'user',
-          content: query,
-          timestamp: new Date(),
-        });
-        conversation.messages.push({
-          role: 'assistant',
-          content: accumulatedText,
-          citations,
-          timestamp: new Date(),
-        });
-        conversation.lastActiveAt = new Date();
-        await conversation.save();
+        try {
+          // 6. Persist conversation history before ending response
+          conversation.messages.push({
+            role: 'user',
+            content: query,
+            timestamp: new Date(),
+          });
+          conversation.messages.push({
+            role: 'assistant',
+            content: accumulatedText,
+            citations,
+            timestamp: new Date(),
+          });
+          conversation.lastActiveAt = new Date();
+          await conversation.save();
 
-        res.write(`event: done\ndata: ${JSON.stringify({ status: 'completed' })}\n\n`);
-        res.end();
+          res.write(`event: done\ndata: ${JSON.stringify({ status: 'completed' })}\n\n`);
+        } catch (saveErr) {
+          res.write(`event: error\ndata: ${JSON.stringify({ message: saveErr.message || 'Failed to save conversation' })}\n\n`);
+        } finally {
+          res.end();
+        }
 
         // 7. Emit progress event
         try {
