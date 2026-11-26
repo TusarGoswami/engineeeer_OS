@@ -16,7 +16,7 @@ import {
   BookOpen,
   Users,
 } from 'lucide-react';
-import { BADGE_CATALOGUE, CUSTOM_BADGE_ARTWORK, HEX_CLIP_PATH } from './badgeCatalogueClient.js';
+import { BADGE_CATALOGUE, CUSTOM_BADGE_ARTWORK } from './badgeCatalogueClient.js';
 import { Modal } from '../../../components/Modal.jsx';
 import { ProgressBar } from '../../../components/ProgressBar.jsx';
 import { useTheme } from '../../../context/ThemeContext.jsx';
@@ -190,16 +190,15 @@ const HexBadge = ({ badgeId, tier, isUnlocked, className = '' }) => {
     return (
       <div className={`relative w-full h-full ${className}`}>
         <div
-          className="w-full h-full drop-shadow-lg overflow-hidden"
+          className="w-full h-full drop-shadow-lg overflow-hidden rounded-2xl"
           style={{
-            clipPath: HEX_CLIP_PATH,
             filter: isUnlocked ? undefined : 'saturate(0.15) brightness(0.5)',
           }}
         >
           <img
             src={customArt}
             alt={badgeId}
-            className="w-full h-full object-cover scale-[1.06]"
+            className="w-full h-full object-contain scale-[1.08]"
           />
         </div>
         {!isUnlocked && (
@@ -402,16 +401,15 @@ const HexBadgeBack = ({ badgeId, tier, isUnlocked }) => {
   if (customBackArt) {
     return (
       <div
-        className="relative w-full h-full overflow-hidden drop-shadow-lg"
+        className="relative w-full h-full overflow-hidden rounded-2xl drop-shadow-lg"
         style={{
-          clipPath: HEX_CLIP_PATH,
           filter: isUnlocked ? undefined : 'saturate(0.15) brightness(0.5)',
         }}
       >
         <img
           src={customBackArt}
           alt={`${badgeId} reverse`}
-          className="w-full h-full object-cover scale-[1.06]"
+          className="w-full h-full object-contain scale-[1.08]"
         />
       </div>
     );
@@ -723,7 +721,7 @@ const HexMedal3D = ({
   const shouldSpin = autoSpin && !reducedMotion;
 
   return (
-    <div ref={containerRef} className={className} style={{ perspective: '800px' }}>
+    <div ref={containerRef} className={`w-full h-full ${className}`} style={{ perspective: '800px' }}>
       {/* ── HOVER-TILT LAYER ── */}
       <div
         style={{
@@ -922,7 +920,7 @@ const BadgeDetailModal = ({ badge, isUnlocked, earnedDate, isOpen, onClose }) =>
         {/* Large 3D auto-spinning badge */}
         <div
           ref={modalBadgeRef}
-          className="w-32 h-32 sm:w-40 sm:h-40"
+          className="w-40 h-40 sm:w-48 sm:h-48"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
