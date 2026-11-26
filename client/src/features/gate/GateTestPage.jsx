@@ -251,6 +251,11 @@ export function GateTestPage() {
   const [showFullscreenPrompt, setShowFullscreenPrompt] = useState(true);
   const [violations, setViolations] = useState(0);
   const [violationNotice, setViolationNotice] = useState(null);
+  const [showViolationModal, setShowViolationModal] = useState(false);
+
+  const MAX_VIOLATION_CHANCES = 3;
+  const violationsRef = useRef(0);
+  const lastViolationAtRef = useRef(0);
 
   // Scientific Calculator input state
   const [calcInput, setCalcInput] = useState('');
@@ -324,44 +329,78 @@ export function GateTestPage() {
     }
   };
 
+  const recordViolation = useCallback(
+    (type, message, toastMessage) => {
+      if (isSubmitting || hasSubmittedRef.current || !test) return;
+
+      const now = Date.now();
+      // Prevent simultaneous blur + fullscreenchange/visibilitychange from double-counting one switch
+      if (now - lastViolationAtRef.current < 400) return;
+      lastViolationAtRef.current = now;
+
+      const nextCount = violationsRef.current + 1;
+      violationsRef.current = nextCount;
+      setViolations(nextCount);
+
+      if (nextCount > MAX_VIOLATION_CHANCES) {
+        setShowViolationModal(false);
+        setShowFullscreenPrompt(false);
+        setViolationNotice({
+          type,
+          message: 'Maximum proctoring warnings (3) exceeded. Auto-submitting your exam...',
+          time: new Date().toLocaleTimeString(),
+        });
+        showToast(
+          'Maximum rule violations exceeded (4/3). Auto-submitting exam and exiting...',
+          'error'
+        );
+        handleSubmitRef.current();
+        return;
+      }
+
+      setViolationNotice({
+        type,
+        message,
+        time: new Date().toLocaleTimeString(),
+      });
+      setShowViolationModal(true);
+      if (toastMessage) {
+        showToast(toastMessage, 'warning');
+      }
+    },
+    [isSubmitting, test, showToast]
+  );
+
   // Anti-cheat proctoring event listeners
   useEffect(() => {
     const handleFullscreenChange = () => {
       const active = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
       setIsFullscreen(active);
       if (!active && !isSubmitting && test) {
-        setViolations((v) => v + 1);
-        setViolationNotice({
-          type: 'fullscreen_exit',
-          message:
-            'Fullscreen exit detected. Please return to fullscreen mode immediately to avoid integrity penalties.',
-          time: new Date().toLocaleTimeString(),
-        });
-        showToast('Integrity Alert: Exited Fullscreen Mode', 'warning');
+        recordViolation(
+          'fullscreen_exit',
+          'You exited full-screen mode. Return to full-screen immediately to continue your exam.',
+          'Integrity Alert: Exited Fullscreen Mode'
+        );
       }
     };
 
     const handleVisibilityChange = () => {
       if (document.hidden && !isSubmitting && test) {
-        setViolations((v) => v + 1);
-        setViolationNotice({
-          type: 'tab_switch',
-          message:
-            'Tab switch / backgrounding detected. Focus must remain strictly on the examination window.',
-          time: new Date().toLocaleTimeString(),
-        });
-        showToast('Integrity Alert: Tab Switch Detected', 'warning');
+        recordViolation(
+          'tab_switch',
+          'Tab switch or browser minimizing detected. Focus must remain strictly on the examination window.',
+          'Integrity Alert: Tab Switch Detected'
+        );
       }
     };
 
     const handleWindowBlur = () => {
       if (!isSubmitting && test) {
-        setViolations((v) => v + 1);
-        setViolationNotice({
-          type: 'window_blur',
-          message: 'Window focus lost. Focus outside examination window detected.',
-          time: new Date().toLocaleTimeString(),
-        });
+        recordViolation(
+          'window_blur',
+          'Window focus lost. Switching applications or windows is not permitted during the exam.'
+        );
       }
     };
 
@@ -374,7 +413,7 @@ export function GateTestPage() {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('blur', handleWindowBlur);
     };
-  }, [test, isSubmitting, showToast]);
+  }, [test, isSubmitting, recordViolation]);
 
   const handleSubmitTest = useCallback(async () => {
     if (!test || hasSubmittedRef.current) return;
@@ -1082,6 +1121,60 @@ export function GateTestPage() {
               onClick={enterFullscreen}
             >
               Enter Fullscreen CBT Mode
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Centered Proctoring Violation Warning Modal (3-Strike Policy) */}
+      <Modal
+        isOpen={showViolationModal && !isSubmitting}
+        onClose={() => setShowViolationModal(false)}
+        title="Rule Violation Warning"
+        description="Strict full-screen & focus monitoring is active for this GATE examination."
+        maxWidth="max-w-md"
+      >
+        <div className="space-y-4">
+          <div className="p-4 rounded-xl border border-rose-500/35 bg-rose-500/10 text-xs space-y-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wide">
+                <ShieldAlert className="w-4 h-4 shrink-0" />
+                <span>Warning {Math.min(violations, MAX_VIOLATION_CHANCES)} of {MAX_VIOLATION_CHANCES}</span>
+              </div>
+              <Badge variant="fault" size="sm">
+                {Math.max(0, MAX_VIOLATION_CHANCES - violations)} chance
+                {MAX_VIOLATION_CHANCES - violations === 1 ? '' : 's'} remaining
+              </Badge>
+            </div>
+
+            <p className="text-surface-200 leading-relaxed">
+              {violationNotice?.message ||
+                'Exiting full-screen mode or switching tabs/windows is prohibited.'}
+            </p>
+
+            <p className="text-[11px] font-mono text-rose-700 dark:text-rose-300 font-semibold">
+              {MAX_VIOLATION_CHANCES - violations > 0
+                ? `You have ${MAX_VIOLATION_CHANCES - violations} warning${
+                    MAX_VIOLATION_CHANCES - violations === 1 ? '' : 's'
+                  } left. Exceeding 3 violations will automatically submit and exit your exam.`
+                : 'Final warning! Your next violation will automatically submit your exam and exit.'}
+            </p>
+          </div>
+
+          <div className="flex items-center justify-end gap-2.5 pt-1">
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              leftIcon={Maximize2}
+              onClick={async () => {
+                setShowViolationModal(false);
+                if (!isFullscreen) {
+                  await enterFullscreen();
+                }
+              }}
+            >
+              {isFullscreen ? 'Acknowledge & Resume Exam' : 'Return to Fullscreen & Resume'}
             </Button>
           </div>
         </div>
