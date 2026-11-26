@@ -71,7 +71,10 @@ export const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/dashboard';
+  const fromState = location.state?.from;
+  const from = fromState
+    ? `${fromState.pathname || '/dashboard'}${fromState.search || ''}${fromState.hash || ''}`
+    : '/dashboard';
   const [serverError, setServerError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
