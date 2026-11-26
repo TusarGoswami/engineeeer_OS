@@ -199,10 +199,16 @@ export const AssessmentTakePage = () => {
   const [isConfirmSubmitOpen, setIsConfirmSubmitOpen] = useState(false);
   const [lastAutosave, setLastAutosave] = useState(null);
   const [integrityWarning, setIntegrityWarning] = useState(null);
+  const [violations, setViolations] = useState(0);
+  const [showViolationModal, setShowViolationModal] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(
     Boolean(document.fullscreenElement || document.webkitFullscreenElement)
   );
   const [mobilePaletteOpen, setMobilePaletteOpen] = useState(false);
+
+  const MAX_VIOLATION_CHANCES = 3;
+  const violationsRef = useRef(0);
+  const lastViolationAtRef = useRef(0);
 
   // Mandatory Proctoring States
   const [showProctorSetupModal, setShowProctorSetupModal] = useState(true);
@@ -293,19 +299,65 @@ export const AssessmentTakePage = () => {
     };
   }, []);
 
-  const handleIntegrityViolation = useCallback((eventType, metadata = {}) => {
-    setIntegrityWarning({
-      title: 'Integrity Proctoring Notice',
-      message: `Security event logged: ${eventType.replace(/_/g, ' ')}. Maintain active focus and compliance within the exam window.`,
-      timestamp: new Date().toLocaleTimeString(),
-    });
+  const handleIntegrityViolation = useCallback(
+    (eventType, metadata = {}) => {
+      if (attemptRef.current?._id) {
+        assessmentService
+          .recordIntegrity(attemptRef.current._id, eventType, metadata)
+          .catch(() => {});
+      }
 
-    if (attemptRef.current?._id) {
-      assessmentService
-        .recordIntegrity(attemptRef.current._id, eventType, metadata)
-        .catch(() => {});
-    }
-  }, []);
+      const isFocusOrFullscreenViolation =
+        eventType === 'fullscreen_exit' ||
+        eventType === 'tab_hidden' ||
+        eventType === 'window_blur';
+
+      if (isFocusOrFullscreenViolation) {
+        const now = Date.now();
+        if (now - lastViolationAtRef.current < 400) {
+          return;
+        }
+        lastViolationAtRef.current = now;
+
+        const nextCount = violationsRef.current + 1;
+        violationsRef.current = nextCount;
+        setViolations(nextCount);
+
+        if (nextCount > MAX_VIOLATION_CHANCES) {
+          setShowViolationModal(false);
+          setIntegrityWarning({
+            title: 'Maximum Violations Exceeded',
+            message: 'Exceeded 3 proctoring warnings. Auto-submitting assessment and exiting...',
+            timestamp: new Date().toLocaleTimeString(),
+          });
+          showToast(
+            'Maximum rule violations exceeded (4/3). Auto-submitting assessment...',
+            'error'
+          );
+          handleSubmitRef.current(true, { redirectOnViolation: true });
+          return;
+        }
+
+        setShowViolationModal(true);
+      }
+
+      const readable =
+        eventType === 'fullscreen_exit'
+          ? 'You exited full-screen mode. Return to full-screen immediately to continue.'
+          : eventType === 'tab_hidden'
+          ? 'Tab switch detected. Stay strictly on the examination tab.'
+          : eventType === 'window_blur'
+          ? 'Window focus lost. Switching applications is prohibited during proctored exams.'
+          : `Security event logged: ${eventType.replace(/_/g, ' ')}. Maintain active focus and compliance within the exam window.`;
+
+      setIntegrityWarning({
+        title: 'Integrity Proctoring Warning',
+        message: readable,
+        timestamp: new Date().toLocaleTimeString(),
+      });
+    },
+    [showToast]
+  );
 
   const requestCameraAccess = async () => {
     try {
@@ -423,11 +475,12 @@ export const AssessmentTakePage = () => {
   }, [handleIntegrityViolation, proctorVerified, isSubmitting]);
 
   const handleSubmitTest = useCallback(
-    async (isAuto = false) => {
+    async (isAuto = false, { redirectOnViolation = false } = {}) => {
       if (!attemptRef.current?._id || hasSubmittedRef.current) return;
       hasSubmittedRef.current = true;
       setIsSubmitting(true);
       setIsConfirmSubmitOpen(false);
+      setShowViolationModal(false);
 
       if (cameraStreamRef.current) {
         cameraStreamRef.current.getTracks().forEach((t) => t.stop());
@@ -444,6 +497,14 @@ export const AssessmentTakePage = () => {
         invalidateProgressQueries();
         if (document.fullscreenElement) {
           document.exitFullscreen().catch(() => {});
+        }
+        if (redirectOnViolation) {
+          showToast(
+            'Assessment auto-submitted due to exceeding 3 proctoring violations.',
+            'error'
+          );
+          navigate('/assessments', { replace: true });
+          return;
         }
         setSubmissionResult({
           attempt: submittedAttempt,
@@ -469,7 +530,7 @@ export const AssessmentTakePage = () => {
         setIsSubmitting(false);
       }
     },
-    [assessment?.totalMarks, showToast]
+    [assessment?.totalMarks, navigate, showToast]
   );
 
   const handleSubmitRef = useRef(handleSubmitTest);
@@ -1060,7 +1121,7 @@ export const AssessmentTakePage = () => {
       {/* =========================================================================
           TOP DISTRACTION-FREE EXAM HEADER BAR
          ========================================================================= */}
-      <header className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 rounded-xl border border-surface-700 bg-card shadow-[var(--shadow-card)] sticky top-16 z-20">
+      <header className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 rounded-xl border border-surface-700 bg-card shadow-[var(--shadow-card)] sticky top-2 z-20">
         <div className="min-w-0 space-y-0.5">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-mono text-[11px] font-semibold text-brand-700 uppercase tracking-wider">
@@ -1292,7 +1353,7 @@ export const AssessmentTakePage = () => {
         </section>
 
         {/* Desktop Question Navigation Palette Sidebar */}
-        <aside className="hidden lg:block lg:col-span-4 sticky top-36">
+        <aside className="hidden lg:block lg:col-span-4 sticky top-24">
           <Card className="p-5">
             <AssessmentPalette
               questions={assessment.questions}
@@ -1385,6 +1446,62 @@ export const AssessmentTakePage = () => {
               isLoading={isSubmitting}
             >
               Confirm Submission
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Centered Proctoring Violation Warning Modal (3-Strike Policy) */}
+      <Modal
+        isOpen={showViolationModal && !isSubmitting && !submissionResult}
+        onClose={() => setShowViolationModal(false)}
+        title="Proctoring Rule Violation Warning"
+        description="Full-screen lock and focus monitoring are strictly enforced."
+        maxWidth="max-w-md"
+      >
+        <div className="space-y-4">
+          <div className="p-4 rounded-xl border border-rose-500/35 bg-rose-500/10 text-xs space-y-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wide">
+                <ShieldAlert className="w-4 h-4 shrink-0" />
+                <span>
+                  Warning {Math.min(violations, MAX_VIOLATION_CHANCES)} of {MAX_VIOLATION_CHANCES}
+                </span>
+              </div>
+              <Badge variant="fault" size="sm">
+                {Math.max(0, MAX_VIOLATION_CHANCES - violations)} chance
+                {MAX_VIOLATION_CHANCES - violations === 1 ? '' : 's'} remaining
+              </Badge>
+            </div>
+
+            <p className="text-surface-200 leading-relaxed">
+              {integrityWarning?.message ||
+                'Exiting full-screen mode or switching tabs/windows is prohibited during the assessment.'}
+            </p>
+
+            <p className="text-[11px] font-mono text-rose-700 dark:text-rose-300 font-semibold">
+              {MAX_VIOLATION_CHANCES - violations > 0
+                ? `You have ${MAX_VIOLATION_CHANCES - violations} warning${
+                    MAX_VIOLATION_CHANCES - violations === 1 ? '' : 's'
+                  } left. On the 4th violation, your assessment will be automatically submitted.`
+                : 'Final warning! Your next violation will automatically submit your assessment and exit.'}
+            </p>
+          </div>
+
+          <div className="flex items-center justify-end gap-2.5 pt-1">
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              leftIcon={Maximize2}
+              onClick={async () => {
+                setShowViolationModal(false);
+                if (!isFullscreen) {
+                  await enterFullscreen();
+                }
+              }}
+            >
+              {isFullscreen ? 'Acknowledge & Resume Exam' : 'Return to Fullscreen & Resume'}
             </Button>
           </div>
         </div>
