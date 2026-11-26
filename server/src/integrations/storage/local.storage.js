@@ -46,6 +46,9 @@ export class LocalStorageAdapter extends IStorageAdapter {
   }
 
   getUrl(key) {
+    if (key.startsWith('academic_')) {
+      return `/api/v1/academics/resources/file/${encodeURIComponent(key)}`;
+    }
     return `/api/v1/users/avatar/${encodeURIComponent(key)}`;
   }
 }
