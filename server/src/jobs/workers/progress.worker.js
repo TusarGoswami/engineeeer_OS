@@ -171,7 +171,7 @@ export class ProgressWorkerService {
   }
 
   static aggregateAssessments(summary, action, payload) {
-    if (action === 'ASSESSMENT_SUBMITTED') {
+    if (action === 'ASSESSMENT_COMPLETED' || action === 'ASSESSMENT_SUBMITTED') {
       const prevAttempts = summary.assessmentStats.totalAttempted || 0;
       const nextAttempts = prevAttempts + 1;
       const score = payload?.score || 0;
