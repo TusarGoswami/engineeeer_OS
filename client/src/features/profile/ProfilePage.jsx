@@ -242,7 +242,8 @@ export const ProfilePage = () => {
           <ProfileCard
             ref={cardRef}
             profile={profileData}
-            className="w-full max-w-3xl"
+            orientation="portrait"
+            className="w-full max-w-md"
           />
         )}
       </div>

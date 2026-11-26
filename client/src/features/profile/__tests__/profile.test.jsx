@@ -85,7 +85,7 @@ describe('ProfileCard Component', () => {
     expect(screen.getByText('42')).toBeInTheDocument(); // Coding solved
     expect(screen.getByText(/14d streak/i)).toBeInTheDocument();
     expect(screen.getByText('7-Day Streak')).toBeInTheDocument();
-    expect(screen.getByText('#Arrays')).toBeInTheDocument();
+    expect(screen.queryByText('#Arrays')).not.toBeInTheDocument();
   });
 
   it('renders across all 5 themes without crashing', () => {
@@ -114,6 +114,9 @@ describe('ProfileCard Component', () => {
     expect(screen.getByText('Coding Platform')).toBeInTheDocument();
     expect(screen.getByText('GATE Hub')).toBeInTheDocument();
     expect(screen.getByText('AI Readiness')).toBeInTheDocument();
+    expect(screen.getByLabelText('7-Day Streak')).toBeInTheDocument();
+    expect(screen.getByLabelText('Algorithm Apprentice')).toBeInTheDocument();
+    expect(screen.queryByText('7-Day Streak')).not.toBeInTheDocument();
     expect(screen.getByText('EngineerOS Authentic Card')).toBeInTheDocument();
     expect(screen.getByText('engineeros.dev/u/alexj')).toBeInTheDocument();
   });

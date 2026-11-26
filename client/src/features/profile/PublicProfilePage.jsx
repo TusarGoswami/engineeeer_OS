@@ -133,7 +133,12 @@ export const PublicProfilePage = () => {
             </div>
 
             <div className="flex justify-center">
-              <ProfileCard ref={cardRef} profile={profile} className="w-full" />
+              <ProfileCard
+                ref={cardRef}
+                profile={profile}
+                orientation="portrait"
+                className="w-full max-w-md"
+              />
             </div>
 
             <CardExportModal

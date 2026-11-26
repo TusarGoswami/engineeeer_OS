@@ -508,7 +508,7 @@ export const ProfileCard = forwardRef(
             {/* ── Header bar ── */}
             <div
               className={`flex items-center justify-between px-5 border-b ${
-                isPortrait ? 'py-2.5 pr-16 shrink-0' : 'py-3'
+                isPortrait ? 'py-2.5 pr-16 shrink-0' : 'py-3 pr-20'
               }`}
               style={{ borderColor: 'var(--pc-border-subtle)' }}
             >
@@ -608,13 +608,13 @@ export const ProfileCard = forwardRef(
                         <Avatar
                           src={identity.avatarUrl}
                           name={identity.name}
-                          size="xl"
+                          size="2xl"
                           className="!ring-0"
                           fallbackClassName="!bg-gradient-to-br !from-[#FF8C42] !to-[#E85D04] !text-white !ring-0"
                         />
                       </div>
                       <div
-                        className="absolute -bottom-0.5 -right-0.5 bg-[#E85D04] dark:bg-[#FF8C42] text-white rounded-full p-0.5 border-2 border-white dark:border-[#111315] shadow-sm"
+                        className="absolute bottom-0 right-0 bg-[#E85D04] dark:bg-[#FF8C42] text-white rounded-full p-0.5 border-2 border-white dark:border-[#111315] shadow-sm"
                         title="Verified Engineer"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" />
@@ -622,7 +622,7 @@ export const ProfileCard = forwardRef(
                     </div>
                   ) : (
                     <div
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center font-bold text-lg shrink-0"
+                      className="w-24 h-24 rounded-2xl flex items-center justify-center font-bold text-xl shrink-0"
                       style={{
                         background: 'var(--pc-surface)',
                         color: 'var(--pc-accent)',
@@ -832,6 +832,37 @@ export const ProfileCard = forwardRef(
                       );
                     })}
                   </div>
+
+                  {/* Unlocked Badges (icons only, no name) */}
+                  {sections.showBadges !== false && badges.length > 0 && (
+                    <>
+                      <div className="h-px w-full" style={{ background: 'var(--pc-border)' }} />
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <span
+                          className="text-[11px] font-semibold uppercase tracking-wider shrink-0"
+                          style={{ color: 'var(--pc-text-secondary)' }}
+                        >
+                          Badges ({badges.length})
+                        </span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {badges.map((b) => (
+                            <span
+                              key={b.badgeId || b.name}
+                              title={`${b.name}${b.tier ? ` • ${b.tier}` : ''}`}
+                              aria-label={b.name}
+                              className="w-7 h-7 rounded-full flex items-center justify-center text-sm shadow-2xs transition-transform hover:scale-110"
+                              style={{
+                                background: 'var(--pc-surface-subtle)',
+                                border: '1px solid var(--pc-border)',
+                              }}
+                            >
+                              {b.icon || '🎖️'}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             ) : (
@@ -852,13 +883,13 @@ export const ProfileCard = forwardRef(
                         <Avatar
                           src={identity.avatarUrl}
                           name={identity.name}
-                          size="xl"
+                          size="2xl"
                           className="!ring-0"
                           fallbackClassName="!bg-gradient-to-br !from-[#FF8C42] !to-[#E85D04] !text-white !ring-0"
                         />
                       </div>
                       <div
-                        className="absolute -bottom-0.5 -right-0.5 bg-[#E85D04] dark:bg-[#FF8C42] text-white rounded-full p-0.5 border-2 border-white dark:border-[#111315] shadow-sm"
+                        className="absolute bottom-0 right-0 bg-[#E85D04] dark:bg-[#FF8C42] text-white rounded-full p-0.5 border-2 border-white dark:border-[#111315] shadow-sm"
                         title="Verified Engineer"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" />
@@ -866,7 +897,7 @@ export const ProfileCard = forwardRef(
                     </div>
                   ) : (
                     <div
-                      className="w-14 h-14 rounded-xl flex items-center justify-center font-bold text-lg"
+                      className="w-24 h-24 rounded-xl flex items-center justify-center font-bold text-xl"
                       style={{
                         background: 'var(--pc-surface)',
                         color: 'var(--pc-accent)',
@@ -1161,33 +1192,6 @@ export const ProfileCard = forwardRef(
                   </div>
                 )}
               </div>
-
-              {/* Top Skills */}
-              {sections.showSkills !== false && topSkills.length > 0 && (
-                <div className="space-y-2">
-                  <div
-                    className="text-xs font-semibold uppercase tracking-wider"
-                    style={{ color: 'var(--pc-text-secondary)' }}
-                  >
-                    Verified Proficiencies
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {topSkills.map(skill => (
-                      <span
-                        key={skill}
-                        className={`text-xs px-2.5 py-1 ${typo.chipRadius} font-mono font-medium`}
-                        style={{
-                          background: 'var(--pc-surface-subtle)',
-                          border: '1px solid var(--pc-border)',
-                          color: 'var(--pc-accent-soft)',
-                        }}
-                      >
-                        #{skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {/* Earned Badges */}
               {sections.showBadges !== false && badges.length > 0 && (
