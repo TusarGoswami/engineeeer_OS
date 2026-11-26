@@ -8,8 +8,8 @@
   "scripts": {
     "start": "node src/server.js",
     "start:worker": "node src/worker.js",
-    "dev:api": "node --watch src/server.js",
-    "dev:worker": "node --watch src/worker.js",
+    "dev:api": "node --watch-path=src src/server.js",
+    "dev:worker": "node --watch-path=src src/worker.js",
     "build": "node -e \"console.log('Server is native ES Modules - ready for deployment')\"",
     "lint": "eslint src/ --ext .js",
     "lint:fix": "eslint src/ --ext .js --fix",

@@ -82,9 +82,11 @@ export class GateService {
         action: 'TEST_COMPLETED',
         payload: {
           testId: test._id.toString(),
+          title: test.title,
           attemptId: attempt._id.toString(),
           score: evaluation.score,
           accuracyRate: evaluation.accuracyRate,
+          questionsAttempted: evaluation.totalQuestions,
           weakTopics: evaluation.weakTopics,
         },
       });

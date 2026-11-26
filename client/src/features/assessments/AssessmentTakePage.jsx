@@ -33,6 +33,7 @@ import {
   ErrorState,
   useToast,
 } from '../../components/index.js';
+import { invalidateProgressQueries } from '../../utils/queryInvalidation.js';
 import { assessmentService } from '../../services/assessment.service.js';
 
 /**
@@ -440,6 +441,7 @@ export const AssessmentTakePage = () => {
       try {
         const res = await assessmentService.submitAttempt(attemptRef.current._id, formattedAnswers);
         const submittedAttempt = res?.data || {};
+        invalidateProgressQueries();
         if (document.fullscreenElement) {
           document.exitFullscreen().catch(() => {});
         }

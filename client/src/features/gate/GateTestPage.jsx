@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { gateService } from '../../services/gate.service.js';
 import { Badge, Button, Modal, Drawer, useToast } from '../../components/index.js';
+import { invalidateProgressQueries } from '../../utils/queryInvalidation.js';
 
 /**
  * Pure deterministic recursive-descent arithmetic evaluator for the Virtual Scientific Calculator.
@@ -391,6 +392,7 @@ export function GateTestPage() {
 
       const attempt = await gateService.submitAttempt(test._id, formattedAnswers, timeTaken);
       localStorage.removeItem(`gate_attempt_${id}`);
+      invalidateProgressQueries();
       if (document.fullscreenElement) {
         document.exitFullscreen().catch(() => {});
       }

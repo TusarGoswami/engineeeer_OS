@@ -32,6 +32,8 @@ const startServer = async () => {
           process.exit(1);
         }
       });
+      // Immediately close idle keep-alive sockets (e.g. Vite dev proxy) so watch restarts don't hang
+      server.closeAllConnections?.();
     };
 
     process.on('SIGTERM', () => shutdown('SIGTERM'));

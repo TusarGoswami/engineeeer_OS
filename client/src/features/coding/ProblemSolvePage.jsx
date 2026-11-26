@@ -25,6 +25,7 @@ import {
   useToast,
 } from '../../components/index.js';
 import { useTheme } from '../../context/ThemeContext.jsx';
+import { invalidateProgressQueries } from '../../utils/queryInvalidation.js';
 
 const LANGUAGE_LABELS = {
   python: 'Python 3',
@@ -197,6 +198,7 @@ export function ProblemSolvePage() {
         setSubmitVerdict(res.verdict);
         setIsSubmitting(false);
         fetchSubmissions(problem._id);
+        invalidateProgressQueries();
         if (res.verdict.status === 'accepted') {
           showToast('Accepted! Problem solved successfully.', 'success');
         } else {
@@ -216,6 +218,7 @@ export function ProblemSolvePage() {
               setSubmitVerdict(sub);
               setIsSubmitting(false);
               fetchSubmissions(problem._id);
+              invalidateProgressQueries();
               if (sub.status === 'accepted') {
                 showToast('Accepted! Problem solved.', 'success');
               } else {

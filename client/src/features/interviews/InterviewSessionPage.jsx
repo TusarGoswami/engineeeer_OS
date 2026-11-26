@@ -26,6 +26,7 @@ import {
   ProgressRing,
   ProgressBar,
 } from '../../components/index.js';
+import { invalidateProgressQueries } from '../../utils/queryInvalidation.js';
 
 const TRACK_GUIDES = {
   technical: {
@@ -142,6 +143,7 @@ export function InterviewSessionPage() {
         const data = await aiService.getInterview(id);
         if (data.status === 'evaluated') {
           setSession(data);
+          invalidateProgressQueries();
           clearInterval(interval);
         }
       } catch {
@@ -218,6 +220,7 @@ export function InterviewSessionPage() {
       setShowFinishConfirm(false);
       const updated = await aiService.finishInterview(id);
       setSession(updated);
+      invalidateProgressQueries();
     } catch {
       setSession((prev) => ({
         ...prev,

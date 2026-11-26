@@ -39,7 +39,9 @@ export class ProgressWorkerService {
 
       // 4. Update recent activity feed (keep last 5)
       const activityTitle =
-        payload?.title || `${module.toUpperCase()}: ${action.replace(/_/g, ' ')}`;
+        payload?.title ||
+        payload?.problemTitle ||
+        `${module.toUpperCase()}: ${action.replace(/_/g, ' ')}`;
       summary.recentActivities.unshift({
         module,
         action,
@@ -118,6 +120,13 @@ export class ProgressWorkerService {
       if (payload?.tag && !summary.codingStats.topicCoverage.includes(payload.tag)) {
         summary.codingStats.topicCoverage.push(payload.tag);
       }
+
+      summary.codingStats.totalSubmissions = (summary.codingStats.totalSubmissions || 0) + 1;
+      summary.codingStats.acceptedSubmissions =
+        (summary.codingStats.acceptedSubmissions || 0) + 1;
+      summary.codingStats.accuracyRate = Math.round(
+        (summary.codingStats.acceptedSubmissions / summary.codingStats.totalSubmissions) * 100
+      );
     }
 
     if (action === 'SUBMISSION_EVALUATED') {
@@ -134,33 +143,54 @@ export class ProgressWorkerService {
 
   static aggregateGate(summary, action, payload) {
     if (action === 'TEST_COMPLETED') {
-      summary.gateStats.testsAttempted = (summary.gateStats.testsAttempted || 0) + 1;
+      const prevAttempts = summary.gateStats.testsAttempted || 0;
+      const nextAttempts = prevAttempts + 1;
       const score = payload?.score || 0;
+
+      summary.gateStats.testsAttempted = nextAttempts;
       summary.gateStats.averageScore = Math.round(
-        ((summary.gateStats.averageScore || 0) + score) / summary.gateStats.testsAttempted
+        ((summary.gateStats.averageScore || 0) * prevAttempts + score) / nextAttempts
       );
+
+      if (typeof payload?.accuracyRate === 'number') {
+        summary.gateStats.accuracyRate = Math.round(
+          ((summary.gateStats.accuracyRate || 0) * prevAttempts + payload.accuracyRate) /
+            nextAttempts
+        );
+      }
+
+      if (typeof payload?.questionsAttempted === 'number') {
+        summary.gateStats.questionsAttempted =
+          (summary.gateStats.questionsAttempted || 0) + payload.questionsAttempted;
+      }
+
+      if (Array.isArray(payload?.weakTopics)) {
+        summary.gateStats.weakTopics = payload.weakTopics;
+      }
     }
   }
 
   static aggregateAssessments(summary, action, payload) {
     if (action === 'ASSESSMENT_SUBMITTED') {
-      summary.assessmentStats.totalAttempted = (summary.assessmentStats.totalAttempted || 0) + 1;
+      const prevAttempts = summary.assessmentStats.totalAttempted || 0;
+      const nextAttempts = prevAttempts + 1;
       const score = payload?.score || 0;
+      summary.assessmentStats.totalAttempted = nextAttempts;
       summary.assessmentStats.averageScore = Math.round(
-        ((summary.assessmentStats.averageScore || 0) + score) /
-          summary.assessmentStats.totalAttempted
+        ((summary.assessmentStats.averageScore || 0) * prevAttempts + score) / nextAttempts
       );
     }
   }
 
   static aggregateInterviews(summary, action, payload) {
     if (action === 'INTERVIEW_COMPLETED') {
-      summary.interviewStats.sessionsCompleted =
-        (summary.interviewStats.sessionsCompleted || 0) + 1;
+      const prevSessions = summary.interviewStats.sessionsCompleted || 0;
+      const nextSessions = prevSessions + 1;
       const readiness = payload?.readinessScore || 75;
+      summary.interviewStats.sessionsCompleted = nextSessions;
       summary.interviewStats.averageReadinessScore = Math.round(
-        ((summary.interviewStats.averageReadinessScore || 0) + readiness) /
-          summary.interviewStats.sessionsCompleted
+        ((summary.interviewStats.averageReadinessScore || 0) * prevSessions + readiness) /
+          nextSessions
       );
     }
   }

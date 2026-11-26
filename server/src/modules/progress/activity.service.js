@@ -2,6 +2,7 @@ import { ActivityEvent } from './activityEvent.model.js';
 import { progressQueue } from '../../jobs/queues.js';
 import { logger } from '../../config/logger.js';
 import { ProgressWorkerService } from '../../jobs/workers/progress.worker.js';
+import { isRedisMock } from '../../config/redis.js';
 import { env } from '../../config/env.js';
 
 export class ActivityService {
@@ -24,32 +25,21 @@ export class ActivityService {
         occurredAt: new Date(),
       });
 
-      // 2. Dispatch to progress queue with idempotency key
-      const queue = progressQueue();
-      await queue.add(
-        'aggregate-user-progress',
-        {
-          eventId: event._id.toString(),
-          userId: userId.toString(),
-          module,
-          action,
-          payload,
-        },
-        {
-          jobId: `progress_${event._id.toString()}`,
-        }
-      );
+      const jobData = {
+        eventId: event._id.toString(),
+        userId: userId.toString(),
+        module,
+        action,
+        payload,
+      };
 
-      // In unit test environments without Redis queue worker daemon, process aggregation directly
-      if (env.NODE_ENV === 'test') {
-        await ProgressWorkerService.processProgressJob({
-          data: {
-            eventId: event._id.toString(),
-            userId: userId.toString(),
-            module,
-            action,
-            payload,
-          },
+      // 2. When Redis/BullMQ worker is unavailable (tests or offline dev mode), process aggregation directly
+      if (env.NODE_ENV === 'test' || env.REDIS_URL === 'mock' || isRedisMock()) {
+        await ProgressWorkerService.processProgressJob({ data: jobData });
+      } else {
+        const queue = progressQueue();
+        await queue.add('aggregate-user-progress', jobData, {
+          jobId: `progress_${event._id.toString()}`,
         });
       }
 
