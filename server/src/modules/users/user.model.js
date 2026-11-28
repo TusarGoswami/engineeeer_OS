@@ -105,7 +105,7 @@ const userSchema = new mongoose.Schema(
       },
       theme: {
         type: String,
-        enum: ['terminal', 'minimalist', 'silicon', 'varsity', 'brutal'],
+        enum: ['terminal', 'minimalist', 'silicon', 'varsity', 'blueprint', 'brutal'],
         default: 'terminal',
       },
       sections: {

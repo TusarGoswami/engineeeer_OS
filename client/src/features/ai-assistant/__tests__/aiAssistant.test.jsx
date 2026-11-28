@@ -3,8 +3,27 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '../../../context/ThemeContext.jsx';
 import ToastProvider from '../../../components/Toast.jsx';
 import { AiAssistantPage } from '../AiAssistantPage.jsx';
+import { AiMascotLottie } from '../components/AiMascotLottie.jsx';
 import { aiService } from '../../../services/ai.service.js';
 import { academicsService } from '../../../services/academics.service.js';
+
+const mockDestroy = vi.fn();
+const mockLoadAnimation = vi.fn(({ container }) => {
+  if (container) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    container.appendChild(svg);
+  }
+  return {
+    destroy: mockDestroy,
+    addEventListener: vi.fn(),
+  };
+});
+
+vi.mock('lottie-web/build/player/esm/lottie_light.min.js', () => ({
+  default: {
+    loadAnimation: (...args) => mockLoadAnimation(...args),
+  },
+}));
 
 vi.mock('../../../services/ai.service.js', () => ({
   aiService: {
@@ -53,6 +72,43 @@ describe('AI Assistant Module (Module 5)', () => {
       value: { writeText: vi.fn() },
       configurable: true,
     });
+  });
+
+  it('renders animated Lottie mascot in header with loop, autoplay, cleanup, and graceful error fallback', async () => {
+    const { unmount } = renderAssistant();
+
+    expect(await screen.findByText('AI Academic Assistant')).toBeInTheDocument();
+    const mascot = screen.getByTestId('ai-assistant-mascot');
+    expect(mascot).toBeInTheDocument();
+    expect(mascot).toHaveClass('bg-transparent', 'border-0', 'lg:w-[60px]', 'lg:h-[60px]');
+    expect(mascot.className).not.toContain('bg-brand-500/10');
+
+    await waitFor(() => {
+      expect(mockLoadAnimation).toHaveBeenCalledTimes(1);
+    });
+
+    const callConfig = mockLoadAnimation.mock.calls[0][0];
+    expect(callConfig).toEqual(
+      expect.objectContaining({
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        rendererSettings: expect.objectContaining({
+          preserveAspectRatio: 'xMidYMid meet',
+        }),
+      })
+    );
+    expect(callConfig.animationData?.nm).toBe('robot-alt-happy');
+    expect(mascot).toHaveAttribute('data-status', 'ready');
+
+    unmount();
+    expect(mockDestroy).toHaveBeenCalledTimes(1);
+
+    mockLoadAnimation.mockImplementationOnce(() => {
+      throw new Error('SVG init failed');
+    });
+    render(<AiMascotLottie />);
+    expect(await screen.findByTestId('ai-mascot-fallback')).toBeInTheDocument();
   });
 
   it('loads threads/subjects, handles syllabus grounding, SSE streaming, Markdown/code rendering, and copy action', async () => {

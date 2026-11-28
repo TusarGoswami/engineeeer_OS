@@ -7,6 +7,25 @@ import { dashboardService } from '../../../services/dashboard.service.js';
 import profileService from '../../../services/profile.service.js';
 import ToastProvider from '../../../components/Toast.jsx';
 
+const mockWelcomeMascotDestroy = vi.fn();
+const mockWelcomeMascotLoad = vi.fn(({ container }) => {
+  if (container) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    container.appendChild(svg);
+  }
+  return {
+    destroy: mockWelcomeMascotDestroy,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  };
+});
+
+vi.mock('lottie-web/build/player/esm/lottie_light.min.js', () => ({
+  default: {
+    loadAnimation: (...args) => mockWelcomeMascotLoad(...args),
+  },
+}));
+
 vi.mock('../../../services/dashboard.service.js', () => ({
   dashboardService: {
     getSummary: vi.fn(),
@@ -135,6 +154,18 @@ describe('Redesigned DashboardPage Component (Phase 7)', () => {
       expect(screen.getByText('@alexj')).toBeInTheDocument();
     });
     const heroSection = screen.getByRole('region', { name: /Engineering command center hero/i });
+    const welcomeMascot = within(heroSection).getByTestId('dashboard-welcome-mascot');
+    expect(welcomeMascot).toBeInTheDocument();
+    expect(welcomeMascot).toHaveClass('lg:w-[132px]', 'lg:h-[150px]');
+    await waitFor(() => {
+      expect(mockWelcomeMascotLoad).toHaveBeenCalledWith(
+        expect.objectContaining({
+          renderer: 'svg',
+          loop: true,
+          autoplay: true,
+        })
+      );
+    });
     expect(within(heroSection).getByText(/Welcome back, Alex/i)).toBeInTheDocument();
     expect(
       within(heroSection).getByText(

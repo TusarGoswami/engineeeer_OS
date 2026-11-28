@@ -174,9 +174,20 @@ export class ProfileSnapshotService {
       .populate('testId', 'subject title')
       .lean();
 
+    const gateAccuracy =
+      summary.gateStats?.accuracyRate ??
+      bestGateAttempt?.accuracyRate ??
+      0;
+    const gateBestScore =
+      bestGateAttempt?.score ??
+      summary.gateStats?.averageScore ??
+      0;
+
     const gateStats = {
       testsTaken: summary.gateStats?.testsAttempted || 0,
       averageScore: summary.gateStats?.averageScore || 0,
+      bestScore: gateBestScore,
+      accuracy: gateAccuracy,
       percentile: summary.gateStats?.averageScore ? Math.min(99, Math.round(summary.gateStats.averageScore * 1.1)) : 0,
       topSubject: bestGateAttempt?.testId?.subject || '',
     };
@@ -231,18 +242,29 @@ export class ProfileSnapshotService {
       .limit(365)
       .lean();
 
-    const recentActivity = dailyRollups.map((d) => ({
-      date: d.date,
-      count: d.counts?.total || 0,
-    }));
+    const recentActivity = [...dailyRollups]
+      .reverse()
+      .map((d) => ({
+        date: d.date,
+        count: d.counts?.total || 0,
+      }));
 
-    // Derived top skills
+    // Derived domain skills (mark verified only when real progress > 0 exists)
+    const codingSkillScore = Math.min(100, (codingStats.solvedCount || 0) * 4);
+    const gateSkillScore = gateStats.averageScore || 0;
+    const academicSkillScore = academicStats.completionPercentage || 0;
+    const interviewSkillScore = interviewStats.averageReadiness || 0;
+
     const topSkills = [
-      { name: 'Algorithms & Data Structures', category: 'coding', score: Math.min(100, (codingStats.solvedCount || 0) * 4), level: codingStats.solvedCount > 25 ? 'Master' : 'Proficient' },
-      { name: 'GATE Core Concepts', category: 'gate', score: gateStats.averageScore || 0, level: gateStats.averageScore > 70 ? 'Advanced' : 'Practicing' },
-      { name: 'Semester Academics', category: 'academics', score: academicStats.completionPercentage || 0, level: `${academicStats.completionPercentage}% Done` },
-      { name: 'Technical Communication', category: 'interviews', score: interviewStats.averageReadiness || 0, level: interviewStats.level },
+      { name: 'Algorithms & Data Structures', category: 'coding', score: codingSkillScore, level: codingStats.solvedCount > 25 ? 'Master' : 'Proficient', verified: codingSkillScore > 0 },
+      { name: 'GATE Core Concepts', category: 'gate', score: gateSkillScore, level: gateSkillScore > 70 ? 'Advanced' : 'Practicing', verified: gateSkillScore > 0 },
+      { name: 'Semester Academics', category: 'academics', score: academicSkillScore, level: `${academicSkillScore}% Done`, verified: academicSkillScore > 0 },
+      { name: 'Technical Communication', category: 'interviews', score: interviewSkillScore, level: interviewStats.level, verified: interviewSkillScore > 0 },
     ];
+
+    const topicTags = Array.isArray(summary.codingStats?.topicCoverage)
+      ? summary.codingStats.topicCoverage.filter((tag) => typeof tag === 'string' && tag.trim())
+      : [];
 
     const snapshotData = {
       userId,
@@ -266,6 +288,7 @@ export class ProfileSnapshotService {
       },
       stats: statsPayload,
       topSkills,
+      topicTags,
       badges: userBadges,
       recentActivity,
       version: (user.avatarVersion || 1),

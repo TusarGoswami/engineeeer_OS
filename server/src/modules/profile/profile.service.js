@@ -4,6 +4,7 @@ import { ProfileSnapshotService } from './profileSnapshot.service.js';
 import { BADGE_CATALOGUE } from './badge.catalogue.js';
 import { NotFoundError, ForbiddenError, ValidationError, ConflictError } from '../../middleware/error.js';
 import { RESERVED_USERNAMES } from '../users/user.schema.js';
+import { normalizeCardTheme } from './profile.schema.js';
 import { getRedisClient } from '../../config/redis.js';
 
 export class ProfileService {
@@ -17,7 +18,12 @@ export class ProfileService {
     }
 
     let snapshot = await ProfileRepository.findSnapshotByUserId(userId);
-    if (!snapshot || (user.avatarKey && snapshot.identity?.avatarKey !== user.avatarKey)) {
+    if (
+      !snapshot ||
+      (user.avatarKey && snapshot.identity?.avatarKey !== user.avatarKey) ||
+      snapshot.stats?.gate?.accuracy === undefined ||
+      !Array.isArray(snapshot.topicTags)
+    ) {
       snapshot = await ProfileSnapshotService.rebuildSnapshot(userId);
     }
 
@@ -28,9 +34,16 @@ export class ProfileService {
       ? `/u/${encodeURIComponent(username)}`
       : `/u/${encodeURIComponent(username)}?token=${encodeURIComponent(shareToken || '')}`;
 
+    const normalizedSettings = user.profileSettings
+      ? {
+          ...user.profileSettings,
+          theme: normalizeCardTheme(user.profileSettings.theme),
+        }
+      : user.profileSettings;
+
     return {
       profile: snapshot,
-      settings: user.profileSettings,
+      settings: normalizedSettings,
       shareToken,
       shareUrl,
     };
@@ -63,6 +76,9 @@ export class ProfileService {
       sanitized.profileSettings = {
         ...user.profileSettings,
         ...sanitized.profileSettings,
+        ...(sanitized.profileSettings.theme !== undefined
+          ? { theme: normalizeCardTheme(sanitized.profileSettings.theme) }
+          : {}),
         sections: {
           ...user.profileSettings?.sections,
           ...sanitized.profileSettings.sections,
@@ -72,10 +88,16 @@ export class ProfileService {
 
     const updatedUser = await ProfileRepository.updateUser(userId, sanitized);
     const snapshot = await ProfileSnapshotService.rebuildSnapshot(userId);
+    const normalizedSettings = updatedUser.profileSettings
+      ? {
+          ...updatedUser.profileSettings,
+          theme: normalizeCardTheme(updatedUser.profileSettings.theme),
+        }
+      : updatedUser.profileSettings;
 
     return {
       profile: snapshot,
-      settings: updatedUser.profileSettings,
+      settings: normalizedSettings,
     };
   }
 
@@ -95,7 +117,11 @@ export class ProfileService {
       const redis = getRedisClient();
       const cached = await redis.get(cacheKey);
       if (cached) {
-        return JSON.parse(cached);
+        const parsed = JSON.parse(cached);
+        return {
+          ...parsed,
+          theme: normalizeCardTheme(parsed.theme),
+        };
       }
     } catch {
       // Safe to continue on Redis miss/failure
@@ -134,36 +160,51 @@ export class ProfileService {
     delete publicProfile.userId;
     delete publicProfile.updatedAt;
 
-    const sections = user.profileSettings?.sections || {};
+    const rawSections = user.profileSettings?.sections || {};
+    const sections = {
+      showHeatmap: rawSections.showHeatmap !== false,
+      showGate: rawSections.showGate !== false,
+      showInterviews: rawSections.showInterviews !== false,
+      showUniversity: rawSections.showUniversity !== false,
+      showPhoto: rawSections.showPhoto !== false,
+      showSkills: rawSections.showSkills !== false,
+      showBadges: rawSections.showBadges !== false,
+    };
 
-    if (sections.showUniversity === false) {
+    if (!sections.showUniversity) {
       delete publicProfile.identity.university;
+      delete publicProfile.identity.branch;
+      delete publicProfile.identity.semester;
+      delete publicProfile.identity.graduationYear;
     }
-    if (sections.showPhoto === false) {
+    if (!sections.showPhoto) {
       delete publicProfile.identity.avatarKey;
       delete publicProfile.identity.avatarUrl;
     }
-    if (sections.showGate === false) {
+    if (!sections.showGate) {
       delete publicProfile.stats.gate;
     }
-    if (sections.showInterviews === false) {
+    if (!sections.showInterviews) {
       delete publicProfile.stats.interviews;
     }
-    if (sections.showHeatmap === false) {
+    if (!sections.showHeatmap) {
       delete publicProfile.recentActivity;
+      delete publicProfile.stats.streaks;
     }
-    if (sections.showSkills === false) {
+    if (!sections.showSkills) {
       delete publicProfile.topSkills;
+      delete publicProfile.topicTags;
     }
-    if (sections.showBadges === false) {
+    if (!sections.showBadges) {
       delete publicProfile.badges;
     }
 
     const result = {
       card: publicProfile,
-      theme: user.profileSettings?.theme || 'terminal',
+      theme: normalizeCardTheme(user.profileSettings?.theme || 'terminal'),
       visibility,
       isUnlisted: visibility === 'unlisted',
+      sections,
     };
 
     // Cache filtered result for 120 seconds in Redis

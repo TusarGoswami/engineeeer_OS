@@ -47,6 +47,7 @@ import {
 } from '../../components/index.js';
 import ProfileCard from '../profile/components/ProfileCard.jsx';
 import CardExportModal from '../profile/components/CardExportModal.jsx';
+import DashboardWelcomeMascot from './components/DashboardWelcomeMascot.jsx';
 
 /**
  * Primary Engineering Command Center landing view aggregating progress telemetry,
@@ -241,31 +242,37 @@ export const DashboardPage = () => {
                 <span className="text-brand-700 font-semibold">{activeStreak}d active streak</span>
               </div>
 
-              <div className="space-y-1.5">
-                <h1 className="font-display text-2xl sm:text-3xl font-bold text-surface-100 tracking-tight leading-tight">
-                  Welcome back, {user?.name?.split(' ')[0] || 'Engineer'}
-                </h1>
-                <p className="text-sm text-surface-400 leading-relaxed">
-                  Track coding telemetry, curriculum completion, GATE mocks &amp; interview readiness.
-                </p>
-              </div>
+              <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+                <DashboardWelcomeMascot />
 
-              {(university || semester || branch) && (
-                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-xs text-surface-400 pt-0.5">
-                  {university && (
-                    <span className="inline-flex items-center gap-1.5 text-surface-200 font-medium">
-                      <GraduationCap className="w-3.5 h-3.5 text-brand-500 shrink-0" />
-                      <span>{university}</span>
-                    </span>
+                <div className="min-w-0 flex-1 space-y-2">
+                  <div className="space-y-1.5">
+                    <h1 className="font-display text-2xl sm:text-3xl font-bold text-surface-100 tracking-tight leading-tight">
+                      Welcome back, {user?.name?.split(' ')[0] || 'Engineer'}
+                    </h1>
+                    <p className="text-sm text-surface-400 leading-relaxed">
+                      Track coding telemetry, curriculum completion, GATE mocks &amp; interview readiness.
+                    </p>
+                  </div>
+
+                  {(university || semester || branch) && (
+                    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-xs text-surface-400">
+                      {university && (
+                        <span className="inline-flex items-center gap-1.5 text-surface-200 font-medium">
+                          <GraduationCap className="w-3.5 h-3.5 text-brand-500 shrink-0" />
+                          <span>{university}</span>
+                        </span>
+                      )}
+                      {semester && (
+                        <span className="font-mono px-2 py-0.5 rounded-md bg-elevated border border-surface-700 text-surface-200">
+                          Sem {semester}
+                        </span>
+                      )}
+                      {branch && <span className="truncate max-w-xs sm:max-w-md">{branch}</span>}
+                    </div>
                   )}
-                  {semester && (
-                    <span className="font-mono px-2 py-0.5 rounded-md bg-elevated border border-surface-700 text-surface-200">
-                      Sem {semester}
-                    </span>
-                  )}
-                  {branch && <span className="truncate max-w-xs sm:max-w-md">{branch}</span>}
                 </div>
-              )}
+              </div>
 
               <div className="flex flex-wrap items-center gap-2 pt-1.5">
                 <Button

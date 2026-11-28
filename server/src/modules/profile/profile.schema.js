@@ -1,5 +1,12 @@
 import { z } from 'zod';
-import { RESERVED_USERNAMES } from '../users/user.schema.js';
+import {
+  RESERVED_USERNAMES,
+  CANONICAL_CARD_THEMES,
+  normalizeCardTheme,
+  cardThemeSchema,
+} from '../users/user.schema.js';
+
+export { CANONICAL_CARD_THEMES, normalizeCardTheme, cardThemeSchema };
 
 export const updateProfileSettingsSchema = z.object({
   name: z.string().min(2).max(100).optional(),
@@ -21,7 +28,7 @@ export const updateProfileSettingsSchema = z.object({
   profileSettings: z
     .object({
       visibility: z.enum(['private', 'unlisted', 'public']).optional(),
-      theme: z.enum(['terminal', 'minimalist', 'silicon', 'varsity', 'brutal']).optional(),
+      theme: cardThemeSchema.optional(),
       sections: z
         .object({
           showHeatmap: z.boolean().optional(),

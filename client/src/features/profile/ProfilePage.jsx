@@ -13,6 +13,7 @@ import {
   Flame,
 } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext.jsx';
+import { queryClient } from '../../app/queryClient.js';
 import { userService } from '../../services/user.service.js';
 import profileService from '../../services/profile.service.js';
 import {
@@ -51,6 +52,8 @@ export const ProfilePage = () => {
   const cardRef = useRef(null);
 
   const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
+  const [previewTheme, setPreviewTheme] = useState(null);
+  const [previewSections, setPreviewSections] = useState(null);
   const [isCropperOpen, setIsCropperOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isExportingData, setIsExportingData] = useState(false);
@@ -59,6 +62,7 @@ export const ProfilePage = () => {
   const [profileData, setProfileData] = useState(null);
   const [badges, setBadges] = useState([]);
   const [heatmapData, setHeatmapData] = useState([]);
+  const [heatmapMeta, setHeatmapMeta] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const {
@@ -88,8 +92,15 @@ export const ProfilePage = () => {
       ]);
 
       setProfileData(ownerProfile);
-      setBadges(myBadges || []);
-      setHeatmapData(myHeatmap || []);
+      setBadges((myBadges || []).filter((b) => b && b.isUnlocked !== false));
+
+      if (Array.isArray(myHeatmap)) {
+        setHeatmapData(myHeatmap);
+        setHeatmapMeta(null);
+      } else {
+        setHeatmapData(Array.isArray(myHeatmap?.days) ? myHeatmap.days : []);
+        setHeatmapMeta(myHeatmap || null);
+      }
 
       const resolvedOwner = ownerProfile?.profile || ownerProfile;
       if (resolvedOwner) {
@@ -247,6 +258,8 @@ export const ProfilePage = () => {
           <ProfileCard
             ref={cardRef}
             profile={profileData}
+            themeOverride={previewTheme}
+            sectionsOverride={previewSections}
             orientation="portrait"
             className="w-full max-w-md"
           />
@@ -370,8 +383,9 @@ export const ProfilePage = () => {
                 </div>
                 <div className="text-left sm:text-right">
                   <div className="text-lg font-bold font-mono tabular-nums text-[var(--hm-accent-strong)]">
-                    {(profileData?.profile || profileData)?.stats?.streaks?.current ||
-                      (profileData?.profile || profileData)?.stats?.streaks?.currentStreak ||
+                    {heatmapMeta?.currentStreak ??
+                      (profileData?.profile || profileData)?.stats?.streaks?.current ??
+                      (profileData?.profile || profileData)?.stats?.streaks?.currentStreak ??
                       0}{' '}
                     Days
                   </div>
@@ -383,14 +397,17 @@ export const ProfilePage = () => {
               <Heatmap
                 data={heatmapData}
                 weeks={52}
+                totalActiveDays={heatmapMeta?.totalActiveDays}
                 currentStreak={
-                  (profileData?.profile || profileData)?.stats?.streaks?.current ||
-                  (profileData?.profile || profileData)?.stats?.streaks?.currentStreak ||
+                  heatmapMeta?.currentStreak ??
+                  (profileData?.profile || profileData)?.stats?.streaks?.current ??
+                  (profileData?.profile || profileData)?.stats?.streaks?.currentStreak ??
                   0
                 }
                 longestStreak={
-                  (profileData?.profile || profileData)?.stats?.streaks?.longest ||
-                  (profileData?.profile || profileData)?.stats?.streaks?.longestStreak ||
+                  heatmapMeta?.longestStreak ??
+                  (profileData?.profile || profileData)?.stats?.streaks?.longest ??
+                  (profileData?.profile || profileData)?.stats?.streaks?.longestStreak ??
                   0
                 }
               />
@@ -402,9 +419,18 @@ export const ProfilePage = () => {
       {/* Modals & Drawers */}
       <CardCustomizerDrawer
         isOpen={isCustomizerOpen}
-        onClose={() => setIsCustomizerOpen(false)}
+        onClose={() => {
+          setIsCustomizerOpen(false);
+          setPreviewTheme(null);
+          setPreviewSections(null);
+        }}
         profile={profileData}
-        onProfileUpdated={(updated) => setProfileData(updated)}
+        onThemePreview={setPreviewTheme}
+        onSectionsPreview={setPreviewSections}
+        onProfileUpdated={(updated) => {
+          setProfileData(updated);
+          queryClient.invalidateQueries({ queryKey: ['owner-profile'] });
+        }}
       />
 
       <AvatarCropperModal

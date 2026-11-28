@@ -20,64 +20,108 @@ import {
   Terminal as TerminalIcon,
   Cpu,
   Github,
+  ShieldCheck,
+  Compass,
 } from 'lucide-react';
 import Avatar from '../../../components/Avatar.jsx';
-import { CUSTOM_BADGE_ARTWORK } from './badgeCatalogueClient.js';
+import { MedallionFrontFace } from './BadgeMedallionArt.jsx';
+import './ProfileCardThemes.css';
 
 export const THEMES = {
   terminal: {
     id: 'terminal',
     name: 'Terminal',
     description: 'Developer console with warm orange shell prompt and technical framing',
+    swatchBg: 'bg-[#090C10]',
+    swatchAccent: 'bg-[#FF8C42]',
+    swatchBorder: 'border-[#FF8C42]/50',
   },
   minimalist: {
     id: 'minimalist',
     name: 'Minimalist',
     description: 'Swiss modernist neutral layout with restrained orange highlights',
+    swatchBg: 'bg-white dark:bg-[#131519]',
+    swatchAccent: 'bg-[#E05315]',
+    swatchBorder: 'border-slate-300 dark:border-white/25',
   },
   silicon: {
     id: 'silicon',
     name: 'Silicon Neon',
     description: 'Sleek engineering contrast with vibrant ember-orange accents',
+    swatchBg: 'bg-[#0D1526]',
+    swatchAccent: 'bg-[#FF5500]',
+    swatchBorder: 'border-[#FF6B2B]/65',
   },
   varsity: {
     id: 'varsity',
     name: 'Varsity Academic',
     description: 'Collegiate crest typography with warm copper-orange detailing',
+    swatchBg: 'bg-[#141F35]',
+    swatchAccent: 'bg-[#E07A38]',
+    swatchBorder: 'border-[#E07A38]/55',
   },
   blueprint: {
     id: 'blueprint',
     name: 'Blueprint CAD',
     description: 'Engineering schematic layout with dimensional orange markers',
+    swatchBg: 'bg-[#071C3B]',
+    swatchAccent: 'bg-[#FF7A2F]',
+    swatchBorder: 'border-sky-400/55',
   },
 };
 
-/* ── Per-variant typographic/structural framing (exclusively orange accent family) ── */
+export const normalizeThemeId = (theme) => {
+  if (theme === 'brutal') return 'blueprint';
+  if (theme && THEMES[theme]) return theme;
+  return 'terminal';
+};
+
+/* ── Per-variant typographic, structural & accent framing across the 5 card themes ── */
 const THEME_TYPOGRAPHY = {
   terminal: {
     titleClass: 'font-mono tracking-tight',
     panelRadius: 'rounded-lg',
-    chipRadius: 'rounded-md',
+    chipRadius: 'rounded',
+    progressRadius: 'rounded-sm',
+    ringStart: '#FF8C42',
+    ringEnd: '#C2410C',
+    sectionPrefix: '> ',
   },
   minimalist: {
     titleClass: 'font-semibold tracking-tight',
-    panelRadius: 'rounded-lg',
-    chipRadius: 'rounded-md',
+    panelRadius: 'rounded-md',
+    chipRadius: 'rounded-sm',
+    progressRadius: 'rounded-none',
+    ringStart: '#E05315',
+    ringEnd: '#E05315',
+    sectionPrefix: '',
   },
   silicon: {
     titleClass: 'font-bold tracking-tight',
     panelRadius: 'rounded-xl',
     chipRadius: 'rounded-md',
+    progressRadius: 'rounded-full',
+    ringStart: '#FFB36B',
+    ringEnd: '#FF3D00',
+    sectionPrefix: '// ',
   },
   varsity: {
     titleClass: 'font-serif font-bold tracking-wide',
-    panelRadius: 'rounded-xl',
+    panelRadius: 'rounded-lg',
     chipRadius: 'rounded-md',
+    progressRadius: 'rounded-full',
+    ringStart: '#F4A261',
+    ringEnd: '#B45309',
+    sectionPrefix: '◆ ',
   },
   blueprint: {
     titleClass: 'font-mono font-bold uppercase tracking-wider',
-    panelRadius: 'rounded-md',
-    chipRadius: 'rounded',
+    panelRadius: 'rounded-sm',
+    chipRadius: 'rounded-sm',
+    progressRadius: 'rounded-none',
+    ringStart: '#FFB080',
+    ringEnd: '#E05315',
+    sectionPrefix: '01 · ',
   },
 };
 
@@ -86,6 +130,7 @@ export const ProfileCard = forwardRef(
     {
       profile,
       themeOverride,
+      sectionsOverride,
       compact = false,
       orientation = 'landscape',
       showQrCode = true,
@@ -95,26 +140,36 @@ export const ProfileCard = forwardRef(
   ) => {
     if (!profile) return null;
 
-    // Unwrap API envelope { profile: snapshot, settings, shareToken, shareUrl } if passed directly
+    // Unwrap owner envelope ({ profile, settings }) and public envelope ({ card, theme, sections })
+    const innerEnvelope = profile?.card || profile?.profile;
     const raw =
-      profile?.profile && typeof profile.profile === 'object' && !profile.identity
+      innerEnvelope && typeof innerEnvelope === 'object' && !profile.identity
         ? {
-            ...profile.profile,
-            profileSettings: profile.profile.profileSettings || profile.settings,
-            shareToken: profile.shareToken || profile.profile.shareToken,
-            shareUrl: profile.shareUrl || profile.profile.shareUrl,
+            ...innerEnvelope,
+            profileSettings:
+              profile.settings ||
+              (profile.sections || profile.theme
+                ? {
+                    ...(innerEnvelope.profileSettings || {}),
+                    ...(profile.theme ? { theme: profile.theme } : {}),
+                    ...(profile.sections ? { sections: profile.sections } : {}),
+                  }
+                : innerEnvelope.profileSettings),
+            shareToken: profile.shareToken || innerEnvelope.shareToken,
+            shareUrl: profile.shareUrl || innerEnvelope.shareUrl,
           }
         : profile;
 
     const isPortrait = orientation === 'portrait';
 
-    const theme =
+    const theme = normalizeThemeId(
       themeOverride ||
-      raw.profileSettings?.theme ||
-      raw.theme ||
-      'terminal';
+        raw.profileSettings?.theme ||
+        raw.theme ||
+        'terminal'
+    );
 
-    const sections = raw.profileSettings?.sections || {
+    const baseSections = {
       showHeatmap: true,
       showGate: true,
       showInterviews: true,
@@ -122,7 +177,11 @@ export const ProfileCard = forwardRef(
       showPhoto: true,
       showSkills: true,
       showBadges: true,
+      ...(raw.profileSettings?.sections || profile?.sections || {}),
     };
+    const sections = sectionsOverride
+      ? { ...baseSections, ...sectionsOverride }
+      : baseSections;
 
     /* ── Avatar resolution ── */
     const resolvedAvatarKey =
@@ -212,6 +271,7 @@ export const ProfileCard = forwardRef(
         testsTaken: rawStats.gate?.testsTaken ?? rawStats.gate?.testsAttempted ?? 0,
         bestScore: rawStats.gate?.bestScore ?? rawStats.gate?.averageScore ?? 0,
         accuracy: rawStats.gate?.accuracy ?? rawStats.gate?.accuracyRate ?? 0,
+        topSubject: rawStats.gate?.topSubject || '',
       },
       academic: {
         subjectsEnrolled:
@@ -224,6 +284,7 @@ export const ProfileCard = forwardRef(
           rawStats.interviews?.completed ?? rawStats.interviews?.completedCount ?? 0,
         averageScore:
           rawStats.interviews?.averageScore ?? rawStats.interviews?.averageReadiness ?? 0,
+        level: rawStats.interviews?.level || '',
       },
       streaks: {
         current: rawStats.streaks?.current ?? rawStats.streaks?.currentStreak ?? 0,
@@ -237,22 +298,70 @@ export const ProfileCard = forwardRef(
         ? Math.min(100, Math.max(5, Math.round((stats.coding.solved / 20) * 100)))
         : 0;
     const gatePct =
-      stats.gate.testsTaken > 0 || stats.gate.bestScore > 0
-        ? Math.min(100, Math.max(10, Math.round(stats.gate.accuracy || stats.gate.bestScore || 25)))
+      stats.gate.testsTaken > 0 || stats.gate.bestScore > 0 || stats.gate.accuracy > 0
+        ? Math.min(100, Math.max(0, Math.round(stats.gate.accuracy || stats.gate.bestScore || 0)))
         : 0;
     const interviewPct =
       stats.interviews.completed > 0 || stats.interviews.averageScore > 0
-        ? Math.min(100, Math.max(10, Math.round(stats.interviews.averageScore || 50)))
+        ? Math.min(100, Math.max(0, Math.round(stats.interviews.averageScore || 0)))
         : 0;
+
+    const progressInputs = [academicPct, codingPct];
+    if (sections.showGate !== false) progressInputs.push(gatePct);
+    if (sections.showInterviews !== false) progressInputs.push(interviewPct);
     const overallProgress = Math.round(
-      (academicPct + codingPct + gatePct + interviewPct) / 4
+      progressInputs.reduce((sum, val) => sum + val, 0) / progressInputs.length
     );
 
-    const badges = raw.badges || [];
-    const topSkills = (raw.topSkills || [])
-      .map((s) => (typeof s === 'string' ? s : s?.name))
-      .filter(Boolean);
-    const recentActivity = raw.recentActivity || [];
+    const badges = (raw.badges || []).filter((b) => b && b.isUnlocked !== false);
+
+    // Separate earned/verified domain skills (score > 0 or verified: true) from neutral topic tags
+    const verifiedSkills = [];
+    const topicTags = [];
+    const seenTags = new Set();
+
+    (raw.topSkills || []).forEach((s) => {
+      if (typeof s === 'string') {
+        const clean = s.trim();
+        if (clean && !seenTags.has(clean.toLowerCase())) {
+          seenTags.add(clean.toLowerCase());
+          topicTags.push(clean);
+        }
+      } else if (s && typeof s === 'object' && s.name) {
+        const isVerified =
+          s.verified === true ||
+          (s.verified === undefined && (s.score === undefined || s.score > 0));
+        if (isVerified) {
+          verifiedSkills.push({
+            name: s.name,
+            score: s.score,
+            level: s.level,
+            verified: Boolean(s.verified || (s.score !== undefined && s.score > 0)),
+          });
+        }
+      }
+    });
+
+    const rawTopicTags = Array.isArray(raw.topicTags)
+      ? raw.topicTags
+      : Array.isArray(rawStats.coding?.topicCoverage)
+      ? rawStats.coding.topicCoverage
+      : [];
+    rawTopicTags.forEach((tag) => {
+      const clean = typeof tag === 'string' ? tag.trim() : tag?.name?.trim();
+      if (clean && !seenTags.has(clean.toLowerCase())) {
+        seenTags.add(clean.toLowerCase());
+        topicTags.push(clean);
+      }
+    });
+
+    const hasSkillsOrTags = verifiedSkills.length > 0 || topicTags.length > 0;
+
+    const sortedActivity = [...(raw.recentActivity || [])]
+      .filter((d) => d && d.date)
+      .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+    const recent30Activity = sortedActivity.slice(-30);
+    const total30Events = recent30Activity.reduce((acc, a) => acc + (a.count || 0), 0);
 
     /* ── QR code URL ── */
     const baseUrl =
@@ -300,24 +409,77 @@ export const ProfileCard = forwardRef(
       : ['160px', '130px', '100px', '72px', '44px'];
 
     const renderHeatmapBars = (barSizeClass) =>
-      recentActivity.slice(-30).map((d) => {
+      recent30Activity.map((d) => {
         const count = d.count || 0;
-        const bgClass =
+        const barStyle =
           count === 0
-            ? 'bg-[#EDE9E4] dark:bg-white/[0.08]'
+            ? {
+                background: 'var(--pc-surface-subtle)',
+                border: '1px solid var(--pc-border-subtle)',
+              }
             : count <= 2
-            ? 'bg-[#FFD0A8] dark:bg-[#FF8C42]/40'
+            ? { background: 'var(--pc-accent)', opacity: 0.42 }
             : count <= 5
-            ? 'bg-[#FF8C42] dark:bg-[#FF6B35]/75'
-            : 'bg-[#E85D04] dark:bg-[#FF8C42]';
+            ? { background: 'var(--pc-accent)', opacity: 0.72 }
+            : { background: 'var(--pc-accent)', opacity: 1 };
         return (
           <div
             key={d.date}
             title={`${d.date}: ${count} actions`}
-            className={`${barSizeClass} rounded-sm shrink-0 transition-colors ${bgClass}`}
+            aria-label={`${d.date}: ${count} actions`}
+            style={barStyle}
+            className={`${barSizeClass} ${typo.progressRadius} shrink-0 transition-opacity`}
           />
         );
       });
+
+    const renderSkillsChips = (maxItems) => {
+      const combined = [
+        ...verifiedSkills.map((s) => ({ type: 'verified', label: s.name, meta: s.level })),
+        ...topicTags.map((t) => ({ type: 'topic', label: t })),
+      ];
+      const visibleItems = combined.slice(0, maxItems);
+      const overflowCount = combined.length - visibleItems.length;
+
+      return (
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {visibleItems.map((item) => (
+            <span
+              key={`${item.type}-${item.label}`}
+              title={item.meta ? `${item.label} • ${item.meta}` : item.label}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium ${typo.chipRadius} max-w-[170px] truncate`}
+              style={{
+                background:
+                  item.type === 'verified' ? 'var(--pc-accent-bg)' : 'var(--pc-surface-subtle)',
+                border: '1px solid var(--pc-border)',
+                color: 'var(--pc-text-primary)',
+              }}
+            >
+              {item.type === 'verified' && (
+                <CheckCircle2
+                  className="w-3 h-3 shrink-0"
+                  style={{ color: 'var(--pc-accent)' }}
+                  aria-hidden="true"
+                />
+              )}
+              <span className="truncate">{item.label}</span>
+            </span>
+          ))}
+          {overflowCount > 0 && (
+            <span
+              className={`px-1.5 py-0.5 text-[10px] font-mono font-semibold ${typo.chipRadius}`}
+              style={{
+                background: 'var(--pc-surface-subtle)',
+                border: '1px solid var(--pc-border)',
+                color: 'var(--pc-text-secondary)',
+              }}
+            >
+              +{overflowCount}
+            </span>
+          )}
+        </div>
+      );
+    };
 
     const telemetryMetrics = [
       {
@@ -390,15 +552,58 @@ export const ProfileCard = forwardRef(
             : 'w-full max-w-2xl'
         } ${className}`}
       >
-        {/* Theme-aware card body (adapts via .pc-card & .dark .pc-card CSS vars) */}
+        {/* Theme-aware card body (adapts via .pc-card & .dark .pc-card + .pc-theme-* tokens) */}
         <div
           ref={ref}
           id="engineeros-profile-card"
           data-orientation={orientation}
-          className={`pc-card w-full rounded-3xl relative overflow-hidden ${
+          data-card-theme={theme}
+          className={`pc-card pc-theme-${theme} w-full rounded-3xl relative overflow-hidden ${
             isPortrait ? 'pc-card-portrait flex-1 flex flex-col' : ''
           }`}
         >
+          {/* Blueprint CAD corner registration crosshairs & construction ticks */}
+          {theme === 'blueprint' && (
+            <>
+              <svg
+                aria-hidden="true"
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                className="pointer-events-none absolute top-2.5 left-2.5 z-[1]"
+              >
+                <line x1="2" y1="8" x2="14" y2="8" stroke="var(--pc-accent)" strokeWidth="1.25" strokeOpacity="0.68" />
+                <line x1="8" y1="2" x2="8" y2="14" stroke="var(--pc-accent)" strokeWidth="1.25" strokeOpacity="0.68" />
+              </svg>
+              <svg
+                aria-hidden="true"
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                className="pointer-events-none absolute bottom-2.5 left-2.5 z-[1]"
+              >
+                <polyline
+                  points="4,4 4,16 16,16"
+                  fill="none"
+                  stroke="var(--pc-accent)"
+                  strokeWidth="1.25"
+                  strokeOpacity="0.58"
+                />
+              </svg>
+            </>
+          )}
+
+          {/* Silicon Neon subtle top-left corner geometric accent rail */}
+          {theme === 'silicon' && (
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute top-0 left-6 right-28 h-[2px] z-[2]"
+              style={{
+                background:
+                  'linear-gradient(90deg, var(--pc-accent-bright) 0%, var(--pc-accent) 45%, transparent 100%)',
+              }}
+            />
+          )}
           {/* ── Layered orange-tinted circles — upper-right motif ── */}
           <div
             className="pc-logo"
@@ -475,7 +680,7 @@ export const ProfileCard = forwardRef(
           </div>
 
           {/* ── Glass surface overlay ── */}
-          <div style={glassStyle} aria-hidden="true" />
+          <div className="pc-glass-layer" style={glassStyle} aria-hidden="true" />
 
           {/* ═══════════════════════════════════════════════════
               CARD CONTENT — elevated via translate3d
@@ -486,15 +691,15 @@ export const ProfileCard = forwardRef(
           >
             {/* ── Header bar ── */}
             <div
-              className={`flex items-center justify-between px-5 border-b ${
+              className={`pc-header-bar flex items-center justify-between px-5 border-b ${
                 isPortrait ? 'py-2.5 pr-16 shrink-0' : 'py-3 pr-20'
               }`}
               style={{ borderColor: 'var(--pc-border-subtle)' }}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-0">
                 {theme === 'terminal' ? (
                   <>
-                    <div className="flex gap-1.5 mr-2" aria-hidden="true">
+                    <div className="flex gap-1.5 mr-1.5 shrink-0" aria-hidden="true">
                       <span className="w-2.5 h-2.5 rounded-full bg-[#E85D04] inline-block" />
                       <span className="w-2.5 h-2.5 rounded-full bg-[#FF8C42] inline-block" />
                       <span className="w-2.5 h-2.5 rounded-full bg-[#FFB36B] inline-block" />
@@ -504,7 +709,7 @@ export const ProfileCard = forwardRef(
                       style={{ color: 'var(--pc-accent)' }}
                     />
                     <span
-                      className="text-xs font-mono font-medium"
+                      className="text-xs font-mono font-medium truncate"
                       style={{ color: 'var(--pc-accent)' }}
                     >
                       {identity.username
@@ -512,47 +717,111 @@ export const ProfileCard = forwardRef(
                         : 'engineeros:~$ whoami'}
                     </span>
                   </>
-                ) : theme === 'blueprint' ? (
-                  <div className="flex items-center gap-2 font-mono">
+                ) : theme === 'minimalist' ? (
+                  <div className="flex items-center gap-2.5 min-w-0">
                     <span
-                      className="font-bold text-xs"
-                      style={{ color: 'var(--pc-accent)' }}
-                    >
-                      [SCHEMA // OS-CARD-V2]
-                    </span>
+                      className="w-2 h-2 shrink-0"
+                      style={{ background: 'var(--pc-accent)' }}
+                      aria-hidden="true"
+                    />
                     <span
-                      className="text-xs hidden sm:inline"
+                      className="text-[11px] font-mono font-semibold uppercase tracking-[0.16em] truncate"
                       style={{ color: 'var(--pc-text-secondary)' }}
                     >
-                      {'// SPEC: ENGINEERING PROFILE'}
+                      NO. 01 · ENGINEEROS INDEX
                     </span>
                   </div>
-                ) : (
-                  <div className="flex items-center gap-2">
+                ) : theme === 'silicon' ? (
+                  <div className="flex items-center gap-2 min-w-0">
                     <div
-                      className="w-6 h-6 rounded-lg flex items-center justify-center"
+                      className="w-6 h-6 rounded-md flex items-center justify-center shrink-0"
                       style={{
                         background: 'var(--pc-accent-bg)',
-                        border: '1px solid var(--pc-border)',
+                        border: '1px solid var(--pc-accent)',
                       }}
                     >
                       <Cpu
                         className="w-3.5 h-3.5"
-                        style={{ color: 'var(--pc-accent)' }}
+                        style={{ color: 'var(--pc-accent-bright)' }}
                       />
                     </div>
                     <span
-                      className="text-xs font-semibold tracking-wider uppercase"
-                      style={{ color: 'var(--pc-text-secondary)' }}
+                      className="text-[11px] font-mono font-bold tracking-[0.14em] uppercase truncate"
+                      style={{ color: 'var(--pc-text-primary)' }}
                     >
-                      EngineerOS Certified Card
+                      SILICON // REV.4
+                    </span>
+                    <span
+                      className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded shrink-0"
+                      style={{
+                        background: 'var(--pc-accent-bg)',
+                        color: 'var(--pc-accent-bright)',
+                      }}
+                    >
+                      <span
+                        className="w-1.5 h-1.5 rounded-full"
+                        style={{ background: 'var(--pc-accent-bright)' }}
+                        aria-hidden="true"
+                      />
+                      CORE
+                    </span>
+                  </div>
+                ) : theme === 'varsity' ? (
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div
+                      className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                      style={{
+                        background: 'var(--pc-accent-bg)',
+                        border: '1.5px solid var(--pc-accent)',
+                      }}
+                    >
+                      <ShieldCheck
+                        className="w-3.5 h-3.5"
+                        style={{ color: 'var(--pc-accent)' }}
+                      />
+                    </div>
+                    <div className="flex flex-col leading-none min-w-0">
+                      <span
+                        className="text-[11px] font-serif font-bold tracking-[0.12em] uppercase truncate"
+                        style={{ color: 'var(--pc-text-primary)' }}
+                      >
+                        EngineerOS Academy
+                      </span>
+                      <span
+                        className="text-[9px] font-mono uppercase tracking-[0.18em] mt-0.5"
+                        style={{ color: 'var(--pc-accent)' }}
+                      >
+                        Collegiate Fellow
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 font-mono min-w-0">
+                    <Compass
+                      className="w-3.5 h-3.5 shrink-0"
+                      style={{ color: 'var(--pc-accent)' }}
+                    />
+                    <span
+                      className="font-bold text-xs tracking-wider truncate"
+                      style={{ color: 'var(--pc-accent)' }}
+                    >
+                      [SCHEMA // OS-CAD]
+                    </span>
+                    <span
+                      className="text-[10px] px-1.5 py-0.5 border shrink-0 hidden sm:inline"
+                      style={{
+                        borderColor: 'var(--pc-border)',
+                        color: 'var(--pc-text-secondary)',
+                      }}
+                    >
+                      SCALE 1:1
                     </span>
                   </div>
                 )}
               </div>
 
               {/* Streak pill (kept cleanly in Identity area in portrait mode so header clears the OS rings) */}
-              {!isPortrait && (
+              {!isPortrait && sections.showHeatmap !== false && (
                 <span
                   className="inline-flex items-center gap-1.5 text-xs px-2.5 py-0.5 rounded-full font-mono font-medium"
                   style={{
@@ -620,9 +889,17 @@ export const ProfileCard = forwardRef(
                       {identity.name || 'Engineer'}
                     </h2>
 
-                    {sections.showUniversity !== false && (identity.branch || identity.university) && (
+                    {sections.showUniversity !== false &&
+                      (identity.university || identity.branch || identity.graduationYear) && (
                       <p
-                        className="text-xs flex items-center gap-1.5 truncate"
+                        title={[
+                          identity.university,
+                          identity.branch,
+                          identity.graduationYear ? `Class of ${identity.graduationYear}` : null,
+                        ]
+                          .filter(Boolean)
+                          .join(' • ')}
+                        className="text-xs flex items-center gap-1.5 min-w-0"
                         style={{ color: 'var(--pc-text-secondary)' }}
                       >
                         <GraduationCap
@@ -630,7 +907,15 @@ export const ProfileCard = forwardRef(
                           style={{ color: 'var(--pc-accent)' }}
                         />
                         <span className="truncate">
-                          {[identity.branch, identity.university].filter(Boolean).join(' • ')}
+                          {[
+                            identity.university,
+                            identity.branch,
+                            identity.graduationYear
+                              ? `'${String(identity.graduationYear).slice(-2)}`
+                              : null,
+                          ]
+                            .filter(Boolean)
+                            .join(' • ')}
                         </span>
                       </p>
                     )}
@@ -644,20 +929,22 @@ export const ProfileCard = forwardRef(
                           @{identity.username}
                         </span>
                       )}
-                      <span
-                        className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold"
-                        style={{
-                          background: 'var(--pc-surface)',
-                          border: '1px solid var(--pc-border)',
-                          color: 'var(--pc-text-primary)',
-                        }}
-                      >
-                        <Flame
-                          className="w-3 h-3"
-                          style={{ color: 'var(--pc-accent)', fill: 'var(--pc-accent)' }}
-                        />
-                        <span>{stats.streaks?.current || 0}d streak</span>
-                      </span>
+                      {sections.showHeatmap !== false && (
+                        <span
+                          className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold"
+                          style={{
+                            background: 'var(--pc-surface)',
+                            border: '1px solid var(--pc-border)',
+                            color: 'var(--pc-text-primary)',
+                          }}
+                        >
+                          <Flame
+                            className="w-3 h-3"
+                            style={{ color: 'var(--pc-accent)', fill: 'var(--pc-accent)' }}
+                          />
+                          <span>{stats.streaks?.current || 0}d streak</span>
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -683,7 +970,7 @@ export const ProfileCard = forwardRef(
                           cy="40"
                           r="32"
                           fill="none"
-                          stroke="url(#pcOverallRingGrad)"
+                          stroke={`url(#pcOverallRingGrad-${theme})`}
                           strokeWidth="8"
                           strokeLinecap="round"
                           strokeDasharray={2 * Math.PI * 32}
@@ -692,13 +979,13 @@ export const ProfileCard = forwardRef(
                           }
                           className="transition-all duration-700"
                           style={{
-                            filter: overallProgress > 0 ? 'drop-shadow(0 0 6px rgba(255,140,66,0.5))' : 'none',
+                            filter: overallProgress > 0 ? 'drop-shadow(0 0 6px var(--pc-progress-glow))' : 'none',
                           }}
                         />
                         <defs>
-                          <linearGradient id="pcOverallRingGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="#FF8C42" />
-                            <stop offset="100%" stopColor="#E85D04" />
+                          <linearGradient id={`pcOverallRingGrad-${theme}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor={typo.ringStart} />
+                            <stop offset="100%" stopColor={typo.ringEnd} />
                           </linearGradient>
                         </defs>
                       </svg>
@@ -741,7 +1028,7 @@ export const ProfileCard = forwardRef(
                       className="text-[11px] font-semibold uppercase tracking-wider"
                       style={{ color: 'var(--pc-text-secondary)' }}
                     >
-                      Modules Progress
+                      {typo.sectionPrefix}Modules Progress
                     </div>
                   {[
                     {
@@ -749,6 +1036,7 @@ export const ProfileCard = forwardRef(
                       label: 'Academic Hub',
                       icon: BookOpen,
                       pct: academicPct,
+                      detail: null,
                       visible: true,
                     },
                     {
@@ -756,6 +1044,7 @@ export const ProfileCard = forwardRef(
                       label: 'Coding Platform',
                       icon: Code2,
                       pct: codingPct,
+                      detail: null,
                       visible: true,
                     },
                     {
@@ -763,6 +1052,16 @@ export const ProfileCard = forwardRef(
                       label: 'GATE Hub',
                       icon: Award,
                       pct: gatePct,
+                      detail:
+                        stats.gate.testsTaken > 0 || stats.gate.bestScore > 0
+                          ? [
+                              stats.gate.testsTaken > 0 ? `${stats.gate.testsTaken} mocks` : null,
+                              stats.gate.bestScore > 0 ? `Score ${stats.gate.bestScore}` : null,
+                              stats.gate.topSubject || null,
+                            ]
+                              .filter(Boolean)
+                              .join(' · ')
+                          : null,
                       visible: sections.showGate !== false,
                     },
                     {
@@ -770,6 +1069,15 @@ export const ProfileCard = forwardRef(
                       label: 'AI Readiness',
                       icon: Sparkles,
                       pct: interviewPct,
+                      detail:
+                        stats.interviews.completed > 0
+                          ? [
+                              `${stats.interviews.completed} mocks`,
+                              stats.interviews.level || null,
+                            ]
+                              .filter(Boolean)
+                              .join(' · ')
+                          : null,
                       visible: sections.showInterviews !== false,
                     },
                   ]
@@ -777,46 +1085,72 @@ export const ProfileCard = forwardRef(
                     .map((mod) => {
                       const ModIcon = mod.icon;
                       return (
-                        <div key={mod.key} className="flex items-center gap-2.5">
-                          <ModIcon
-                            className="w-3.5 h-3.5 shrink-0"
-                            style={{ color: 'var(--pc-accent)' }}
-                          />
-                          <span
-                            className="text-xs font-medium w-28 truncate shrink-0"
-                            style={{ color: 'var(--pc-text-secondary)' }}
-                          >
-                            {mod.label}
-                          </span>
-                          <div
-                            className="flex-1 h-2 rounded-full overflow-hidden"
-                            style={{ background: 'var(--pc-accent-bg)' }}
-                          >
-                            <div
-                              className="h-full rounded-full transition-all duration-500"
-                              style={{
-                                width: `${mod.pct}%`,
-                                background: 'linear-gradient(90deg, #FF8C42, #E85D04)',
-                                boxShadow: mod.pct > 0 ? '0 0 8px rgba(255, 140, 66, 0.35)' : 'none',
-                              }}
+                        <div key={mod.key} className="space-y-0.5">
+                          <div className="flex items-center gap-2.5">
+                            <ModIcon
+                              className="w-3.5 h-3.5 shrink-0"
+                              style={{ color: 'var(--pc-accent)' }}
                             />
+                            <span
+                              className="text-xs font-medium w-28 truncate shrink-0"
+                              style={{ color: 'var(--pc-text-secondary)' }}
+                            >
+                              {mod.label}
+                            </span>
+                            <div
+                              className={`flex-1 h-2 ${typo.progressRadius} overflow-hidden`}
+                              style={{ background: 'var(--pc-accent-bg)' }}
+                            >
+                              <div
+                                className={`h-full ${typo.progressRadius} transition-all duration-500`}
+                                style={{
+                                  width: `${mod.pct}%`,
+                                  background: 'var(--pc-progress-gradient)',
+                                  boxShadow: mod.pct > 0 ? '0 0 8px var(--pc-progress-glow)' : 'none',
+                                }}
+                              />
+                            </div>
+                            <span
+                              className="text-xs font-mono font-semibold tabular-nums w-9 text-right shrink-0"
+                              style={{ color: 'var(--pc-text-primary)' }}
+                            >
+                              {mod.pct}%
+                            </span>
                           </div>
-                          <span
-                            className="text-xs font-mono font-semibold tabular-nums w-9 text-right shrink-0"
-                            style={{ color: 'var(--pc-text-primary)' }}
-                          >
-                            {mod.pct}%
-                          </span>
+                          {mod.detail && (
+                            <div
+                              className="pl-6 text-[10px] font-mono truncate"
+                              style={{ color: 'var(--pc-text-muted)' }}
+                            >
+                              {mod.detail}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
                   </div>
 
-                  {/* Unlocked Badges (icons only, no name) */}
+                  {/* Verified Skills & Topic Tags */}
+                  {sections.showSkills !== false && hasSkillsOrTags && (
+                    <>
+                      <div className="h-px w-full" style={{ background: 'var(--pc-border)' }} />
+                      <div className="space-y-1.5" data-section="skills">
+                        <div
+                          className="text-[11px] font-semibold uppercase tracking-wider"
+                          style={{ color: 'var(--pc-text-secondary)' }}
+                        >
+                          Skills &amp; Topics
+                        </div>
+                        {renderSkillsChips(4)}
+                      </div>
+                    </>
+                  )}
+
+                  {/* Unlocked Badges (capped cleanly to prevent overflow) */}
                   {sections.showBadges !== false && badges.length > 0 && (
                     <>
                       <div className="h-px w-full" style={{ background: 'var(--pc-border)' }} />
-                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <div className="flex items-center justify-between gap-2 flex-wrap" data-section="badges">
                         <span
                           className="text-[11px] font-semibold uppercase tracking-wider shrink-0"
                           style={{ color: 'var(--pc-text-secondary)' }}
@@ -824,31 +1158,64 @@ export const ProfileCard = forwardRef(
                           Badges ({badges.length})
                         </span>
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          {badges.map((b) => {
-                            const customFront = CUSTOM_BADGE_ARTWORK[b.badgeId]?.front;
-                            return (
-                              <span
-                                key={b.badgeId || b.name}
-                                title={`${b.name}${b.tier ? ` • ${b.tier}` : ''}`}
-                                aria-label={b.name}
-                                className="w-7 h-7 rounded-full flex items-center justify-center text-sm shadow-2xs transition-transform hover:scale-110 overflow-hidden"
-                                style={{
-                                  background: 'var(--pc-surface-subtle)',
-                                  border: '1px solid var(--pc-border)',
-                                }}
-                              >
-                                {customFront ? (
-                                  <img
-                                    src={customFront}
-                                    alt={b.name}
-                                    className="w-6 h-6 object-contain"
-                                  />
-                                ) : (
-                                  b.icon || '🎖️'
-                                )}
-                              </span>
-                            );
-                          })}
+                          {badges.slice(0, 6).map((b) => (
+                            <span
+                              key={b.badgeId || b.name}
+                              title={`${b.name}${b.tier ? ` • ${b.tier}` : ''}`}
+                              aria-label={b.name}
+                              className={`w-7 h-7 ${typo.chipRadius} flex items-center justify-center shadow-2xs transition-transform hover:scale-110`}
+                              style={{
+                                background: 'var(--pc-surface-subtle)',
+                                border: '1px solid var(--pc-border)',
+                              }}
+                            >
+                              {b.badgeId ? (
+                                <MedallionFrontFace
+                                  badgeId={b.badgeId}
+                                  isUnlocked
+                                  showLockedPadlock={false}
+                                  className="w-5 h-5"
+                                />
+                              ) : (
+                                <span className="text-sm">{b.icon || '🎖️'}</span>
+                              )}
+                            </span>
+                          ))}
+                          {badges.length > 6 && (
+                            <span
+                              className={`px-1.5 py-0.5 text-[10px] font-mono font-semibold ${typo.chipRadius}`}
+                              style={{
+                                background: 'var(--pc-surface-subtle)',
+                                border: '1px solid var(--pc-border)',
+                                color: 'var(--pc-text-secondary)',
+                              }}
+                            >
+                              +{badges.length - 6}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Activity Heatmap Stream */}
+                  {sections.showHeatmap !== false && recent30Activity.length > 0 && (
+                    <>
+                      <div className="h-px w-full" style={{ background: 'var(--pc-border)' }} />
+                      <div className="space-y-1.5" data-section="heatmap">
+                        <div
+                          className="flex items-center justify-between text-[11px]"
+                          style={{ color: 'var(--pc-text-secondary)' }}
+                        >
+                          <span className="font-semibold uppercase tracking-wider">
+                            Activity Stream
+                          </span>
+                          <span className="font-mono tabular-nums">
+                            {total30Events} events
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-[3px] overflow-hidden py-0.5">
+                          {renderHeatmapBars('h-2.5 flex-1 min-w-[4px] max-w-[10px]')}
                         </div>
                       </div>
                     </>
@@ -945,33 +1312,40 @@ export const ProfileCard = forwardRef(
                     )}
 
                     {/* University row */}
-                    {sections.showUniversity !== false && identity.university && (
+                    {sections.showUniversity !== false &&
+                      (identity.university || identity.branch || identity.semester || identity.graduationYear) && (
                       <div
                         className="flex items-center gap-2 text-xs mt-1.5 flex-wrap"
                         style={{ color: 'var(--pc-text-secondary)' }}
                       >
-                        <span className="inline-flex items-center gap-1">
-                          <GraduationCap
-                            className="w-3.5 h-3.5 shrink-0"
-                            style={{ color: 'var(--pc-accent)' }}
-                          />
-                          {identity.university}
-                        </span>
+                        {identity.university && (
+                          <span className="inline-flex items-center gap-1">
+                            <GraduationCap
+                              className="w-3.5 h-3.5 shrink-0"
+                              style={{ color: 'var(--pc-accent)' }}
+                            />
+                            {identity.university}
+                          </span>
+                        )}
                         {identity.branch && (
                           <>
-                            <span style={{ color: 'var(--pc-text-muted)' }}>•</span>
+                            {identity.university && <span style={{ color: 'var(--pc-text-muted)' }}>•</span>}
                             <span>{identity.branch}</span>
                           </>
                         )}
                         {identity.semester && (
                           <>
-                            <span style={{ color: 'var(--pc-text-muted)' }}>•</span>
+                            {(identity.university || identity.branch) && (
+                              <span style={{ color: 'var(--pc-text-muted)' }}>•</span>
+                            )}
                             <span>Sem {identity.semester}</span>
                           </>
                         )}
                         {identity.graduationYear && (
                           <>
-                            <span style={{ color: 'var(--pc-text-muted)' }}>•</span>
+                            {(identity.university || identity.branch || identity.semester) && (
+                              <span style={{ color: 'var(--pc-text-muted)' }}>•</span>
+                            )}
                             <span className="inline-flex items-center gap-0.5">
                               <Calendar
                                 className="w-3 h-3"
@@ -1082,10 +1456,11 @@ export const ProfileCard = forwardRef(
                       {stats.gate?.bestScore ? 'Best Score' : 'Mocks Taken'}
                     </div>
                     <div
-                      className="text-[10px] mt-0.5"
+                      className="text-[10px] mt-0.5 truncate"
                       style={{ color: 'var(--pc-text-muted)' }}
                     >
                       {stats.gate?.accuracy || 0}% Accuracy
+                      {stats.gate?.topSubject ? ` · ${stats.gate.topSubject}` : ''}
                     </div>
                   </div>
                 )}
@@ -1127,14 +1502,14 @@ export const ProfileCard = forwardRef(
                     </div>
                   </div>
                   <div
-                    className="w-full h-1 rounded-full overflow-hidden mt-2"
+                    className={`w-full h-1 ${typo.progressRadius} overflow-hidden mt-2`}
                     style={{ background: 'var(--pc-accent-bg)' }}
                   >
                     <div
-                      className="h-full rounded-full transition-all duration-500"
+                      className={`h-full ${typo.progressRadius} transition-all duration-500`}
                       style={{
                         width: `${Math.min(100, Math.max(0, stats.academic?.syllabusProgress || 0))}%`,
-                        background: 'linear-gradient(90deg, #FF8C42, #E85D04)',
+                        background: 'var(--pc-progress-gradient)',
                       }}
                     />
                   </div>
@@ -1174,10 +1549,12 @@ export const ProfileCard = forwardRef(
                         : 'Sessions Done'}
                     </div>
                     <div
-                      className="text-[10px] mt-0.5"
+                      className="text-[10px] mt-0.5 truncate"
                       style={{ color: 'var(--pc-text-muted)' }}
                     >
-                      AI Evaluated
+                      {stats.interviews?.completed > 0
+                        ? `${stats.interviews.completed} Mocks · ${stats.interviews.level || 'AI Evaluated'}`
+                        : 'AI Evaluated'}
                     </div>
                   </div>
                 )}
@@ -1185,25 +1562,34 @@ export const ProfileCard = forwardRef(
 
               {/* Earned Badges */}
               {sections.showBadges !== false && badges.length > 0 && (
-                <div className="space-y-2">
+                <div className="space-y-2" data-section="badges">
                   <div
                     className="text-xs font-semibold uppercase tracking-wider"
                     style={{ color: 'var(--pc-text-secondary)' }}
                   >
                     Earned Credentials ({badges.length})
                   </div>
-                  <div className="flex flex-wrap gap-2.5">
-                    {badges.slice(0, compact ? 3 : 5).map(b => (
+                  <div className="flex flex-wrap gap-2.5 items-center">
+                    {badges.slice(0, compact ? 3 : 5).map((b) => (
                       <div
                         key={b.badgeId || b.name}
-                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs"
+                        className={`flex items-center gap-1.5 px-2.5 py-1 ${typo.chipRadius} text-xs`}
                         style={{
                           background: 'var(--pc-surface)',
                           border: '1px solid var(--pc-border)',
                           color: 'var(--pc-text-primary)',
                         }}
                       >
-                        <span className="text-sm">{b.icon || '🎖️'}</span>
+                        {b.badgeId ? (
+                          <MedallionFrontFace
+                            badgeId={b.badgeId}
+                            isUnlocked
+                            showLockedPadlock={false}
+                            className="w-4 h-4 shrink-0"
+                          />
+                        ) : (
+                          <span className="text-sm">{b.icon || '🎖️'}</span>
+                        )}
                         <span className="font-medium">{b.name}</span>
                         <span
                           className="text-[10px] uppercase font-mono font-semibold"
@@ -1213,13 +1599,38 @@ export const ProfileCard = forwardRef(
                         </span>
                       </div>
                     ))}
+                    {badges.length > (compact ? 3 : 5) && (
+                      <span
+                        className={`px-2 py-1 text-[11px] font-mono font-semibold ${typo.chipRadius}`}
+                        style={{
+                          background: 'var(--pc-surface)',
+                          border: '1px solid var(--pc-border)',
+                          color: 'var(--pc-text-secondary)',
+                        }}
+                      >
+                        +{badges.length - (compact ? 3 : 5)} more
+                      </span>
+                    )}
                   </div>
                 </div>
               )}
 
-              {/* Activity Heatmap — Orange monochrome progression (no green/teal) */}
-              {sections.showHeatmap !== false && recentActivity.length > 0 && (
-                <div className="space-y-2">
+              {/* Verified Skills & Topic Tags */}
+              {sections.showSkills !== false && hasSkillsOrTags && (
+                <div className="space-y-2" data-section="skills">
+                  <div
+                    className="text-xs font-semibold uppercase tracking-wider"
+                    style={{ color: 'var(--pc-text-secondary)' }}
+                  >
+                    Verified Skills &amp; Topic Tags
+                  </div>
+                  {renderSkillsChips(compact ? 4 : 6)}
+                </div>
+              )}
+
+              {/* Activity Heatmap */}
+              {sections.showHeatmap !== false && recent30Activity.length > 0 && (
+                <div className="space-y-2" data-section="heatmap">
                   <div
                     className="flex items-center justify-between text-xs"
                     style={{ color: 'var(--pc-text-secondary)' }}
@@ -1228,7 +1639,7 @@ export const ProfileCard = forwardRef(
                       Consistency Stream (Last 30 Days)
                     </span>
                     <span className="font-mono">
-                      {recentActivity.reduce((acc, a) => acc + (a.count || 0), 0)} events
+                      {total30Events} events
                     </span>
                   </div>
                   <div className="flex items-center gap-1 overflow-x-auto py-1">

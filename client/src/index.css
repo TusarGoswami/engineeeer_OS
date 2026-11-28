@@ -272,20 +272,6 @@ input:-webkit-autofill {
   }
 }
 
-/* ═══ 3D Medal Continuous Auto-Spin ═══ */
-@keyframes hex-medal-auto-spin {
-  from {
-    transform: rotateY(0deg);
-  }
-  to {
-    transform: rotateY(360deg);
-  }
-}
-
-.hex-medal-auto-spin {
-  animation: hex-medal-auto-spin 7s linear infinite;
-}
-
 /* Custom developer-tools scrollbars */
 ::-webkit-scrollbar {
   width: 6px;

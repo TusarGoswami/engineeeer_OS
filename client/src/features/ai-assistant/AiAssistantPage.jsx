@@ -19,6 +19,7 @@ import { academicsService } from '../../services/academics.service.js';
 import { Badge, Button, Drawer, Skeleton, useToast } from '../../components/index.js';
 import { MarkdownMessageRenderer } from './components/MarkdownMessageRenderer.jsx';
 import { ThreadSidebar } from './components/ThreadSidebar.jsx';
+import { AiMascotLottie } from './components/AiMascotLottie.jsx';
 
 const PROMPT_SUGGESTIONS = [
   { title: 'Explain Binary Search Invariant', tag: 'Algorithms' },
@@ -248,9 +249,7 @@ export function AiAssistantPage() {
               <History className="w-4 h-4" />
             </button>
 
-            <div className="w-9 h-9 rounded-xl bg-brand-500/12 border border-brand-500/25 text-brand-700 flex items-center justify-center shrink-0">
-              <Bot className="w-4.5 h-4.5" />
-            </div>
+            <AiMascotLottie />
 
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
@@ -347,9 +346,8 @@ export function AiAssistantPage() {
                 return (
                   <div
                     key={idx}
-                    className={`flex flex-col max-w-[92%] sm:max-w-[85%] space-y-2 ${
-                      isUser ? 'ml-auto items-end' : 'mr-auto items-start'
-                    }`}
+                    className={`flex flex-col max-w-[92%] sm:max-w-[85%] space-y-2 ${isUser ? 'ml-auto items-end' : 'mr-auto items-start'
+                      }`}
                   >
                     {isUser ? (
                       <div className="px-4 py-3 rounded-2xl rounded-br-sm bg-brand-500 text-white text-xs sm:text-sm leading-relaxed shadow-[var(--shadow-card)] whitespace-pre-wrap">
@@ -357,11 +355,10 @@ export function AiAssistantPage() {
                       </div>
                     ) : (
                       <div
-                        className={`w-full rounded-2xl rounded-bl-sm border p-4 sm:p-5 shadow-[var(--shadow-card)] space-y-3 ${
-                          isErr
+                        className={`w-full rounded-2xl rounded-bl-sm border p-4 sm:p-5 shadow-[var(--shadow-card)] space-y-3 ${isErr
                             ? 'bg-rose-500/8 border-rose-500/35 text-surface-100'
                             : 'bg-card border-surface-700 text-surface-100'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center justify-between gap-2 pb-2 border-b border-surface-700/70">
                           <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold text-surface-300">
@@ -524,11 +521,10 @@ export function AiAssistantPage() {
               title="Voice Dictation"
               aria-label="Voice dictation"
               aria-pressed={isListening}
-              className={`p-2.5 rounded-lg border transition-colors shrink-0 ${
-                isListening
+              className={`p-2.5 rounded-lg border transition-colors shrink-0 ${isListening
                   ? 'bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/40 animate-pulse'
                   : 'bg-card border-surface-600 text-surface-300 hover:text-surface-100 hover:bg-elevated'
-              }`}
+                }`}
             >
               {isListening ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
             </button>

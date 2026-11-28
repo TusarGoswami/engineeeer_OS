@@ -1,154 +1,363 @@
 /**
- * Client-side Badge Catalogue for EngineerOS
- * Mirrors server/src/modules/profile/badge.catalogue.js but without
- * the server-only check() functions.
+ * Client-side Badge Catalogue & 3D Metallic Palette System for EngineerOS.
+ * Preserves canonical badgeId, name, description, tier, and category metadata
+ * aligned with server/src/modules/profile/badge.catalogue.js.
  */
+
+export const METAL_THEMES = {
+  platinum: {
+    id: 'platinum',
+    label: 'Platinum',
+    rimStart: '#64748B',
+    rimMid: '#E2E8F0',
+    rimHighlight: '#F8FAFC',
+    rimEnd: '#475569',
+    bevelLight: '#BAE6FD',
+    bevelDark: '#334155',
+    faceCenter: '#1E293B',
+    faceMid: '#0F172A',
+    faceEdge: '#090D16',
+    faceCenterLight: '#F1F5F9',
+    faceMidLight: '#E2E8F0',
+    faceEdgeLight: '#CBD5E1',
+    wallDark: '#334155',
+    wallMid: '#64748B',
+    wallBright: '#CBD5E1',
+    symbolStart: '#F8FAFC',
+    symbolEnd: '#7DD3FC',
+    symbolAccent: '#F97316',
+    glowRgba: 'rgba(56, 189, 248, 0.36)',
+    cardBorderHover: 'hover:border-sky-400/50',
+    tierPillClass:
+      'bg-sky-500/12 dark:bg-cyan-400/10 border-sky-600/30 dark:border-cyan-400/30 text-sky-800 dark:text-cyan-300',
+  },
+  gold: {
+    id: 'gold',
+    label: 'Gold',
+    rimStart: '#92400E',
+    rimMid: '#FDE047',
+    rimHighlight: '#FEF9C3',
+    rimEnd: '#78350F',
+    bevelLight: '#FEF08A',
+    bevelDark: '#78350F',
+    faceCenter: '#3B2006',
+    faceMid: '#1F1104',
+    faceEdge: '#110A03',
+    faceCenterLight: '#FEF9C3',
+    faceMidLight: '#FDE68A',
+    faceEdgeLight: '#F59E0B',
+    wallDark: '#713F12',
+    wallMid: '#B45309',
+    wallBright: '#FBBF24',
+    symbolStart: '#FEF9C3',
+    symbolEnd: '#F59E0B',
+    symbolAccent: '#FB923C',
+    glowRgba: 'rgba(251, 191, 36, 0.36)',
+    cardBorderHover: 'hover:border-amber-400/55',
+    tierPillClass:
+      'bg-amber-500/12 dark:bg-amber-400/10 border-amber-600/30 dark:border-amber-400/30 text-amber-800 dark:text-amber-300',
+  },
+  silver: {
+    id: 'silver',
+    label: 'Silver',
+    rimStart: '#475569',
+    rimMid: '#E2E8F0',
+    rimHighlight: '#FFFFFF',
+    rimEnd: '#334155',
+    bevelLight: '#E2E8F0',
+    bevelDark: '#334155',
+    faceCenter: '#232F3E',
+    faceMid: '#141C26',
+    faceEdge: '#0B1017',
+    faceCenterLight: '#F8FAFC',
+    faceMidLight: '#E2E8F0',
+    faceEdgeLight: '#94A3B8',
+    wallDark: '#334155',
+    wallMid: '#64748B',
+    wallBright: '#CBD5E1',
+    symbolStart: '#F8FAFC',
+    symbolEnd: '#94A3B8',
+    symbolAccent: '#F97316',
+    glowRgba: 'rgba(203, 213, 225, 0.3)',
+    cardBorderHover: 'hover:border-slate-400/50',
+    tierPillClass:
+      'bg-slate-500/10 dark:bg-slate-400/10 border-slate-500/30 dark:border-slate-400/25 text-slate-700 dark:text-slate-300',
+  },
+  bronze: {
+    id: 'bronze',
+    label: 'Bronze',
+    rimStart: '#7C2D12',
+    rimMid: '#FDBA74',
+    rimHighlight: '#FFEDD5',
+    rimEnd: '#5E210C',
+    bevelLight: '#FED7AA',
+    bevelDark: '#6C2710',
+    faceCenter: '#33160A',
+    faceMid: '#1C0D06',
+    faceEdge: '#100703',
+    faceCenterLight: '#FFF7ED',
+    faceMidLight: '#FED7AA',
+    faceEdgeLight: '#D97706',
+    wallDark: '#5E210C',
+    wallMid: '#9A3412',
+    wallBright: '#EA580C',
+    symbolStart: '#FFEDD5',
+    symbolEnd: '#EA580C',
+    symbolAccent: '#FBBF24',
+    glowRgba: 'rgba(234, 88, 12, 0.32)',
+    cardBorderHover: 'hover:border-orange-500/50',
+    tierPillClass:
+      'bg-amber-500/10 border-amber-600/25 dark:border-amber-500/25 text-amber-800 dark:text-amber-400',
+  },
+  orange: {
+    id: 'orange',
+    label: 'EngineerOS Orange',
+    rimStart: '#9A3412',
+    rimMid: '#FB923C',
+    rimHighlight: '#FFEDD5',
+    rimEnd: '#7C2D12',
+    bevelLight: '#FDBA74',
+    bevelDark: '#7C2D12',
+    faceCenter: '#341307',
+    faceMid: '#1C0B04',
+    faceEdge: '#110602',
+    faceCenterLight: '#FFF5EB',
+    faceMidLight: '#FED7AA',
+    faceEdgeLight: '#F97316',
+    wallDark: '#6C2209',
+    wallMid: '#C2410C',
+    wallBright: '#FF7A2F',
+    symbolStart: '#FFF7ED',
+    symbolEnd: '#F97316',
+    symbolAccent: '#FDE047',
+    glowRgba: 'rgba(249, 115, 22, 0.42)',
+    cardBorderHover: 'hover:border-brand-500/55',
+    tierPillClass:
+      'bg-brand-500/12 border-brand-500/30 text-brand-800 dark:text-brand-400',
+  },
+  purple: {
+    id: 'purple',
+    label: 'Amethyst',
+    rimStart: '#4C1D95',
+    rimMid: '#C4B5FD',
+    rimHighlight: '#EDE9FE',
+    rimEnd: '#3B0764',
+    bevelLight: '#DDD6FE',
+    bevelDark: '#4C1D95',
+    faceCenter: '#231044',
+    faceMid: '#140929',
+    faceEdge: '#0B0418',
+    faceCenterLight: '#F5F3FF',
+    faceMidLight: '#DDD6FE',
+    faceEdgeLight: '#8B5CF6',
+    wallDark: '#3B0764',
+    wallMid: '#6D28D9',
+    wallBright: '#A78BFA',
+    symbolStart: '#EDE9FE',
+    symbolEnd: '#A78BFA',
+    symbolAccent: '#38BDF8',
+    glowRgba: 'rgba(139, 92, 246, 0.36)',
+    cardBorderHover: 'hover:border-violet-400/50',
+    tierPillClass:
+      'bg-violet-500/12 border-violet-500/30 text-violet-800 dark:text-violet-300',
+  },
+  blue: {
+    id: 'blue',
+    label: 'Cobalt Steel',
+    rimStart: '#1E3A8A',
+    rimMid: '#93C5FD',
+    rimHighlight: '#DBEAFE',
+    rimEnd: '#172554',
+    bevelLight: '#BFDBFE',
+    bevelDark: '#1E3A8A',
+    faceCenter: '#0F2248',
+    faceMid: '#09152E',
+    faceEdge: '#050C1C',
+    faceCenterLight: '#EFF6FF',
+    faceMidLight: '#BFDBFE',
+    faceEdgeLight: '#3B82F6',
+    wallDark: '#172554',
+    wallMid: '#1D4ED8',
+    wallBright: '#60A5FA',
+    symbolStart: '#EFF6FF',
+    symbolEnd: '#38BDF8',
+    symbolAccent: '#FB923C',
+    glowRgba: 'rgba(59, 130, 246, 0.38)',
+    cardBorderHover: 'hover:border-sky-400/55',
+    tierPillClass:
+      'bg-sky-500/12 border-sky-500/30 text-sky-800 dark:text-sky-300',
+  },
+};
+
+export const LOCKED_METAL_THEME = {
+  id: 'locked',
+  rimStart: '#334155',
+  rimMid: '#64748B',
+  rimHighlight: '#94A3B8',
+  rimEnd: '#1E293B',
+  bevelLight: '#64748B',
+  bevelDark: '#0F172A',
+  faceCenter: '#1A2430',
+  faceMid: '#121A24',
+  faceEdge: '#0B1119',
+  faceCenterLight: '#E2E8F0',
+  faceMidLight: '#CBD5E1',
+  faceEdgeLight: '#94A3B8',
+  wallDark: '#1E293B',
+  wallMid: '#334155',
+  wallBright: '#475569',
+  symbolStart: '#94A3B8',
+  symbolEnd: '#475569',
+  symbolAccent: '#64748B',
+  glowRgba: 'rgba(100, 116, 139, 0.14)',
+  cardBorderHover: 'hover:border-surface-500',
+};
+
 export const BADGE_CATALOGUE = [
   // ── Streaks ──
   {
     badgeId: 'streak_7',
+    shortCode: 'STR-007',
     name: 'Week of Fire',
-    description:
-      'Maintained an active engineering streak for 7 consecutive days',
+    description: 'Maintained an active engineering streak for 7 consecutive days',
     tier: 'bronze',
+    metalTheme: 'orange',
     category: 'streak',
   },
   {
     badgeId: 'streak_30',
+    shortCode: 'STR-030',
     name: 'Monthly Engine',
-    description:
-      'Maintained an active engineering streak for 30 consecutive days',
+    description: 'Maintained an active engineering streak for 30 consecutive days',
     tier: 'silver',
+    metalTheme: 'silver',
     category: 'streak',
   },
   {
     badgeId: 'streak_100',
+    shortCode: 'STR-100',
     name: 'Centurion Streak',
     description: '100 days of relentless engineering consistency',
     tier: 'platinum',
+    metalTheme: 'platinum',
     category: 'streak',
   },
 
   // ── Coding / DSA ──
   {
     badgeId: 'coding_first',
+    shortCode: 'DSA-001',
     name: 'Hello World',
-    description:
-      'Solved your first DSA algorithmic challenge on EngineerOS',
+    description: 'Solved your first DSA algorithmic challenge on EngineerOS',
     tier: 'bronze',
+    metalTheme: 'bronze',
     category: 'coding',
   },
   {
     badgeId: 'coding_25',
+    shortCode: 'DSA-025',
     name: 'Algorithm Apprentice',
-    description:
-      'Solved 25 algorithmic problems across arrays, trees, and graphs',
+    description: 'Solved 25 algorithmic problems across arrays, trees, and graphs',
     tier: 'bronze',
+    metalTheme: 'purple',
     category: 'coding',
   },
   {
     badgeId: 'coding_50',
+    shortCode: 'DSA-050',
     name: 'Code Virtuoso',
-    description:
-      'Achieved 50 solved DSA problems with verified test case passing',
+    description: 'Achieved 50 solved DSA problems with verified test case passing',
     tier: 'bronze',
+    metalTheme: 'purple',
     category: 'coding',
   },
   {
     badgeId: 'coding_100',
+    shortCode: 'DSA-100',
     name: 'DSA Centurion',
     description: 'Solved 100 competitive programming challenges',
     tier: 'gold',
+    metalTheme: 'gold',
     category: 'coding',
   },
 
   // ── GATE Preparation ──
   {
     badgeId: 'gate_debut',
+    shortCode: 'GATE-01',
     name: 'GATE Aspirant',
-    description:
-      'Completed your first full-length timed GATE mock examination',
+    description: 'Completed your first full-length timed GATE mock examination',
     tier: 'bronze',
+    metalTheme: 'bronze',
     category: 'gate',
   },
   {
     badgeId: 'gate_veteran',
+    shortCode: 'GATE-05',
     name: 'Exam Veteran',
-    description:
-      'Completed 5 GATE mock tests with automated topic diagnostics',
+    description: 'Completed 5 GATE mock tests with automated topic diagnostics',
     tier: 'silver',
+    metalTheme: 'silver',
     category: 'gate',
   },
 
   // ── Mock Interviews ──
   {
     badgeId: 'interview_first',
+    shortCode: 'SYS-001',
     name: 'System Candidate',
-    description:
-      'Completed your first technical AI mock interview session',
+    description: 'Completed your first technical AI mock interview session',
     tier: 'bronze',
+    metalTheme: 'blue',
     category: 'interviews',
   },
 
   // ── Community ──
   {
     badgeId: 'community_helper',
+    shortCode: 'COM-001',
     name: 'Senior Counsel',
-    description:
-      'Had an answer accepted by a peer in the engineering community',
+    description: 'Had an answer accepted by a peer in the engineering community',
     tier: 'bronze',
+    metalTheme: 'bronze',
     category: 'community',
   },
 
   // ── Academics ──
   {
     badgeId: 'academic_master',
+    shortCode: 'ACD-100',
     name: 'Honor Roll',
-    description:
-      'Completed 100% of syllabus topics for the active semester',
+    description: 'Completed 100% of syllabus topics for the active semester',
     tier: 'silver',
+    metalTheme: 'silver',
     category: 'academics',
   },
 
   // ── Alumni & Faculty Verification ──
   {
     badgeId: 'alumni_verified',
+    shortCode: 'ALU-PRO',
     name: 'Verified Alumni Mentor',
-    description:
-      'Officially verified alumni engineer offering mentorship and guidance',
+    description: 'Officially verified alumni engineer offering mentorship and guidance',
     tier: 'gold',
+    metalTheme: 'gold',
     category: 'community',
   },
 ];
 
-export const CUSTOM_BADGE_ARTWORK = {
-  streak_30: {
-    front: '/badges/monthly-engine-front.png',
-    back: '/badges/centurion-streak-back.png',
-  },
-  streak_100: {
-    front: '/badges/centurion-streak-front.png',
-    back: '/badges/centurion-streak-back.png',
-  },
-  coding_50: {
-    front: '/badges/code-virtuoso-front.png',
-    back: '/badges/centurion-streak-back.png',
-  },
-  coding_100: {
-    front: '/badges/dsa-centurion-front.png',
-    back: '/badges/centurion-streak-back.png',
-  },
-  gate_veteran: {
-    front: '/badges/exam-veteran-front.png',
-    back: '/badges/centurion-streak-back.png',
-  },
-  alumni_verified: {
-    front: '/badges/alumni-mentor-front.png',
-    back: '/badges/centurion-streak-back.png',
-  },
-};
+export const BADGE_META_MAP = Object.fromEntries(
+  BADGE_CATALOGUE.map((badge) => [badge.badgeId, badge])
+);
 
-export const HEX_CLIP_PATH = 'polygon(50% 2%, 93% 25%, 93% 75%, 50% 98%, 7% 75%, 7% 25%)';
+export const getBadgeMeta = (badgeId) =>
+  BADGE_META_MAP[badgeId] || {
+    badgeId: badgeId || 'achievement',
+    shortCode: 'OS-BADGE',
+    name: 'EngineerOS Achievement',
+    tier: 'bronze',
+    metalTheme: 'orange',
+    category: 'general',
+  };
 
 export default BADGE_CATALOGUE;
-

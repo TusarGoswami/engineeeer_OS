@@ -1,0 +1,354 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ENGINEEROS PROFILE CARD — 5 VISUAL AESTHETIC THEMES
+   ID + class scoped (#engineeros-profile-card.pc-card.pc-theme-*) so each theme
+   cleanly overrides base .pc-card tokens in Light & Dark modes regardless of CSS
+   bundle import order, works when cloned standalone for PNG export, and never leaks.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Shared theme-aware progress gradient helper ── */
+#engineeros-profile-card.pc-card {
+  --pc-progress-gradient: linear-gradient(90deg, #ff8c42 0%, #e85d04 100%);
+  --pc-progress-glow: rgba(255, 140, 66, 0.35);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   1. TERMINAL — Developer Console (Light + Dark)
+   ═══════════════════════════════════════════════════════════════════════════ */
+#engineeros-profile-card.pc-card.pc-theme-terminal {
+  --pc-bg: linear-gradient(160deg, #faf8f4 0%, #f1ede4 100%);
+  --pc-surface: #ffffff;
+  --pc-surface-subtle: #f5f1e8;
+  --pc-border: rgba(23, 33, 43, 0.22);
+  --pc-border-subtle: rgba(23, 33, 43, 0.14);
+  --pc-border-hover: rgba(194, 65, 12, 0.55);
+  --pc-text-primary: #141b24;
+  --pc-text-secondary: #4a5565;
+  --pc-text-muted: #667080;
+  --pc-accent: #c2410c;
+  --pc-accent-bright: #ea580c;
+  --pc-accent-soft: #9a3412;
+  --pc-accent-bg: rgba(194, 65, 12, 0.11);
+  --pc-glass: repeating-linear-gradient(
+    0deg,
+    rgba(17, 24, 39, 0.018) 0px,
+    rgba(17, 24, 39, 0.018) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  --pc-glass-border: rgba(194, 65, 12, 0.35);
+  --pc-circle-bg: rgba(194, 65, 12, 0.07);
+  --pc-circle-border: rgba(194, 65, 12, 0.24);
+  --pc-circle-shadow: none;
+  --pc-progress-gradient: linear-gradient(90deg, #ea580c 0%, #c2410c 100%);
+  --pc-progress-glow: rgba(194, 65, 12, 0.24);
+  --pc-shadow: 0 6px 22px -6px rgba(20, 27, 36, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.dark #engineeros-profile-card.pc-card.pc-theme-terminal {
+  --pc-bg: linear-gradient(160deg, #090c10 0%, #0d1218 65%, #12100e 100%);
+  --pc-surface: #11161d;
+  --pc-surface-subtle: #161d26;
+  --pc-border: rgba(255, 140, 66, 0.26);
+  --pc-border-subtle: rgba(255, 140, 66, 0.16);
+  --pc-border-hover: rgba(255, 140, 66, 0.56);
+  --pc-text-primary: #f1f5f9;
+  --pc-text-secondary: #9aa7b8;
+  --pc-text-muted: #728094;
+  --pc-accent: #ff8c42;
+  --pc-accent-bright: #ffb36b;
+  --pc-accent-soft: #ffd0a8;
+  --pc-accent-bg: rgba(255, 140, 66, 0.12);
+  --pc-glass: repeating-linear-gradient(
+    0deg,
+    rgba(255, 140, 66, 0.025) 0px,
+    rgba(255, 140, 66, 0.025) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  --pc-glass-border: rgba(255, 140, 66, 0.24);
+  --pc-circle-bg: rgba(255, 140, 66, 0.06);
+  --pc-circle-border: rgba(255, 140, 66, 0.22);
+  --pc-circle-shadow: none;
+  --pc-progress-gradient: linear-gradient(90deg, #ff8c42 0%, #ea580c 100%);
+  --pc-progress-glow: rgba(255, 140, 66, 0.35);
+  --pc-shadow: 0 14px 32px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 140, 66, 0.12);
+}
+
+#engineeros-profile-card.pc-card.pc-theme-terminal .pc-panel {
+  border-left: 3px solid var(--pc-accent);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   2. MINIMALIST — Swiss Modernist Editorial (Light + Dark)
+   ═══════════════════════════════════════════════════════════════════════════ */
+#engineeros-profile-card.pc-card.pc-theme-minimalist {
+  --pc-bg: #ffffff;
+  --pc-surface: #f7f8fa;
+  --pc-surface-subtle: #eff1f5;
+  --pc-border: #e2e6ed;
+  --pc-border-subtle: #ebedf2;
+  --pc-border-hover: #c5cdd8;
+  --pc-text-primary: #111827;
+  --pc-text-secondary: #525d6d;
+  --pc-text-muted: #707b8a;
+  --pc-accent: #e05315;
+  --pc-accent-bright: #f97316;
+  --pc-accent-soft: #9a3412;
+  --pc-accent-bg: rgba(224, 83, 21, 0.08);
+  --pc-glass: none;
+  --pc-glass-border: transparent;
+  --pc-progress-gradient: linear-gradient(90deg, #e05315 0%, #e05315 100%);
+  --pc-progress-glow: none;
+  --pc-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  --pc-shadow-hover: 0 6px 20px -6px rgba(15, 23, 42, 0.12);
+  border-radius: 16px;
+}
+
+.dark #engineeros-profile-card.pc-card.pc-theme-minimalist {
+  --pc-bg: #131519;
+  --pc-surface: #1a1c21;
+  --pc-surface-subtle: #21242b;
+  --pc-border: rgba(255, 255, 255, 0.11);
+  --pc-border-subtle: rgba(255, 255, 255, 0.07);
+  --pc-border-hover: rgba(255, 255, 255, 0.24);
+  --pc-text-primary: #f8fafc;
+  --pc-text-secondary: #a1a9b5;
+  --pc-text-muted: #788290;
+  --pc-accent: #f97316;
+  --pc-accent-bright: #fb923c;
+  --pc-accent-soft: #fdba74;
+  --pc-accent-bg: rgba(249, 115, 22, 0.1);
+  --pc-glass: none;
+  --pc-glass-border: transparent;
+  --pc-progress-gradient: linear-gradient(90deg, #f97316 0%, #f97316 100%);
+  --pc-progress-glow: none;
+  --pc-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.45);
+  --pc-shadow-hover: 0 12px 28px -10px rgba(0, 0, 0, 0.6);
+}
+
+/* Swiss Minimalist clears floating corner rings to preserve clean negative space */
+#engineeros-profile-card.pc-card.pc-theme-minimalist .pc-logo {
+  display: none;
+}
+
+#engineeros-profile-card.pc-card.pc-theme-minimalist .pc-glass-layer {
+  display: none;
+}
+
+#engineeros-profile-card.pc-card.pc-theme-minimalist .pc-panel {
+  border-top: 2px solid var(--pc-accent);
+  box-shadow: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   3. SILICON NEON — Sleek High-Contrast Hardware & Ember (Light + Dark)
+   ═══════════════════════════════════════════════════════════════════════════ */
+#engineeros-profile-card.pc-card.pc-theme-silicon {
+  --pc-bg: linear-gradient(142deg, #f8fafc 0%, #eef2f7 62%, #fff1e8 100%);
+  --pc-surface: #ffffff;
+  --pc-surface-subtle: #f1f5f9;
+  --pc-border: rgba(15, 23, 42, 0.18);
+  --pc-border-subtle: rgba(234, 88, 12, 0.22);
+  --pc-border-hover: rgba(234, 88, 12, 0.65);
+  --pc-text-primary: #0f172a;
+  --pc-text-secondary: #334155;
+  --pc-text-muted: #64748b;
+  --pc-accent: #ea580c;
+  --pc-accent-bright: #ff5500;
+  --pc-accent-soft: #c2410c;
+  --pc-accent-bg: rgba(234, 88, 12, 0.12);
+  --pc-glass: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.65) 0%,
+    rgba(255, 107, 43, 0.05) 100%
+  );
+  --pc-glass-border: rgba(255, 107, 43, 0.45);
+  --pc-circle-bg: rgba(255, 94, 26, 0.11);
+  --pc-circle-border: rgba(234, 88, 12, 0.34);
+  --pc-circle-shadow: 0 0 18px rgba(255, 94, 26, 0.18);
+  --pc-progress-gradient: linear-gradient(90deg, #fb923c 0%, #ea580c 55%, #dc2626 100%);
+  --pc-progress-glow: rgba(255, 85, 0, 0.42);
+  --pc-shadow: 0 10px 28px -8px rgba(15, 23, 42, 0.14), 0 0 0 1px rgba(234, 88, 12, 0.14);
+}
+
+.dark #engineeros-profile-card.pc-card.pc-theme-silicon {
+  --pc-bg: linear-gradient(142deg, #070b14 0%, #0d1526 58%, #1d1010 100%);
+  --pc-surface: rgba(16, 25, 43, 0.92);
+  --pc-surface-subtle: #142038;
+  --pc-border: rgba(255, 107, 43, 0.34);
+  --pc-border-subtle: rgba(255, 107, 43, 0.22);
+  --pc-border-hover: rgba(255, 136, 77, 0.72);
+  --pc-text-primary: #f8fafc;
+  --pc-text-secondary: #b4c2d6;
+  --pc-text-muted: #7f91ab;
+  --pc-accent: #ff6b2b;
+  --pc-accent-bright: #ff9c66;
+  --pc-accent-soft: #ffd3b6;
+  --pc-accent-bg: rgba(255, 107, 43, 0.16);
+  --pc-glass: linear-gradient(
+    135deg,
+    rgba(255, 107, 43, 0.08) 0%,
+    rgba(15, 23, 42, 0.02) 55%,
+    rgba(255, 68, 0, 0.06) 100%
+  );
+  --pc-glass-border: rgba(255, 120, 60, 0.36);
+  --pc-circle-bg: rgba(255, 94, 26, 0.14);
+  --pc-circle-border: rgba(255, 120, 60, 0.44);
+  --pc-circle-shadow: 0 0 22px rgba(255, 94, 26, 0.26);
+  --pc-progress-gradient: linear-gradient(90deg, #ffb36b 0%, #ff6b2b 50%, #ff3d00 100%);
+  --pc-progress-glow: rgba(255, 94, 26, 0.65);
+  --pc-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.72), 0 0 24px -8px rgba(255, 94, 26, 0.35);
+  --pc-shadow-hover: 0 20px 42px -12px rgba(0, 0, 0, 0.78), 0 0 30px -6px rgba(255, 94, 26, 0.48);
+}
+
+#engineeros-profile-card.pc-card.pc-theme-silicon .pc-header-bar {
+  background: linear-gradient(90deg, rgba(255, 107, 43, 0.12) 0%, transparent 72%);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4. VARSITY ACADEMIC — Collegiate Crest Identity (Light + Dark)
+   ═══════════════════════════════════════════════════════════════════════════ */
+#engineeros-profile-card.pc-card.pc-theme-varsity {
+  --pc-bg: linear-gradient(155deg, #fffdf7 0%, #faf2e1 100%);
+  --pc-surface: #ffffff;
+  --pc-surface-subtle: #f7eedb;
+  --pc-border: rgba(161, 78, 22, 0.28);
+  --pc-border-subtle: rgba(161, 78, 22, 0.18);
+  --pc-border-hover: rgba(161, 78, 22, 0.55);
+  --pc-text-primary: #172033;
+  --pc-text-secondary: #584e42;
+  --pc-text-muted: #786d5f;
+  --pc-accent: #b45309;
+  --pc-accent-bright: #d97706;
+  --pc-accent-soft: #92400e;
+  --pc-accent-bg: rgba(180, 83, 9, 0.11);
+  --pc-glass: linear-gradient(160deg, rgba(255, 252, 245, 0.65) 0%, rgba(180, 83, 9, 0.03) 100%);
+  --pc-glass-border: rgba(180, 83, 9, 0.32);
+  --pc-circle-bg: rgba(180, 83, 9, 0.08);
+  --pc-circle-border: rgba(180, 83, 9, 0.26);
+  --pc-circle-shadow: rgba(180, 83, 9, 0.09) -4px 6px 12px 0px;
+  --pc-progress-gradient: linear-gradient(90deg, #d97706 0%, #b45309 100%);
+  --pc-progress-glow: rgba(180, 83, 9, 0.25);
+  --pc-shadow: 0 8px 24px -6px rgba(120, 72, 20, 0.14);
+}
+
+.dark #engineeros-profile-card.pc-card.pc-theme-varsity {
+  --pc-bg: linear-gradient(155deg, #0d1526 0%, #141f35 65%, #1d1a22 100%);
+  --pc-surface: #182338;
+  --pc-surface-subtle: #1e2c45;
+  --pc-border: rgba(224, 145, 75, 0.30);
+  --pc-border-subtle: rgba(224, 145, 75, 0.18);
+  --pc-border-hover: rgba(244, 162, 97, 0.56);
+  --pc-text-primary: #faf4e8;
+  --pc-text-secondary: #cbd2de;
+  --pc-text-muted: #939eb2;
+  --pc-accent: #e07a38;
+  --pc-accent-bright: #f4a261;
+  --pc-accent-soft: #f6c28b;
+  --pc-accent-bg: rgba(224, 122, 56, 0.15);
+  --pc-glass: linear-gradient(160deg, rgba(244, 162, 97, 0.06) 0%, rgba(20, 31, 53, 0.02) 100%);
+  --pc-glass-border: rgba(224, 145, 75, 0.28);
+  --pc-circle-bg: rgba(224, 122, 56, 0.09);
+  --pc-circle-border: rgba(244, 162, 97, 0.28);
+  --pc-circle-shadow: rgba(0, 0, 0, 0.3) -6px 6px 14px 0px;
+  --pc-progress-gradient: linear-gradient(90deg, #f4a261 0%, #c86428 100%);
+  --pc-progress-glow: rgba(224, 122, 56, 0.38);
+  --pc-shadow: 0 14px 32px -10px rgba(0, 0, 0, 0.6);
+}
+
+/* Collegiate double-rule glass border */
+#engineeros-profile-card.pc-card.pc-theme-varsity .pc-glass-layer {
+  box-shadow: inset 0 0 0 1px var(--pc-border), inset 0 0 0 4px transparent;
+}
+
+#engineeros-profile-card.pc-card.pc-theme-varsity .pc-panel {
+  border-style: double;
+  border-width: 3px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   5. BLUEPRINT CAD — Engineering Schematic & Drafting Grid (Light + Dark)
+   ═══════════════════════════════════════════════════════════════════════════ */
+#engineeros-profile-card.pc-card.pc-theme-blueprint {
+  --pc-bg-base: #eef4fc;
+  --pc-bg:
+    linear-gradient(to right, rgba(29, 78, 216, 0.10) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(to bottom, rgba(29, 78, 216, 0.10) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(to right, rgba(29, 78, 216, 0.05) 1px, transparent 1px) 0 0 / 12px 12px,
+    linear-gradient(to bottom, rgba(29, 78, 216, 0.05) 1px, transparent 1px) 0 0 / 12px 12px,
+    linear-gradient(155deg, #f4f8ff 0%, #e7f0fb 100%);
+  --pc-surface: rgba(255, 255, 255, 0.92);
+  --pc-surface-subtle: #e9f1fc;
+  --pc-border: rgba(30, 64, 175, 0.28);
+  --pc-border-subtle: rgba(30, 64, 175, 0.20);
+  --pc-border-hover: rgba(224, 83, 21, 0.62);
+  --pc-text-primary: #0b2347;
+  --pc-text-secondary: #2e4f7d;
+  --pc-text-muted: #52719d;
+  --pc-accent: #e05315;
+  --pc-accent-bright: #ff7333;
+  --pc-accent-soft: #b8420e;
+  --pc-accent-bg: rgba(224, 83, 21, 0.11);
+  --pc-glass: none;
+  --pc-glass-border: rgba(30, 64, 175, 0.28);
+  --pc-circle-bg: rgba(30, 64, 175, 0.04);
+  --pc-circle-border: rgba(224, 83, 21, 0.34);
+  --pc-circle-shadow: none;
+  --pc-progress-gradient: linear-gradient(90deg, #ff7a2f 0%, #e05315 100%);
+  --pc-progress-glow: rgba(224, 83, 21, 0.28);
+  --pc-shadow: 0 8px 24px -6px rgba(15, 45, 95, 0.14);
+  border-radius: 14px;
+}
+
+.dark #engineeros-profile-card.pc-card.pc-theme-blueprint {
+  --pc-bg:
+    linear-gradient(to right, rgba(125, 195, 255, 0.12) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(to bottom, rgba(125, 195, 255, 0.12) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(to right, rgba(125, 195, 255, 0.05) 1px, transparent 1px) 0 0 / 12px 12px,
+    linear-gradient(to bottom, rgba(125, 195, 255, 0.05) 1px, transparent 1px) 0 0 / 12px 12px,
+    linear-gradient(155deg, #061834 0%, #09224a 60%, #061a3b 100%);
+  --pc-surface: rgba(7, 29, 62, 0.88);
+  --pc-surface-subtle: #0d336a;
+  --pc-border: rgba(125, 195, 255, 0.32);
+  --pc-border-subtle: rgba(125, 195, 255, 0.22);
+  --pc-border-hover: rgba(255, 122, 47, 0.72);
+  --pc-text-primary: #f0f6ff;
+  --pc-text-secondary: #a8c7ea;
+  --pc-text-muted: #7aa3d1;
+  --pc-accent: #ff7a2f;
+  --pc-accent-bright: #ffb080;
+  --pc-accent-soft: #ffc6a3;
+  --pc-accent-bg: rgba(255, 122, 47, 0.15);
+  --pc-glass: none;
+  --pc-glass-border: rgba(125, 195, 255, 0.28);
+  --pc-circle-bg: rgba(125, 195, 255, 0.04);
+  --pc-circle-border: rgba(255, 122, 47, 0.38);
+  --pc-circle-shadow: none;
+  --pc-progress-gradient: linear-gradient(90deg, #ffb080 0%, #ff7a2f 100%);
+  --pc-progress-glow: rgba(255, 122, 47, 0.42);
+  --pc-shadow: 0 14px 32px -10px rgba(2, 10, 26, 0.72), inset 0 0 0 1px rgba(125, 195, 255, 0.15);
+  border-radius: 14px;
+}
+
+#engineeros-profile-card.pc-card.pc-theme-blueprint .pc-glass-layer {
+  border-radius: 8px;
+  border: 1px dashed var(--pc-glass-border);
+}
+
+#engineeros-profile-card.pc-card.pc-theme-blueprint .pc-panel {
+  border-style: solid;
+  box-shadow: inset 0 0 0 1px rgba(255, 122, 47, 0.08);
+}
+
+#engineeros-profile-card.pc-card.pc-theme-blueprint .pc-circle {
+  border-style: dashed;
+}
+
+/* ── Reduced-motion compliance for theme transitions ── */
+@media (prefers-reduced-motion: reduce) {
+  #engineeros-profile-card.pc-card,
+  #engineeros-profile-card.pc-card .pc-panel {
+    transition: none !important;
+  }
+}

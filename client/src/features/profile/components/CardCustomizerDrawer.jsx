@@ -17,7 +17,7 @@ import {
   useToast,
 } from '../../../components/index.js';
 import profileService from '../../../services/profile.service.js';
-import { THEMES } from './ProfileCard.jsx';
+import { THEMES, normalizeThemeId } from './ProfileCard.jsx';
 
 /**
  * Slide-over customization drawer for card aesthetic theme, handle/bio, visibility, and section toggles.
@@ -27,6 +27,8 @@ export const CardCustomizerDrawer = ({
   onClose,
   profile,
   onProfileUpdated,
+  onThemePreview,
+  onSectionsPreview,
 }) => {
   const { showToast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
@@ -37,7 +39,7 @@ export const CardCustomizerDrawer = ({
   const resolvedSettings = profile?.settings || resolvedProfile?.profileSettings;
 
   const [theme, setTheme] = useState(
-    resolvedSettings?.theme || resolvedProfile?.theme || 'terminal'
+    normalizeThemeId(resolvedSettings?.theme || resolvedProfile?.theme)
   );
   const [visibility, setVisibility] = useState(
     resolvedSettings?.visibility || 'public'
@@ -60,7 +62,7 @@ export const CardCustomizerDrawer = ({
 
   useEffect(() => {
     if (!resolvedProfile) return;
-    setTheme(resolvedSettings?.theme || resolvedProfile?.theme || 'terminal');
+    setTheme(normalizeThemeId(resolvedSettings?.theme || resolvedProfile?.theme));
     setVisibility(resolvedSettings?.visibility || 'public');
     setUsername(resolvedProfile?.identity?.username || resolvedProfile?.username || '');
     setHeadline(resolvedProfile?.identity?.headline || resolvedProfile?.headline || '');
@@ -107,7 +109,31 @@ export const CardCustomizerDrawer = ({
   };
 
   const handleToggleSection = (key) => {
-    setSections((prev) => ({ ...prev, [key]: !prev[key] }));
+    setSections((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      if (onSectionsPreview) {
+        onSectionsPreview(next);
+      }
+      return next;
+    });
+  };
+
+  const handleSelectTheme = (nextTheme) => {
+    const normalized = normalizeThemeId(nextTheme);
+    setTheme(normalized);
+    if (onThemePreview) {
+      onThemePreview(normalized);
+    }
+  };
+
+  const handleCloseDrawer = () => {
+    if (onThemePreview) {
+      onThemePreview(null);
+    }
+    if (onSectionsPreview) {
+      onSectionsPreview(null);
+    }
+    onClose();
   };
 
   const handleSave = async () => {
@@ -125,6 +151,12 @@ export const CardCustomizerDrawer = ({
 
       const updated = await profileService.updateOwnerProfile(payload);
       showToast('Card settings saved successfully', 'success');
+      if (onThemePreview) {
+        onThemePreview(null);
+      }
+      if (onSectionsPreview) {
+        onSectionsPreview(null);
+      }
       if (onProfileUpdated) {
         onProfileUpdated(updated);
       }
@@ -139,13 +171,13 @@ export const CardCustomizerDrawer = ({
   return (
     <Drawer
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleCloseDrawer}
       title="Customize Profile Card"
       description="Personalize your aesthetic theme, public visibility, and section disclosures"
       maxWidth="max-w-md"
       footer={
         <>
-          <Button variant="secondary" size="sm" onClick={onClose} disabled={isSaving}>
+          <Button variant="secondary" size="sm" onClick={handleCloseDrawer} disabled={isSaving}>
             Cancel
           </Button>
           <Button variant="primary" size="sm" onClick={handleSave} isLoading={isSaving}>
@@ -168,13 +200,20 @@ export const CardCustomizerDrawer = ({
                 <button
                   key={t.id}
                   type="button"
-                  onClick={() => setTheme(t.id)}
-                  className={`flex items-start text-left p-3 rounded-xl border transition-colors ${
+                  aria-pressed={active}
+                  onClick={() => handleSelectTheme(t.id)}
+                  className={`flex items-center gap-3 text-left p-3 rounded-xl border transition-colors ${
                     active
                       ? 'border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/35'
                       : 'border-surface-700 bg-elevated/55 hover:border-surface-600'
                   }`}
                 >
+                  <span
+                    aria-hidden="true"
+                    className={`w-7 h-7 rounded-lg border shrink-0 flex items-center justify-center ${t.swatchBg} ${t.swatchBorder}`}
+                  >
+                    <span className={`w-2.5 h-2.5 rounded-sm ${t.swatchAccent}`} />
+                  </span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-sm font-semibold text-surface-100">{t.name}</span>

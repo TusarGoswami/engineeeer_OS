@@ -127,6 +127,7 @@ export const PublicProfilePage = () => {
               <ProfileCard
                 ref={cardRef}
                 profile={profile}
+                themeOverride={profile.theme}
                 orientation="portrait"
                 className="w-full max-w-md"
               />

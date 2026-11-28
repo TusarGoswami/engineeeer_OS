@@ -66,7 +66,19 @@ describe('Profile Module API Integration Tests (Phase 7)', () => {
       expect(res.status).toBe(401);
     });
 
-    it('PATCH /api/v1/profile/me updates theme, headline, and privacy toggles', async () => {
+    it('PATCH /api/v1/profile/me updates theme (including blueprint), headline, and privacy toggles', async () => {
+      const blueprintRes = await request(app)
+        .patch('/api/v1/profile/me')
+        .set('Authorization', `Bearer ${studentToken}`)
+        .send({
+          profileSettings: {
+            theme: 'blueprint',
+          },
+        });
+
+      expect(blueprintRes.status).toBe(200);
+      expect(blueprintRes.body.data.settings.theme).toBe('blueprint');
+
       const res = await request(app)
         .patch('/api/v1/profile/me')
         .set('Authorization', `Bearer ${studentToken}`)
@@ -185,12 +197,19 @@ describe('Profile Module API Integration Tests (Phase 7)', () => {
       expect(res.status).toBe(200);
 
       const card = res.body.data.card;
-      // University must be completely deleted from identity
+      // University and all related academic metadata must be deleted from identity
       expect(card.identity.university).toBeUndefined();
+      expect(card.identity.branch).toBeUndefined();
+      expect(card.identity.semester).toBeUndefined();
+      expect(card.identity.graduationYear).toBeUndefined();
       // GATE stats must be completely deleted from stats
       expect(card.stats.gate).toBeUndefined();
-      // Heatmap activity array must be completely deleted
+      // Heatmap activity array and streaks must be completely deleted
       expect(card.recentActivity).toBeUndefined();
+      expect(card.stats.streaks).toBeUndefined();
+      expect(res.body.data.sections.showUniversity).toBe(false);
+      expect(res.body.data.sections.showGate).toBe(false);
+      expect(res.body.data.sections.showHeatmap).toBe(false);
 
       // Remaining allowed sections must still be present
       expect(card.identity.name).toBe('Aditya Verma');

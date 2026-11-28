@@ -1,5 +1,17 @@
 import { z } from 'zod';
 
+export const CANONICAL_CARD_THEMES = ['terminal', 'minimalist', 'silicon', 'varsity', 'blueprint'];
+
+export const normalizeCardTheme = (theme) => {
+  if (theme === 'brutal') return 'blueprint';
+  if (CANONICAL_CARD_THEMES.includes(theme)) return theme;
+  return 'terminal';
+};
+
+export const cardThemeSchema = z
+  .enum(['terminal', 'minimalist', 'silicon', 'varsity', 'blueprint', 'brutal'])
+  .transform((val) => (val === 'brutal' ? 'blueprint' : val));
+
 export const RESERVED_USERNAMES = new Set([
   'admin',
   'administrator',
@@ -54,7 +66,7 @@ export const updateProfileSchema = z.object({
   profileSettings: z
     .object({
       visibility: z.enum(['private', 'unlisted', 'public']).optional(),
-      theme: z.enum(['terminal', 'minimalist', 'silicon', 'varsity', 'brutal']).optional(),
+      theme: cardThemeSchema.optional(),
       sections: z
         .object({
           showHeatmap: z.boolean().optional(),

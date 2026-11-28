@@ -1,0 +1,113 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ENGINEEROS 3D COLLECTIBLE ACHIEVEMENT MEDALLION
+   True 3D Y-axis rotation with preserve-3d, extruded side walls, metallic shimmer
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes eo-medal-spin {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+@keyframes eo-medal-float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-2.5px);
+  }
+}
+
+@keyframes eo-medal-shimmer {
+  0% {
+    transform: translateX(-140%) skewX(-22deg);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.45;
+  }
+  50%,
+  100% {
+    transform: translateX(240%) skewX(-22deg);
+    opacity: 0;
+  }
+}
+
+.eo-medal-stage {
+  perspective: 900px;
+  perspective-origin: 50% 50%;
+}
+
+.eo-medal-float {
+  animation: eo-medal-float 4.8s ease-in-out infinite;
+  will-change: transform;
+  transform-style: preserve-3d;
+}
+
+.eo-medal-rotor {
+  transform-style: preserve-3d;
+  animation: eo-medal-spin 10s linear infinite;
+  will-change: transform;
+  transition: scale 0.25s cubic-bezier(0.22, 1, 0.36, 1), filter 0.25s ease;
+}
+
+.eo-medal-card:hover .eo-medal-rotor,
+.eo-medal-card:focus-visible .eo-medal-rotor {
+  scale: 1.045;
+}
+
+.eo-medal-glow {
+  transition: filter 0.28s ease;
+}
+
+.eo-medal-card:hover .eo-medal-glow,
+.eo-medal-card:focus-visible .eo-medal-glow {
+  filter: drop-shadow(0 0 12px var(--eo-badge-glow, rgba(249, 115, 22, 0.38)));
+}
+
+.eo-medal-shimmer {
+  position: absolute;
+  inset: 6%;
+  pointer-events: none;
+  overflow: hidden;
+  clip-path: polygon(50% 2%, 91.57% 26%, 91.57% 74%, 50% 98%, 8.43% 74%, 8.43% 26%);
+}
+
+.eo-medal-shimmer::after {
+  content: '';
+  position: absolute;
+  top: -15%;
+  bottom: -15%;
+  left: 0;
+  width: 46%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.36) 50%,
+    transparent 100%
+  );
+  transform: translateX(-160%) skewX(-22deg);
+  opacity: 0;
+}
+
+.eo-medal-card:hover .eo-medal-shimmer::after,
+.eo-medal-card:focus-visible .eo-medal-shimmer::after {
+  animation: eo-medal-shimmer 1.15s ease-out 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eo-medal-float,
+  .eo-medal-rotor,
+  .eo-medal-card:hover .eo-medal-shimmer::after {
+    animation: none !important;
+  }
+
+  .eo-medal-rotor {
+    transform: rotateY(-12deg) rotateX(4deg);
+  }
+}
+

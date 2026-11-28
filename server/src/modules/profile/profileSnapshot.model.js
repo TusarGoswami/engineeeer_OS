@@ -39,6 +39,8 @@ const profileSnapshotSchema = new mongoose.Schema(
       gate: {
         testsTaken: { type: Number, default: 0 },
         averageScore: { type: Number, default: 0 },
+        bestScore: { type: Number, default: 0 },
+        accuracy: { type: Number, default: 0 },
         percentile: { type: Number, default: 0 },
         topSubject: { type: String, default: '' },
       },
@@ -70,6 +72,12 @@ const profileSnapshotSchema = new mongoose.Schema(
         category: { type: String },
         score: { type: Number },
         level: { type: String },
+        verified: { type: Boolean, default: false },
+      },
+    ],
+    topicTags: [
+      {
+        type: String,
       },
     ],
     badges: [

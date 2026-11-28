@@ -76,6 +76,7 @@ export const Avatar = ({
         <img
           src={src}
           alt={alt || name || 'Avatar'}
+          crossOrigin={typeof src === 'string' && src.startsWith('http') ? 'anonymous' : undefined}
           onError={() => setHasError(true)}
           className={cn('rounded-full object-cover ring-1 ring-surface-700', sizes[size] || sizes.md)}
         />

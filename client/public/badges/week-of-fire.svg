@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="Week of Fire">
+  <g stroke="#F97316" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="12" y="13" width="40" height="42" rx="5"/><path d="M21 8v10m22-10v10M12 25h40"/><path d="M32 31c5 5 8 8 6 14a7 7 0 0 1-14 0c0-4 3-8 6-11 0 3 1 4 2 5 1-3 1-5 0-8Z"/>
+  </g>
+</svg>

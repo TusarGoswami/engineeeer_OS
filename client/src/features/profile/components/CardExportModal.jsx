@@ -25,8 +25,11 @@ export const CardExportModal = ({
   const [isCopyingImage, setIsCopyingImage] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  const resolved = profile?.profile || profile;
-  const settings = profile?.settings || resolved?.profileSettings;
+  const resolved = profile?.card || profile?.profile || profile;
+  const settings =
+    profile?.settings ||
+    resolved?.profileSettings ||
+    (profile?.theme || profile?.visibility ? profile : undefined);
   const username =
     resolved?.identity?.username || resolved?.username || 'engineer';
   const visibility = settings?.visibility || 'public';

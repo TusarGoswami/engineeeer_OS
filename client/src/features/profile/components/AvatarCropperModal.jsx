@@ -60,6 +60,11 @@ export const AvatarCropperModal = ({ isOpen, onClose, onAvatarUpdated }) => {
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
+      const allowedTypes = ['image/png', 'image/jpeg', 'image/webp'];
+      if (file.type && !allowedTypes.includes(file.type)) {
+        showToast('Unsupported format. Please select PNG, JPG, or WebP.', 'error');
+        return;
+      }
       if (file.size > 3 * 1024 * 1024) {
         showToast('Image size exceeds 3MB limit', 'error');
         return;
@@ -71,6 +76,10 @@ export const AvatarCropperModal = ({ isOpen, onClose, onAvatarUpdated }) => {
   };
 
   const handleSave = async () => {
+    if (!imageSrc || !croppedAreaPixels) {
+      showToast('Please wait for image cropper to finish loading', 'error');
+      return;
+    }
     try {
       setIsUploading(true);
       const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
@@ -175,6 +184,7 @@ export const AvatarCropperModal = ({ isOpen, onClose, onAvatarUpdated }) => {
                   variant="primary"
                   size="sm"
                   onClick={handleSave}
+                  disabled={!croppedAreaPixels}
                   isLoading={isUploading}
                   leftIcon={Check}
                 >
